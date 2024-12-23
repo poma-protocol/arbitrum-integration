@@ -55,7 +55,7 @@ contract Poma {
     }
 
     /**
-     * 
+     *
      * @param _activityId - Id of the activity
      * @param _userAddress - Address of the participant
      */
@@ -65,5 +65,18 @@ contract Poma {
             userAddress: _userAddress,
             points: 0
         });
+    }
+
+    function updatePoints(
+        uint _activityId,
+        address _userAddress,
+        uint _points
+    ) public {
+        Activity storage activity = activities[_activityId];
+        for (uint i = 0; i < activity.numParticipants; i++) {
+            if (activity.participants[i].userAddress == _userAddress) {
+                activity.participants[i].points += _points;
+            }
+        }
     }
 }
