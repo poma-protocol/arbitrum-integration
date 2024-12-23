@@ -66,8 +66,9 @@ contract Poma {
             points: 0
         });
     }
+
     /**
-     * 
+     *
      * @param _activityId  - Id of the activity
      * @param _userAddress  - Address of the participant
      * @param _points - Points to be updated
@@ -83,5 +84,23 @@ contract Poma {
                 activity.participants[i].points += _points;
             }
         }
+    }
+
+    /**
+     * @param userAdress  - Address of the participant
+     * @param index  - Index of the participant
+     * @param totalPoints  - Total points of the participant
+     */
+    function hasWon(
+        address userAdress,
+        uint index,
+        uint totalPoints
+    ) internal (bool hasWon) {
+        if (activities[index].participants[index].userAddress == userAdress) {
+            if (activities[index].participants[index].points >= totalPoints) {
+                return true;
+            }
+        }
+        return false;
     }
 }
