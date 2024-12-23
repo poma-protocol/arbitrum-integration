@@ -18,6 +18,7 @@ contract Poma {
         uint activityId;
         string gameName;
         uint reward;
+        uint numParticipants;
         mapping(uint => Participant) participants;
     }
     uint numActivities;
@@ -37,18 +38,32 @@ contract Poma {
      * @param _winningPoints - Points required to win the game
      * @param _gameName - Name of the game
      * @param _reward - Reward for the winner
+     * @return activityId - Id of the activity
      */
     function createActivity(
         uint _gameId,
         uint _winningPoints,
         string memory _gameName,
         uint _reward
-    ) public {
-        uint activityId = numActivities++;
+    ) public returns (uint activityId) {
+        activityId = numActivities++;
         Activity storage activity = activities[activityId];
         activity.gameId = _gameId;
         activity.winningPoints = _winningPoints;
         activity.gameName = _gameName;
         activity.reward = _reward;
+    }
+
+    /**
+     * 
+     * @param _activityId - Id of the activity
+     * @param _userAddress - Address of the participant
+     */
+    function addParticipant(uint _activityId, address _userAddress) public {
+        Activity storage activity = activities[_activityId];
+        activity.participants[activity.numParticipants++] = Participant({
+            userAddress: _userAddress,
+            points: 0
+        });
     }
 }
