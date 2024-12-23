@@ -95,7 +95,7 @@ contract Poma {
         address userAdress,
         uint index,
         uint totalPoints
-    ) internal (bool hasWon) {
+    ) internal view returns (bool) {
         if (activities[index].participants[index].userAddress == userAdress) {
             if (activities[index].participants[index].points >= totalPoints) {
                 return true;
