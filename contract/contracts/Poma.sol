@@ -9,6 +9,7 @@ contract Poma {
     struct Participant {
         address userAddress;
         uint points;
+        bool paid;
     }
 
     //Activity struct to store tournament details
@@ -63,7 +64,8 @@ contract Poma {
         Activity storage activity = activities[_activityId];
         activity.participants[activity.numParticipants++] = Participant({
             userAddress: _userAddress,
-            points: 0
+            points: 0,
+            paid: false
         });
     }
 
@@ -102,5 +104,30 @@ contract Poma {
             }
         }
         return false;
+    }
+
+    /**
+     *
+     * @param userAddress  - Address of the participant
+     * @param reward  - Reward for the winner
+     * @param activityId  - Id of the activity
+     * @param index  - Index of the participant
+     */
+    function sendReward(
+        address userAddress,
+        uint reward,
+        uint activityId,
+        uint index
+    ) internal {
+        if (
+            activities[activityId].participants[index].userAddress ==
+            userAddress
+        ) {
+            if (activities[activityId].participants[index].paid == true) {
+                return;
+            }
+            payable(userAddress).transfer(reward);
+            activities[activityId].participants[index].paid = true;
+        }
     }
 }
