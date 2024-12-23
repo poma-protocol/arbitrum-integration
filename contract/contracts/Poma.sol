@@ -66,7 +66,12 @@ contract Poma {
             points: 0
         });
     }
-
+    /**
+     * 
+     * @param _activityId  - Id of the activity
+     * @param _userAddress  - Address of the participant
+     * @param _points - Points to be updated
+     */
     function updatePoints(
         uint _activityId,
         address _userAddress,
