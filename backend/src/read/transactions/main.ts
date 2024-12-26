@@ -16,11 +16,29 @@ async function main() {
                     prevBlockNum = data.number - 1n;
                 }
 
-                const blockToProcess = await web3.eth.getBlock(prevBlockNum, true);
-                const transactions = blockToProcess.transactions;
-                console.log("Block Number =>", prevBlockNum);
-                console.log("Number of Transactions =>", transactions.length);
-                console.log("First Transaction =>", transactions[0]);
+                try {
+                    const blockToProcess = await web3.eth.getBlock(prevBlockNum, true);
+                    const transactions = blockToProcess.transactions;
+                    console.log("Block Number =>", prevBlockNum);
+                    
+                    // For now test with USDC
+                    for (const transaction of transactions) {
+                        if (typeof transaction !== "string") {
+                            // Check to account to see if it matches the game contract
+                            if (transaction.to === "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48".toLowerCase()) {
+                                console.log("USDC transaction");
+                                console.log(transaction);
+                                // Check from account to see if its for a player using Poma
+                            }
+                        } else {
+                            console.log("Transaction is just a string!", transaction);
+                        }
+                    }
+                    
+
+                } catch(err) {
+                    console.log("Error Processing Block =>", err);
+                }
             } else {
                 console.log("Block number is an enum!", data.number);
             }
