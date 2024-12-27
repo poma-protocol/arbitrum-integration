@@ -13,11 +13,3 @@ export async function getBlockNumber(): Promise<string> {
         throw new Error("Could Not Get Block Number");
     }
 }
-
-(async () => {
-    try {
-        console.log(await getBlockNumber())
-    } catch(err) {
-        console.log("Error =>", err);
-    }
-})();
