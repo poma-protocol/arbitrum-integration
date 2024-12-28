@@ -1,53 +1,73 @@
 import { decodeTransactionInput } from "./decode-transaction";
 import { getBlockNumber, getTransactions } from "./rpc";
 import "dotenv/config";
+import { Activities } from "./data";
+import { sleep } from "../../helpers";
 
 async function main() {
     try {
-        const startBlock = process.env.BLOCK_NUMBER;
-        const contract = "0xD4a3f1D145C185E222cCC03D60A1D9fB5e0c2048";
-        const playerAddressVariable = "operatorWallet";
-        const functionName = "startAndEndValidatedDungeonBattle";
-        const goal = 2;
+        let startBlock = process.env.BLOCK_NUMBER;
+        while (true) {
+            console.log(`Search starting at ${startBlock}...`)
+            let endBlock: number | undefined = undefined;
+            const activities = Activities
 
-        const players = [("0x139e7542fefc910bb19e73c0dce00c675361c68d").toLowerCase(), ("0x8c033c70ce5788b243af5215ec12e2cfa79bdb34").toLowerCase()]
-        // Object with found of each player
-        let found = {};
-        for (let player of players) {
-            found[player] = 0
-        }
-        const resp = await getTransactions(startBlock, contract);
-        for (let transaction of resp.result) {
-            if (players.length <= 0) {
-                console.log("Done Searching!");
-                break;
-            }
+            let i = 0;
+            for (let activity of activities) {
+                console.log(`\nActivity ${i}\n`);
+                i++;
+                const contract = activity.address;
+                const playerAddressVariable = activity.playerAddressVariable;
+                const functionName = activity.functionName;
+                const goal = activity.goal;
 
-            // Decode transaction data
-            const decoded = decodeTransactionInput(transaction.input)
-            // Get if transaction is of the right method
-            const method = (decoded["__method__"])as string
-            if(method.includes(functionName)) {
-                // Get player in transaction
-                let decodedPlayer = (decoded[playerAddressVariable]) as string
-                decodedPlayer = decodedPlayer.toLowerCase();
+                const players = activity.players.map((p) => p.toLowerCase());
+                // Object with found of each player
+                let found = activity.found
 
-                // Check if the player is one of the tracked players
-                if (players.includes(decodedPlayer)) {
-                    found[decodedPlayer]++;
+                const resp = await getTransactions(startBlock, contract, endBlock);
+                for (let transaction of resp.result) {
+                    if (players.length <= 0) {
+                        console.log("Done Searching!");
+                        break;
+                    }
 
-                    if (found[decodedPlayer] >= goal) {
-                        // Remove player
-                        const playerIndex = players.indexOf(decodedPlayer);
-                        players.splice(playerIndex, 1);
+                    // Decode transaction data
+                    const decoded = decodeTransactionInput(transaction.input, activity.abi)
+                    // Get if transaction is of the right method
+                    const method = (decoded["__method__"]) as string
+                    if (method.includes(functionName)) {
+                        // Get player in transaction
+                        let decodedPlayer = (decoded[playerAddressVariable]) as string
+                        decodedPlayer = decodedPlayer.toLowerCase();
 
-                        // Remove player from found
-                        delete found[decodedPlayer];
+                        // Check if the player is one of the tracked players
+                        if (players.includes(decodedPlayer)) {
+                            found[decodedPlayer]++;
+
+                            console.log(`Transaction for ${decodedPlayer} in activity ${i} found ${found[decodedPlayer]} times`)
+
+                            if (found[decodedPlayer] >= goal) {
+                                console.log("ALERT!");
+                                // Remove player
+                                const playerIndex = players.indexOf(decodedPlayer);
+                                players.splice(playerIndex, 1);
+
+                                // Remove player from found
+                                delete found[decodedPlayer];
+                            }
+                        }
                     }
                 }
+
+                endBlock = Number.parseInt(resp.result[resp.result.length - 1].blockNumber)
+                console.log("End Block =>", endBlock);
             }
+
+            await sleep(3000);
+            startBlock = endBlock ?? startBlock;
         }
-    } catch(err) {
+    } catch (err) {
         console.log("Error Processing Transactions =>", err);
     }
 }
