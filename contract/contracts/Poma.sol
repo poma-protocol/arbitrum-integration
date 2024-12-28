@@ -65,6 +65,9 @@ contract Poma {
     function getNumberOfActivities()public view returns(uint){
         return numActivities;
     }
+    function getTotalParticipants(uint _activityId) public view returns(uint){
+        return activities[_activityId].numParticipants;
+    }
 
     /**
      *
