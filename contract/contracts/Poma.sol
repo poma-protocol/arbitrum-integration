@@ -45,7 +45,7 @@ contract Poma {
         uint _winningPoints,
         string memory _gameName,
         uint _reward
-    ) public returns (uint activityId) {
+    ) public  returns (uint activityId) {
         activityId = numActivities++;
         Activity storage activity = activities[activityId];
         activity.gameId = _gameId;
@@ -60,6 +60,10 @@ contract Poma {
             _reward
         );
         return activityId;
+    }
+
+    function getNumberOfActivities()public view returns(uint){
+        return numActivities;
     }
 
     /**
