@@ -11,6 +11,13 @@ contract Poma {
         uint points;
         bool paid;
     }
+    event ActivityCreated(
+        uint activityId,
+        uint gameId,
+        uint winningPoints,
+        string gameName,
+        uint reward
+    );
 
     //Activity struct to store tournament details
     struct Activity {
@@ -24,14 +31,6 @@ contract Poma {
     }
     uint numActivities;
     mapping(uint => Activity) public activities;
-
-    //Functionalities to implement
-    //1. Add a new activity
-    //2. Add a new participant to an activity
-    //3. Update the points of a participant
-    //4. Get the points of a participant
-    //5. Determine the winner of an activity
-    //6. Send reward to the winner of an activity
 
     /**
      *
@@ -53,6 +52,14 @@ contract Poma {
         activity.winningPoints = _winningPoints;
         activity.gameName = _gameName;
         activity.reward = _reward;
+        emit ActivityCreated(
+            activityId,
+            _gameId,
+            _winningPoints,
+            _gameName,
+            _reward
+        );
+        return activityId;
     }
 
     /**
