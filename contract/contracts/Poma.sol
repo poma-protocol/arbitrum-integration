@@ -32,6 +32,8 @@ contract Poma {
     uint numActivities;
     mapping(uint => Activity) public activities;
 
+    receive() external payable {}
+
     /**
      *
      * @param _gameId - Id of the game
@@ -45,7 +47,7 @@ contract Poma {
         uint _winningPoints,
         string memory _gameName,
         uint _reward
-    ) public  returns (uint activityId) {
+    ) public returns (uint activityId) {
         activityId = numActivities++;
         Activity storage activity = activities[activityId];
         activity.gameId = _gameId;
@@ -62,18 +64,27 @@ contract Poma {
         return activityId;
     }
 
-    function getNumberOfActivities()public view returns(uint){
+    function getNumberOfActivities() public view returns (uint) {
         return numActivities;
     }
-    function getTotalParticipants(uint _activityId) public view returns(uint){
+
+    function getTotalParticipants(uint _activityId) public view returns (uint) {
         return activities[_activityId].numParticipants;
     }
-    function getMyPoints(uint _activityId, address _userAddress) public view returns(uint){
+
+    function getMyPoints(
+        uint _activityId,
+        address _userAddress
+    ) public view returns (uint) {
         for (uint i = 0; i < activities[_activityId].numParticipants; i++) {
-            if (activities[_activityId].participants[i].userAddress == _userAddress) {
+            if (
+                activities[_activityId].participants[i].userAddress ==
+                _userAddress
+            ) {
                 return activities[_activityId].participants[i].points;
             }
         }
+        return 0;
     }
 
     /**
@@ -105,6 +116,10 @@ contract Poma {
         for (uint i = 0; i < activity.numParticipants; i++) {
             if (activity.participants[i].userAddress == _userAddress) {
                 activity.participants[i].points += _points;
+                //Check if the participant has won
+                if (hasWon(_userAddress, _activityId, activity.winningPoints)) {
+                    sendReward(_userAddress, activity.reward, _activityId, i);
+                }
             }
         }
     }
@@ -147,8 +162,20 @@ contract Poma {
             if (activities[activityId].participants[index].paid == true) {
                 return;
             }
-            payable(userAddress).transfer(reward);
+            rewardWinner(payable(userAddress), reward);
             activities[activityId].participants[index].paid = true;
         }
+    }
+
+    function rewardWinner(
+        address payable winner,
+        uint256 rewardAmount
+    ) internal {
+        require(
+            address(this).balance >= rewardAmount,
+            "Not enough ETH in contract"
+        );
+        (bool success, ) = winner.call{value: rewardAmount}("");
+        require(success, "Transfer failed");
     }
 }
