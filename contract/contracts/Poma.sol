@@ -68,6 +68,13 @@ contract Poma {
     function getTotalParticipants(uint _activityId) public view returns(uint){
         return activities[_activityId].numParticipants;
     }
+    function getMyPoints(uint _activityId, address _userAddress) public view returns(uint){
+        for (uint i = 0; i < activities[_activityId].numParticipants; i++) {
+            if (activities[_activityId].participants[i].userAddress == _userAddress) {
+                return activities[_activityId].participants[i].points;
+            }
+        }
+    }
 
     /**
      *
