@@ -16,5 +16,6 @@ export enum Errors {
     CHALLENGE_ID="Challenge ID Must Be a number",
     ACTIVITY_GOAL="Activity Goal Must Be A Number",
     ACTIVITY_ID="Activity ID Must Be a number",
-    PLAYER_ADDRESS="Player Address Must Be a string"
+    PLAYER_ADDRESS="Player Address Must Be a string",
+    NOT_GET_ACTIVITIES="Could Not Get Activities"
 }
