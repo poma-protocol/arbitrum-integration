@@ -37,7 +37,7 @@ router.post("/join", async(req, res) => {
 
             await db.insert(activityPlayers).values({
                activityId: data.activity_id,
-               playerAddress: data.player_address 
+               playerAddress: data.player_address.toLowerCase()
             });
 
             res.status(201).json({message: Success.ACTIVITY_JOINED});

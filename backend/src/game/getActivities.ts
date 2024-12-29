@@ -4,6 +4,7 @@ import { activityPlayers, contracts, type1Activities, type1Challenges, type1foun
 import { eq, sql } from "drizzle-orm";
 
 export interface Activity {
+    id: number,
     address: string,
     playerAddressVariable: string,
     functionName: string,
@@ -62,6 +63,7 @@ export async function getActivities(): Promise<Activity[]> {
                     }
 
                     toReturn.push({
+                        id: activity.id,
                         address: game.address,
                         playerAddressVariable: challenge.playerAddressVariable,
                         functionName: challenge.functionName,
