@@ -3,6 +3,7 @@ import { boolean, integer, json, pgTable, serial, text } from "drizzle-orm/pg-co
 
 export const contracts = pgTable("contracts", {
     id: serial("id").primaryKey(),
+    name: text("name").notNull(),
     address: text("address").notNull(),
     abi: json("ABI").notNull()
 });

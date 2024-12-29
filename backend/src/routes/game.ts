@@ -15,7 +15,8 @@ router.post("/register", async (req, res) => {
             const contractID = await db.insert(contracts)
                 .values({
                     address: data.contract_address,
-                    abi: data.abi
+                    abi: data.abi,
+                    name: data.name
                 }).returning({id: contracts.id});
 
             // Storing challenges in game
