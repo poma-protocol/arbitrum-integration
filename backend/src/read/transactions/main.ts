@@ -7,6 +7,7 @@ import { Errors, MyError } from "../../helpers/errors";
 import { db } from "../../db/pool";
 import { activityPlayers, type1foundTransactions } from "../../db/schema";
 import { sql } from "drizzle-orm";
+import smartContract from "../../smartcontract";
 
 if (!process.env.BLOCK_NUMBER) {
     console.log("Need to set block number in env");
@@ -15,7 +16,7 @@ if (!process.env.BLOCK_NUMBER) {
 
 async function main() {
     try {
-        let startBlock = Number.parseInt(process.env.BLOCK_NUMBER!);
+        let startBlock = process.env.BLOCK_NUMBER!;
         while (true) {
             console.log(`Search starting at ${startBlock}...`)
             let endBlock: number | undefined = undefined;
@@ -63,6 +64,13 @@ async function main() {
                                     activity_id: activity.id,
                                     playerAddress: decodedPlayer
                                 })
+
+                                // Update contract
+                                await smartContract.updatePoints(
+                                    activity.id,
+                                    decodedPlayer,
+                                    1
+                                );
     
                                 if (found[decodedPlayer] >= goal) {
                                     console.log("ALERT!");

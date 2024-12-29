@@ -17,5 +17,9 @@ export enum Errors {
     ACTIVITY_GOAL="Activity Goal Must Be A Number",
     ACTIVITY_ID="Activity ID Must Be a number",
     PLAYER_ADDRESS="Player Address Must Be a string",
-    NOT_GET_ACTIVITIES="Could Not Get Activities"
+    NOT_GET_ACTIVITIES="Could Not Get Activities",
+    REWARD="Reward Must Be Greater Than Zero",
+    NOT_CREATE_ACTIVITY="Could Not Create Activity",
+    NOT_ADD_PARTICIPANT="Could Not Add Participant",
+    NOT_UPDATE_POINTS="Could Not Update Points"
 }

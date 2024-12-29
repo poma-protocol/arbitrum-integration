@@ -5,6 +5,8 @@ declare global {
             BLOCK_NUMBER: number,
             PORT: number,
             DATABASE_URL: string,
+            PRIVATE_KEY: string,
+            CONTRACT: string,
         }
     }
 }

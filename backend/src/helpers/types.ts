@@ -21,6 +21,7 @@ export const registerGameSchema = z.object({
 export const createActivity = z.object({
     challenge_id: z.number({message: Errors.CHALLENGE_ID}),
     goal: z.number({message: Errors.ACTIVITY_GOAL}),
+    reward: z.number({message: Errors.REWARD}).gt(0, {message: Errors.REWARD})
 })
 
 export const joinActivity = z.object({
