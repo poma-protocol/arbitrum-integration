@@ -3,7 +3,8 @@ declare global {
         interface ProcessEnv {
             ARIBTRUM_NOVA_KEY: string,
             BLOCK_NUMBER: number,
-            PORT: number
+            PORT: number,
+            DATABASE_URL: string,
         }
     }
 }
