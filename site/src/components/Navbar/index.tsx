@@ -5,12 +5,15 @@ import Link from "next/link"
 import Image from "next/image"
 import { IoMdMenu } from "react-icons/io";
 import { Chakra_Petch } from "next/font/google"
+import { ConnectButton } from '@rainbow-me/rainbowkit';
+import '@rainbow-me/rainbowkit/styles.css';
+
 const chakra = Chakra_Petch({
     subsets: ["latin"],
     weight: ["400"]
 })
 export default function Navbar() {
-  
+
     return (
         <header className={`flex h-20 w-full shrink-0 items-center px-4 md:px-6 ${chakra.className}`}>
             <Sheet>
@@ -40,9 +43,16 @@ export default function Navbar() {
                         <Link href="#" className="flex w-full items-center py-2  font-semibold" prefetch={false}>
                             About Us
                         </Link>
-                        <Button variant="secondary">
-                            Connect wallet
-                        </Button>
+                        <ConnectButton accountStatus={{
+                            smallScreen: 'avatar',
+                            largeScreen: 'full',
+                        }}
+                            showBalance={{
+                                smallScreen: false,
+                                largeScreen: true,
+                            }}
+                        />
+
                     </div>
                 </SheetContent>
             </Sheet>
@@ -81,9 +91,16 @@ export default function Navbar() {
                 >
                     About Us
                 </Link>
-                <Button variant="secondary" className="text-2xl">
-                    Connect wallet
-                </Button>
+                <ConnectButton accountStatus={{
+                    smallScreen: 'avatar',
+                    largeScreen: 'full',
+                }}
+                    showBalance={{
+                        smallScreen: false,
+                        largeScreen: true,
+                    }}
+                />
+
             </nav>
         </header>
     )
