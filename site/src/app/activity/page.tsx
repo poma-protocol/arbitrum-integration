@@ -145,6 +145,7 @@ export default function CreateActivity() {
                                                 </Command>
                                             </PopoverContent>
                                         </Popover>
+                                        <FormMessage/>
                                     </FormItem>
                                 )}
                             />
@@ -212,6 +213,7 @@ export default function CreateActivity() {
                                                     </Command>
                                                 </PopoverContent>
                                             </Popover>
+                                            <FormMessage/>
                                         </FormItem>
                                     )}
                                 />
@@ -227,7 +229,12 @@ export default function CreateActivity() {
                                 <FormItem>
                                     <FormLabel>Goal</FormLabel>
                                     <FormControl>
-                                        <Input className="bg-slate-50 text-black" {...field} />
+                                        <Input 
+                                            type="number" 
+                                            className="bg-slate-50 text-black" 
+                                            {...field}
+                                            onChange={(e) => field.onChange(Number(e.target.value))}
+                                        />
                                     </FormControl>
                                     <FormDescription>
                                         The amount of points needed to pass the activity
@@ -246,7 +253,12 @@ export default function CreateActivity() {
                                 <FormItem>
                                     <FormLabel>Reward</FormLabel>
                                     <FormControl>
-                                        <Input className="bg-slate-50 text-black" {...field} />
+                                        <Input 
+                                            type="number" 
+                                            className="bg-slate-50 text-black" 
+                                            {...field} 
+                                            onChange={(e) => field.onChange(Number(e.target.value))}
+                                        />
                                     </FormControl>
                                     <FormDescription>
                                         The prize for completing the activity
