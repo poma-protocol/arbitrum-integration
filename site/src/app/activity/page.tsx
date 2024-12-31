@@ -32,13 +32,39 @@ const createActivitySchema = z.object({
 export default function CreateActivity() {
     const [games, setGames] = useState<{ id: number, name: string }[]>([]);
     const [challenges, setChallenges] = useState<{ id: number, name: string }[]>([]);
-    const [gameSelected, setGameSelected]=useState<boolean>(false);
+    const [gameSelected, setGameSelected] = useState<boolean>(false);
     const form = useForm<z.infer<typeof createActivitySchema>>({
         resolver: zodResolver(createActivitySchema),
     });
 
-    function onSubmit(values: z.infer<typeof createActivitySchema>) {
-        console.log(values)
+    async function onSubmit(values: z.infer<typeof createActivitySchema>) {
+        try {
+            const resp = await fetch(
+                `${process.env.NEXT_PUBLIC_BACKEND_URL}/activity/create/`,
+                {
+                    method: "POST",
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        "challenge_id": values.challenge_id,
+                        "goal": values.goal,
+                        "reward": values.reward
+                    })
+                }
+            );
+
+            if (resp.status === 201) {
+                console.log("Activity Created");
+            } else {
+                const error = await resp.json()
+                console.log(error);
+                throw new Error("Could Not Create Activity");
+            }
+        } catch (err) {
+            console.log("Erorr Creating Activity =>", err);
+        }
     }
 
     useEffect(() => {
@@ -72,7 +98,7 @@ export default function CreateActivity() {
             } else {
                 throw Error("Could Not Get Game Challenges")
             }
-        } catch(err) {
+        } catch (err) {
             console.log("Error Getting Challenges =>", err);
         }
     }
@@ -145,7 +171,7 @@ export default function CreateActivity() {
                                                 </Command>
                                             </PopoverContent>
                                         </Popover>
-                                        <FormMessage/>
+                                        <FormMessage />
                                     </FormItem>
                                 )}
                             />
@@ -213,7 +239,7 @@ export default function CreateActivity() {
                                                     </Command>
                                                 </PopoverContent>
                                             </Popover>
-                                            <FormMessage/>
+                                            <FormMessage />
                                         </FormItem>
                                     )}
                                 />
@@ -229,9 +255,9 @@ export default function CreateActivity() {
                                 <FormItem>
                                     <FormLabel>Goal</FormLabel>
                                     <FormControl>
-                                        <Input 
-                                            type="number" 
-                                            className="bg-slate-50 text-black" 
+                                        <Input
+                                            type="number"
+                                            className="bg-slate-50 text-black"
                                             {...field}
                                             onChange={(e) => field.onChange(Number(e.target.value))}
                                         />
@@ -253,10 +279,10 @@ export default function CreateActivity() {
                                 <FormItem>
                                     <FormLabel>Reward</FormLabel>
                                     <FormControl>
-                                        <Input 
-                                            type="number" 
-                                            className="bg-slate-50 text-black" 
-                                            {...field} 
+                                        <Input
+                                            type="number"
+                                            className="bg-slate-50 text-black"
+                                            {...field}
                                             onChange={(e) => field.onChange(Number(e.target.value))}
                                         />
                                     </FormControl>
