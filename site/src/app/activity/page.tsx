@@ -20,6 +20,7 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { cn } from "@/lib/utils";
 import { Check, ChevronsUpDown } from "lucide-react";
 import { PopoverContent } from "@radix-ui/react-popover";
+import { useEffect, useState } from "react";
 
 const createActivitySchema = z.object({
     goal: z.number({ required_error: "Goal points must be a number" }).gt(0, { message: "Goal must be greater than 0" }),
@@ -28,25 +29,52 @@ const createActivitySchema = z.object({
     challenge_id: z.number({ required_error: "Please choose challenge" })
 });
 
-const games = [
-    { label: "Call of Duty", value: 1 },
-    { label: "FIFA", value: 2 },
-    { label: "Hell Divers 2", value: 3 },
-]
-
-const challenges = [
-    { label: "Get X Kills", value: 1 },
-    { label: "Score X goals", value: 2 },
-    { label: "Kill X terminids", value: 3 },
-]
-
 export default function CreateActivity() {
+    const [games, setGames] = useState<{ id: number, name: string }[]>([]);
+    const [challenges, setChallenges] = useState<{ id: number, name: string }[]>([]);
+    const [gameSelected, setGameSelected]=useState<boolean>(false);
     const form = useForm<z.infer<typeof createActivitySchema>>({
         resolver: zodResolver(createActivitySchema),
     });
 
     function onSubmit(values: z.infer<typeof createActivitySchema>) {
         console.log(values)
+    }
+
+    useEffect(() => {
+        getGames()
+    }, []);
+
+    async function getGames() {
+        try {
+            let resp = await fetch(
+                `${process.env.NEXT_PUBLIC_BACKEND_URL}/game`
+            );
+
+            if (resp.status === 200) {
+                setGames(await resp.json());
+            } else {
+                throw new Error("Could Not Get Games")
+            }
+        } catch (err) {
+            console.log("Error Getting Games =>", err);
+        }
+    }
+
+    async function getChallenges(gameID: number) {
+        try {
+            const resp = await fetch(
+                `${process.env.NEXT_PUBLIC_BACKEND_URL}/game/challenges/${gameID}`
+            );
+
+            if (resp.status === 200) {
+                setChallenges(await resp.json());
+            } else {
+                throw Error("Could Not Get Game Challenges")
+            }
+        } catch(err) {
+            console.log("Error Getting Challenges =>", err);
+        }
     }
 
     return (
@@ -75,8 +103,8 @@ export default function CreateActivity() {
                                                     >
                                                         {field.value
                                                             ? games.find(
-                                                                (g) => g.value === field.value
-                                                            )?.label
+                                                                (g) => g.id === field.value
+                                                            )?.name
                                                             : "Select Game"}
                                                         <ChevronsUpDown className="opacity-50" />
                                                     </Button>
@@ -93,17 +121,19 @@ export default function CreateActivity() {
                                                         <CommandGroup>
                                                             {games.map((g) => (
                                                                 <CommandItem
-                                                                    value={g.label}
-                                                                    key={g.value}
+                                                                    value={g.id.toString()}
+                                                                    key={g.id}
                                                                     onSelect={() => {
-                                                                        form.setValue("game_id", g.value)
+                                                                        form.setValue("game_id", g.id);
+                                                                        getChallenges(g.id);
+                                                                        setGameSelected(true);
                                                                     }}
                                                                 >
-                                                                    {g.label}
+                                                                    {g.name}
                                                                     <Check
                                                                         className={cn(
                                                                             "ml-auto",
-                                                                            g.value === field.value
+                                                                            g.id === field.value
                                                                                 ? "opacity-100"
                                                                                 : "opacity-0"
                                                                         )}
@@ -120,70 +150,72 @@ export default function CreateActivity() {
                             />
                         </div>
 
-                        <div className="mb-4">
-                            <FormField
-                                control={form.control}
-                                name="challenge_id"
-                                render={({ field }) => (
-                                    <FormItem className="flex flex-col">
-                                        <FormLabel>Challenge</FormLabel>
-                                        <Popover>
-                                            <PopoverTrigger asChild>
-                                                <FormControl>
-                                                    <Button
-                                                        variant="outline"
-                                                        role="combobox"
-                                                        className={cn(
-                                                            "w-[200px] justify-between",
-                                                            !field.value && "text-muted-foreground",
-                                                            "bg-slate-50 text-black"
-                                                        )}
-                                                    >
-                                                        {field.value
-                                                            ? challenges.find(
-                                                                (challenge) => challenge.value === field.value
-                                                            )?.label
-                                                            : "Select challenge"}
-                                                        <ChevronsUpDown className="opacity-50" />
-                                                    </Button>
-                                                </FormControl>
-                                            </PopoverTrigger>
-                                            <PopoverContent className="w-[200px] p-0">
-                                                <Command>
-                                                    <CommandInput
-                                                        placeholder="Search challenge..."
-                                                        className="h-9"
-                                                    />
-                                                    <CommandList>
-                                                        <CommandEmpty>No challenge found.</CommandEmpty>
-                                                        <CommandGroup>
-                                                            {challenges.map((challenge) => (
-                                                                <CommandItem
-                                                                    value={challenge.label}
-                                                                    key={challenge.value}
-                                                                    onSelect={() => {
-                                                                        form.setValue("challenge_id", challenge.value)
-                                                                    }}
-                                                                >
-                                                                    {challenge.label}
-                                                                    <Check
-                                                                        className={cn(
-                                                                            "ml-auto",
-                                                                            challenge.value === field.value
-                                                                                ? "opacity-100"
-                                                                                : "opacity-0"
-                                                                        )}
-                                                                    />
-                                                                </CommandItem>
-                                                            ))}
-                                                        </CommandGroup>
-                                                    </CommandList>
-                                                </Command>
-                                            </PopoverContent>
-                                        </Popover>
-                                    </FormItem>
-                                )}
-                            />
+                        <div>
+                            {gameSelected ? <div className="mb-4">
+                                <FormField
+                                    control={form.control}
+                                    name="challenge_id"
+                                    render={({ field }) => (
+                                        <FormItem className="flex flex-col">
+                                            <FormLabel>Challenge</FormLabel>
+                                            <Popover>
+                                                <PopoverTrigger asChild>
+                                                    <FormControl>
+                                                        <Button
+                                                            variant="outline"
+                                                            role="combobox"
+                                                            className={cn(
+                                                                "w-[200px] justify-between",
+                                                                !field.value && "text-muted-foreground",
+                                                                "bg-slate-50 text-black"
+                                                            )}
+                                                        >
+                                                            {field.value
+                                                                ? challenges.find(
+                                                                    (challenge) => challenge.id === field.value
+                                                                )?.name
+                                                                : "Select challenge"}
+                                                            <ChevronsUpDown className="opacity-50" />
+                                                        </Button>
+                                                    </FormControl>
+                                                </PopoverTrigger>
+                                                <PopoverContent className="w-[200px] p-0">
+                                                    <Command>
+                                                        <CommandInput
+                                                            placeholder="Search challenge..."
+                                                            className="h-9"
+                                                        />
+                                                        <CommandList>
+                                                            <CommandEmpty>No challenge found.</CommandEmpty>
+                                                            <CommandGroup>
+                                                                {challenges.map((challenge) => (
+                                                                    <CommandItem
+                                                                        value={challenge.name}
+                                                                        key={challenge.id}
+                                                                        onSelect={() => {
+                                                                            form.setValue("challenge_id", challenge.id)
+                                                                        }}
+                                                                    >
+                                                                        {challenge.name}
+                                                                        <Check
+                                                                            className={cn(
+                                                                                "ml-auto",
+                                                                                challenge.id === field.value
+                                                                                    ? "opacity-100"
+                                                                                    : "opacity-0"
+                                                                            )}
+                                                                        />
+                                                                    </CommandItem>
+                                                                ))}
+                                                            </CommandGroup>
+                                                        </CommandList>
+                                                    </Command>
+                                                </PopoverContent>
+                                            </Popover>
+                                        </FormItem>
+                                    )}
+                                />
+                            </div> : <div></div>}
                         </div>
                     </div>
 
