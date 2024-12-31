@@ -21,6 +21,7 @@ import { cn } from "@/lib/utils";
 import { Check, ChevronsUpDown } from "lucide-react";
 import { PopoverContent } from "@radix-ui/react-popover";
 import { useEffect, useState } from "react";
+import {toast} from "sonner";
 
 const createActivitySchema = z.object({
     goal: z.number({ required_error: "Goal points must be a number" }).gt(0, { message: "Goal must be greater than 0" }),
@@ -56,14 +57,14 @@ export default function CreateActivity() {
             );
 
             if (resp.status === 201) {
-                console.log("Activity Created");
+                toast.success("Activity Craeted")
             } else {
                 const error = await resp.json()
                 console.log(error);
-                throw new Error("Could Not Create Activity");
+                toast.error("Could Not Create Activity")
             }
         } catch (err) {
-            console.log("Erorr Creating Activity =>", err);
+            toast.error("Could Not Create Activity");
         }
     }
 
@@ -83,7 +84,7 @@ export default function CreateActivity() {
                 throw new Error("Could Not Get Games")
             }
         } catch (err) {
-            console.log("Error Getting Games =>", err);
+            toast.error("Could Not Get Games");
         }
     }
 
@@ -99,7 +100,7 @@ export default function CreateActivity() {
                 throw Error("Could Not Get Game Challenges")
             }
         } catch (err) {
-            console.log("Error Getting Challenges =>", err);
+            toast.error("Could Not Get Game Challenges");
         }
     }
 
