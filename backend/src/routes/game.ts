@@ -22,6 +22,7 @@ router.post("/register", async (req, res) => {
             // Storing challenges in game
             for (let challenge of data.challenges) {
                 await db.insert(type1Challenges).values({
+                    name: challenge.name,
                     functionName: challenge.function_name,
                     playerAddressVariable: challenge.player_address_variable,
                     contractID: contractID[0].id

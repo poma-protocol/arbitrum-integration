@@ -10,6 +10,8 @@ export default {
   theme: {
   	extend: {
   		colors: {
+			poma_border: '#A3A3A3',
+			poma_grey: "#54513D",
   			background: 'hsl(var(--background))',
   			foreground: 'hsl(var(--foreground))',
   			card: {

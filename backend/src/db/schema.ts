@@ -10,6 +10,7 @@ export const contracts = pgTable("contracts", {
 
 export const type1Challenges = pgTable("type_1_challenges", {
     id: serial("id").primaryKey(),
+    name: text("name").notNull(),
     functionName: text("function_name").notNull(),
     playerAddressVariable: text("player_address_variable").notNull(),
     contractID: integer("contractID").references(() => contracts.id).notNull()
