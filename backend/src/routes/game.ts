@@ -5,6 +5,7 @@ import { db } from "../db/pool";
 import { contracts, type1Challenges } from "../db/schema";
 import { Success } from "../helpers/success";
 const router = Router();
+import { eq } from "drizzle-orm";
 
 router.post("/register", async (req, res) => {
     try {
@@ -52,6 +53,21 @@ router.get("/", async (req, res) => {
     } catch(err) {
         console.log("Error Getting Games =>", err);
         res.status(500).json({error: [Errors.INTERNAL_SERVER_ERROR]});
+    }
+});
+
+router.get("/challenges/:id", async (req, res) => {
+    try {
+        const gameID = Number.parseInt(req.params.id);
+        const challenges = await db.select({
+            id: type1Challenges.id,
+            name: type1Challenges.name
+        }).from(type1Challenges)
+            .where(eq(type1Challenges.contractID, gameID));
+
+        res.status(200).json(challenges);
+    } catch(err) {
+        console.log("Error Getting Challenges => ", err);
     }
 })
 
