@@ -41,6 +41,20 @@ router.post("/register", async (req, res) => {
     }
 })
 
+router.get("/", async (req, res) => {
+    try {
+        const games = await db.select({
+            id: contracts.id,
+            name: contracts.name
+        }).from(contracts);
+
+        res.status(200).json(games);
+    } catch(err) {
+        console.log("Error Getting Games =>", err);
+        res.status(500).json({error: [Errors.INTERNAL_SERVER_ERROR]});
+    }
+})
+
 router.get("*", (req, res) => {
     res.status(404).json({error: [Errors.ROUTE_NOT_FOUND]});
 })
