@@ -7,6 +7,7 @@ declare global {
             DATABASE_URL: string,
             PRIVATE_KEY: string,
             CONTRACT: string,
+            RPC_URL: string
         }
     }
 }
