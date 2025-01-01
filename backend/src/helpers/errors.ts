@@ -22,5 +22,6 @@ export enum Errors {
     NOT_CREATE_ACTIVITY="Could Not Create Activity",
     NOT_ADD_PARTICIPANT="Could Not Add Participant",
     NOT_UPDATE_POINTS="Could Not Update Points",
-    CHALLENGE_NAME="Challenge Name Must Be a string"
+    CHALLENGE_NAME="Challenge Name Must Be a string",
+    ACTIVITY_NAME="Activity name must be a string"
 }

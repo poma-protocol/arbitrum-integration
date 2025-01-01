@@ -27,7 +27,8 @@ const createActivitySchema = z.object({
     goal: z.number({ required_error: "Goal points must be a number" }).gt(0, { message: "Goal must be greater than 0" }),
     reward: z.number({ required_error: "Reward must be a number" }).gt(0, "Reward must be greater than zero"),
     game_id: z.number({ required_error: "Please choose game" }),
-    challenge_id: z.number({ required_error: "Please choose challenge" })
+    challenge_id: z.number({ required_error: "Please choose challenge" }),
+    name: z.string()
 });
 
 export default function CreateActivity() {
@@ -51,7 +52,8 @@ export default function CreateActivity() {
                     body: JSON.stringify({
                         "challenge_id": values.challenge_id,
                         "goal": values.goal,
-                        "reward": values.reward
+                        "reward": values.reward,
+                        "name": values.name
                     })
                 }
             );
@@ -74,7 +76,7 @@ export default function CreateActivity() {
 
     async function getGames() {
         try {
-            let resp = await fetch(
+            const resp = await fetch(
                 `${process.env.NEXT_PUBLIC_BACKEND_URL}/game`
             );
 
@@ -246,6 +248,28 @@ export default function CreateActivity() {
                                 />
                             </div> : <div></div>}
                         </div>
+                    </div>
+
+                    <div className="mb-4">
+                        <FormField
+                            control={form.control}
+                            name="name"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Activity Name</FormLabel>
+                                    <FormControl>
+                                        <Input
+                                            className="bg-slate-50 text-black"
+                                            {...field}
+                                        />
+                                    </FormControl>
+                                    <FormDescription>
+                                        The name of the activity
+                                    </FormDescription>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
                     </div>
 
                     <div className="mb-4">

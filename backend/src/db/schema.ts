@@ -19,6 +19,7 @@ export const type1Challenges = pgTable("type_1_challenges", {
 export const type1Activities = pgTable("type_1_activities", {
     id: serial("id").primaryKey(),
     goal: integer("goal").notNull(),
+    name: text("name").notNull(),
     challenge_id: integer("challenge_id").references(() => type1Challenges.id).notNull(),
     reward: integer("reward").notNull(),
     onChainID: integer("on_chain_id").notNull(),
