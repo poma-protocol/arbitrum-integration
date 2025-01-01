@@ -34,6 +34,7 @@ router.post("/create", async (req, res) => {
             // Storing activity
             await db.insert(type1Activities).values({
                 goal: data.goal,
+                name: data.name,
                 challenge_id: data.challenge_id,
                 reward: data.reward,
                 onChainID: onchainID
@@ -76,7 +77,23 @@ router.post("/join", async(req, res) => {
         console.log("Error Joining Activity", err);
         res.status(500).json({error: [Errors.INTERNAL_SERVER_ERROR]});
     }
-})
+});
+
+router.get("/", async (req, res) {
+    try {
+        let activities = await db.select({
+            id: type1Activities.id,
+            name: type1Activities.name,
+            reward: type1Activities.reward,
+            goal: type1Activities.goal
+        }).from(type1Activities);
+
+        res.status(200).json(activities);
+    } catch(err) {
+        console.log("Error Getting Activities =>", err);
+        res.status(500).json({error: [Errors.INTERNAL_SERVER_ERROR]});
+    }
+});
 
 router.get("*", (req, res) => {
     res.status(404).json({error: [
