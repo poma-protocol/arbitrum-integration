@@ -3,7 +3,12 @@ import "dotenv/config";
 import { Errors, MyError } from "../helpers/errors";
 import abi from "../../contractAbi.json";
 
-export const web3 = new Web3("http://127.0.0.1:8545/");
+if(!process.env.RPC_URL) {
+    console.log("Set RPC URL in env");
+    throw new MyError(Errors.SERVER_SETUP);
+}
+
+export const web3 = new Web3(process.env.RPC_URL);
 
 if(!process.env.PRIVATE_KEY) {
     console.log("Set private key in env");

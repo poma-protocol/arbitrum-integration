@@ -5,6 +5,7 @@ import { db } from "../db/pool";
 import { contracts, type1Challenges } from "../db/schema";
 import { Success } from "../helpers/success";
 const router = Router();
+import { eq } from "drizzle-orm";
 
 router.post("/register", async (req, res) => {
     try {
@@ -22,6 +23,7 @@ router.post("/register", async (req, res) => {
             // Storing challenges in game
             for (let challenge of data.challenges) {
                 await db.insert(type1Challenges).values({
+                    name: challenge.name,
                     functionName: challenge.function_name,
                     playerAddressVariable: challenge.player_address_variable,
                     contractID: contractID[0].id
@@ -37,6 +39,35 @@ router.post("/register", async (req, res) => {
     } catch(err) {
         console.log("Error Regisetering Game", err);
         res.status(500).json({error:[Errors.INTERNAL_SERVER_ERROR]})
+    }
+})
+
+router.get("/", async (req, res) => {
+    try {
+        const games = await db.select({
+            id: contracts.id,
+            name: contracts.name
+        }).from(contracts);
+
+        res.status(200).json(games);
+    } catch(err) {
+        console.log("Error Getting Games =>", err);
+        res.status(500).json({error: [Errors.INTERNAL_SERVER_ERROR]});
+    }
+});
+
+router.get("/challenges/:id", async (req, res) => {
+    try {
+        const gameID = Number.parseInt(req.params.id);
+        const challenges = await db.select({
+            id: type1Challenges.id,
+            name: type1Challenges.name
+        }).from(type1Challenges)
+            .where(eq(type1Challenges.contractID, gameID));
+
+        res.status(200).json(challenges);
+    } catch(err) {
+        console.log("Error Getting Challenges => ", err);
     }
 })
 

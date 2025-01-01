@@ -13,6 +13,7 @@ export const registerGameSchema = z.object({
     contract_address: z.string({message: Errors.CONTRACT_ADDRESS}),
     abi: jsonSchema,
     challenges: z.object({
+        name: z.string({message: Errors.CHALLENGE_NAME}),
         player_address_variable: z.string({message: Errors.PLAYER_ADDRESS_VARIABLE}),
         function_name: z.string({message: Errors.FUNCTION_NAME})
     }).array()
