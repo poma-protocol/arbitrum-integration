@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
     Form,
@@ -71,14 +72,14 @@ export default function CreateGame() {
                                 </FormItem>
                             )}
                         />
-                         <FormField
+                        <FormField
                             control={form.control}
                             name="contractAbi"
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Contract ABI</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="Contract ABI" {...field} />
+                                        <Textarea placeholder="contract json." {...field} />
                                     </FormControl>
                                     <FormDescription>
                                         The contract ABI of the game
@@ -103,7 +104,7 @@ export default function CreateGame() {
                                 </FormItem>
                             )}
                         />
-                       
+
                     </form>
                 </Form>
             </div>
