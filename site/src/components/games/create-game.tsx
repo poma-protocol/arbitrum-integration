@@ -16,12 +16,15 @@ import {
     FormLabel,
     FormMessage,
 } from "@/components/ui/form";
+
 const formSchema = z.object({
     gameName: z.string(),
     contractAddress: z.string(),
     functionName: z.string(),
     contractAbi: z.string(),
+    gameImage: z.instanceof(File),
 });
+
 export default function CreateGame() {
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -30,11 +33,15 @@ export default function CreateGame() {
             contractAddress: "",
             functionName: "",
             contractAbi: "",
+            gameImage: undefined,
         },
     });
-    async function onSubmit(values: z.infer<typeof formSchema>) {
 
+    async function onSubmit(values: z.infer<typeof formSchema>) {
+        // Handle form submission
+        console.log(values);
     }
+
     return (
         <>
             <div>
@@ -51,6 +58,22 @@ export default function CreateGame() {
                                     </FormControl>
                                     <FormDescription>
                                         The name of the game you want to create
+                                    </FormDescription>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="gameImage"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Game Image</FormLabel>
+                                    <FormControl>
+                                        <Input type="file" onChange={(e) => field.onChange(e.target.files?.[0])} />
+                                    </FormControl>
+                                    <FormDescription>
+                                        The image of the game
                                     </FormDescription>
                                     <FormMessage />
                                 </FormItem>
@@ -104,7 +127,7 @@ export default function CreateGame() {
                                 </FormItem>
                             )}
                         />
-
+                        <Button type="submit">Create Game</Button>
                     </form>
                 </Form>
             </div>
