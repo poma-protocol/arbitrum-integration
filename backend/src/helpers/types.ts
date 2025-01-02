@@ -12,6 +12,8 @@ export const registerGameSchema = z.object({
     name: z.string({message: Errors.GAME_NAME}),
     contract_address: z.string({message: Errors.CONTRACT_ADDRESS}),
     abi: jsonSchema,
+    category: z.string({message: Errors.GAME_CATEGORY}),
+    image: z.string({message: Errors.IMAGE}),
     challenges: z.object({
         name: z.string({message: Errors.CHALLENGE_NAME}),
         player_address_variable: z.string({message: Errors.PLAYER_ADDRESS_VARIABLE}),
@@ -23,7 +25,10 @@ export const createActivity = z.object({
     challenge_id: z.number({message: Errors.CHALLENGE_ID}),
     goal: z.number({message: Errors.ACTIVITY_GOAL}),
     reward: z.number({message: Errors.REWARD}).gt(0, {message: Errors.REWARD}),
-    name: z.string({message: Errors.ACTIVITY_NAME})
+    name: z.string({message: Errors.ACTIVITY_NAME}),
+    startDate: z.string({message: Errors.ACTIVITY_START_DATE}),
+    endDate: z.string({message: Errors.ACTIVITY_END_DATE}),
+    image: z.string({message: Errors.IMAGE})
 })
 
 export const joinActivity = z.object({
