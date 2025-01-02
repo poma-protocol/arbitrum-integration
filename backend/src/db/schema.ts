@@ -5,7 +5,9 @@ export const contracts = pgTable("contracts", {
     id: serial("id").primaryKey(),
     name: text("name").notNull(),
     address: text("address").notNull(),
-    abi: json("ABI").notNull()
+    abi: json("ABI").notNull(),
+    image: text("image").notNull(),
+    category: text("category").notNull(),
 });
 
 export const type1Challenges = pgTable("type_1_challenges", {

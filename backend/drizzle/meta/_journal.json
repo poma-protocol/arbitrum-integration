@@ -64,6 +64,20 @@
       "when": 1735720045014,
       "tag": "0008_milky_bloodscream",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1735815691591,
+      "tag": "0009_chief_phantom_reporter",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1735815702924,
+      "tag": "0010_motionless_blockbuster",
+      "breakpoints": true
     }
   ]
 }
