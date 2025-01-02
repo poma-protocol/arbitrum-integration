@@ -37,7 +37,10 @@ router.post("/create", async (req, res) => {
                 name: data.name,
                 challenge_id: data.challenge_id,
                 reward: data.reward,
-                onChainID: onchainID
+                onChainID: onchainID,
+                image: data.image,
+                startDate: new Date(data.startDate).toISOString(),
+                endDate: new Date(data.endDate).toISOString()
             });
 
             res.status(201).json({message: Success.ACTIVITY_CREATED});

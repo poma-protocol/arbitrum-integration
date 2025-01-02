@@ -26,5 +26,7 @@ export enum Errors {
     ACTIVITY_NAME="Activity name must be a string",
     GAME_CATEGORY="Game category must be a string",
     IMAGE="Image must be uploaded first",
-    IMAGE_UPLOAD_FAILED="Image Upload Failed"
+    IMAGE_UPLOAD_FAILED="Image Upload Failed",
+    ACTIVITY_START_DATE="Activity start date is invalid",
+    ACTIVITY_END_DATE="Activity end date is invalid"
 }
