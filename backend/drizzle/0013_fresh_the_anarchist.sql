@@ -1,0 +1,1 @@
+ALTER TABLE "type_1_activities" ADD COLUMN "image" text DEFAULT '' NOT NULL;

@@ -1,0 +1,1 @@
+ALTER TABLE "type_1_activities" ALTER COLUMN "image" DROP DEFAULT;
