@@ -23,5 +23,10 @@ export enum Errors {
     NOT_ADD_PARTICIPANT="Could Not Add Participant",
     NOT_UPDATE_POINTS="Could Not Update Points",
     CHALLENGE_NAME="Challenge Name Must Be a string",
-    ACTIVITY_NAME="Activity name must be a string"
+    ACTIVITY_NAME="Activity name must be a string",
+    GAME_CATEGORY="Game category must be a string",
+    IMAGE="Image must be uploaded first",
+    IMAGE_UPLOAD_FAILED="Image Upload Failed",
+    ACTIVITY_START_DATE="Activity start date is invalid",
+    ACTIVITY_END_DATE="Activity end date is invalid"
 }

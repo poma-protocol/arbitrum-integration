@@ -1,11 +1,13 @@
 import { primaryKey } from "drizzle-orm/mysql-core";
-import { boolean, integer, json, pgTable, serial, text } from "drizzle-orm/pg-core";
+import { boolean, date, integer, json, pgTable, serial, text } from "drizzle-orm/pg-core";
 
 export const contracts = pgTable("contracts", {
     id: serial("id").primaryKey(),
     name: text("name").notNull(),
     address: text("address").notNull(),
-    abi: json("ABI").notNull()
+    abi: json("ABI").notNull(),
+    image: text("image").notNull(),
+    category: text("category").notNull(),
 });
 
 export const type1Challenges = pgTable("type_1_challenges", {
@@ -23,6 +25,9 @@ export const type1Activities = pgTable("type_1_activities", {
     challenge_id: integer("challenge_id").references(() => type1Challenges.id).notNull(),
     reward: integer("reward").notNull(),
     onChainID: integer("on_chain_id").notNull(),
+    startDate: date("start_date").notNull(),
+    endDate: date("end_date").notNull(),
+    image: text("image").notNull(),
     done: boolean("done").default(false).notNull()
 });
 
