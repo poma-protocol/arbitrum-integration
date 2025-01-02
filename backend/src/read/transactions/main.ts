@@ -8,6 +8,8 @@ import { db } from "../../db/pool";
 import { activityPlayers, type1foundTransactions } from "../../db/schema";
 import { sql } from "drizzle-orm";
 import smartContract from "../../smartcontract";
+import lmdb from "../../store";
+import { START_BLOCK_KEY } from "../../helpers/constants";
 
 if (!process.env.BLOCK_NUMBER) {
     console.log("Need to set block number in env");
@@ -16,7 +18,21 @@ if (!process.env.BLOCK_NUMBER) {
 
 async function main() {
     try {
-        let startBlock = process.env.BLOCK_NUMBER!;
+        let startBlock = Number.parseInt(process.env.BLOCK_NUMBER!);
+
+        // Set startblock if empty
+        const start = await lmdb.read(START_BLOCK_KEY);
+        console.log("Start From LMDB =>", start);
+        if (!start) {
+            await lmdb.store(START_BLOCK_KEY, startBlock.toString());
+        } else {
+            if (Number.parseInt(start) > startBlock) {
+                startBlock = Number.parseInt(start)
+            }
+        }
+
+
+
         while (true) {
             console.log(`Search starting at ${startBlock}...`)
             let endBlock: number | undefined = undefined;
@@ -98,6 +114,8 @@ async function main() {
 
             await sleep(3000);
             startBlock = endBlock ?? startBlock;
+            await lmdb.store<string>(START_BLOCK_KEY, startBlock.toString());
+            console.log("Start block stored =>", startBlock);
         }
     } catch (err) {
         console.log("Error Processing Transactions =>", err);
