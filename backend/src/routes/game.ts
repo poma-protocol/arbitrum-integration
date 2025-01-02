@@ -63,7 +63,9 @@ router.get("/", async (req, res) => {
     try {
         const games = await db.select({
             id: contracts.id,
-            name: contracts.name
+            name: contracts.name,
+            image: contracts.image,
+            category: contracts.category
         }).from(contracts);
 
         res.status(200).json(games);
@@ -72,6 +74,39 @@ router.get("/", async (req, res) => {
         res.status(500).json({error: [Errors.INTERNAL_SERVER_ERROR]});
     }
 });
+
+router.get("/:category", async (req, res) => {
+    try {
+        const category = req.params.category;
+
+        const games = await db.select({
+            id: contracts.id,
+            name: contracts.name,
+            image: contracts.image,
+            category: contracts.category
+        }).from(contracts)
+        .where(eq(contracts.category, category));
+
+        res.status(200).json(games);
+    } catch(err) {
+        console.log("Error Getting Games =>", err);
+        res.status(500).json({error: [Errors.INTERNAL_SERVER_ERROR]});
+    }
+});
+
+router.get("/categories", async (req, res) => {
+    try {
+        const categories = await db.selectDistinct({
+            category: contracts.category
+        }).from(contracts).orderBy(contracts.category);
+
+        const categs = categories.map((category) => category.category);
+        res.status(200).json(categs);
+    } catch(err) {  
+        console.log("Error Getting Game Categories", err);
+        res.status(500).json({error: [Errors.INTERNAL_SERVER_ERROR]});
+    }
+})
 
 router.get("/challenges/:id", async (req, res) => {
     try {
