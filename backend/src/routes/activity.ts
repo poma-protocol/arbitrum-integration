@@ -39,22 +39,22 @@ router.post("/create", async (req, res) => {
                 reward: data.reward,
                 onChainID: onchainID,
                 image: data.image,
-                startDate: new Date(data.startDate).toISOString(),
-                endDate: new Date(data.endDate).toISOString()
+                startDate: data.startDate,
+                endDate: data.endDate
             });
 
-            res.status(201).json({message: Success.ACTIVITY_CREATED});
+            res.status(201).json({ message: Success.ACTIVITY_CREATED });
         } else {
             const errors = parsed.error.issues.map((e) => e.message);
-            res.status(400).json({error: errors});
+            res.status(400).json({ error: errors });
         }
-    } catch(err) {
+    } catch (err) {
         console.log("Error Creating Activity =>", err);
-        res.status(500).json({error: [Errors.INTERNAL_SERVER_ERROR]})
+        res.status(500).json({ error: [Errors.INTERNAL_SERVER_ERROR] })
     }
 });
 
-router.post("/join", async(req, res) => {
+router.post("/join", async (req, res) => {
     try {
         const parsed = joinActivity.safeParse(req.body);
         if (parsed.success) {

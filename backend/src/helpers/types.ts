@@ -26,8 +26,8 @@ export const createActivity = z.object({
     goal: z.number({message: Errors.ACTIVITY_GOAL}),
     reward: z.number({message: Errors.REWARD}).gt(0, {message: Errors.REWARD}),
     name: z.string({message: Errors.ACTIVITY_NAME}),
-    startDate: z.number({message: Errors.ACTIVITY_START_DATE}),
-    endDate: z.number({message: Errors.ACTIVITY_END_DATE}),
+    startDate: z.string({message: Errors.ACTIVITY_START_DATE}),
+    endDate: z.string({message: Errors.ACTIVITY_END_DATE}),
     image: z.string({message: Errors.IMAGE})
 })
 
