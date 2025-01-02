@@ -1,16 +1,16 @@
-import {Router} from "express";
+import { Router } from "express";
 import { Errors } from "../helpers/errors";
 import { createActivity, joinActivity } from "../helpers/types";
 import { activityPlayers, contracts, type1Activities, type1Challenges } from "../db/schema";
 import { db } from "../db/pool";
 import { Success } from "../helpers/success";
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import smartContract from "../smartcontract";
 
 const router = Router();
 
 router.post("/create", async (req, res) => {
-    try {        
+    try {
         const parsed = createActivity.safeParse(req.body);
         if (parsed.success) {
             const data = parsed.data;
@@ -20,8 +20,8 @@ router.post("/create", async (req, res) => {
                 id: type1Challenges.contractID,
                 name: contracts.name
             }).from(type1Challenges)
-            .leftJoin(contracts, eq(type1Challenges.contractID, contracts.id))
-            .where(eq(type1Challenges.id, data.challenge_id));
+                .leftJoin(contracts, eq(type1Challenges.contractID, contracts.id))
+                .where(eq(type1Challenges.id, data.challenge_id));
 
             // Storing in contarct
             const onchainID = await smartContract.createActivity(
@@ -67,41 +67,67 @@ router.post("/join", async (req, res) => {
             );
 
             await db.insert(activityPlayers).values({
-               activityId: data.activity_id,
-               playerAddress: data.player_address.toLowerCase()
+                activityId: data.activity_id,
+                playerAddress: data.player_address.toLowerCase()
             });
 
-            res.status(201).json({message: Success.ACTIVITY_JOINED});
+            res.status(201).json({ message: Success.ACTIVITY_JOINED });
         } else {
             const errors = parsed.error.issues.map((e) => e.message);
-            res.status(400).json({error: errors});
+            res.status(400).json({ error: errors });
         }
-    } catch(err) {  
+    } catch (err) {
         console.log("Error Joining Activity", err);
-        res.status(500).json({error: [Errors.INTERNAL_SERVER_ERROR]});
+        res.status(500).json({ error: [Errors.INTERNAL_SERVER_ERROR] });
     }
 });
 
 router.get("/", async (req, res) => {
     try {
-        let activities = await db.select({
+        const activities = await db.select({
             id: type1Activities.id,
             name: type1Activities.name,
             reward: type1Activities.reward,
-            goal: type1Activities.goal
+            goal: type1Activities.goal,
+            image: type1Activities.image,
+            startDate: type1Activities.startDate,
+            endDate: type1Activities.endDate
         }).from(type1Activities);
 
-        res.status(200).json(activities);
-    } catch(err) {
+        const toReturn: {
+            id: number,
+            name: string,
+            reward: number,
+            goal: number,
+            image: string,
+            startDate: string,
+            endDate: string,
+            players: number
+        }[] = [];
+        for (const activity of activities) {
+            const count = await db.select({
+                count: sql<number>`cast(count(*) as int)`
+            }).from(activityPlayers)
+                .where(eq(activityPlayers.activityId, activity.id));
+            
+            toReturn.push({
+                ...activity,
+                players: count[0].count
+            });
+        }
+        res.status(200).json(toReturn);
+    } catch (err) {
         console.log("Error Getting Activities =>", err);
-        res.status(500).json({error: [Errors.INTERNAL_SERVER_ERROR]});
+        res.status(500).json({ error: [Errors.INTERNAL_SERVER_ERROR] });
     }
 });
 
 router.get("*", (req, res) => {
-    res.status(404).json({error: [
-        Errors.ROUTE_NOT_FOUND
-    ]})
+    res.status(404).json({
+        error: [
+            Errors.ROUTE_NOT_FOUND
+        ]
+    })
 })
 
 export default router;
