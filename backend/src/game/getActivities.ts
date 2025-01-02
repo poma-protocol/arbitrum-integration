@@ -40,7 +40,7 @@ export async function getActivities(): Promise<Activity[]> {
                     id: type1Activities.id,
                     goal: type1Activities.goal
                 }).from(type1Activities)
-                    .where(sql`${type1Activities.done} = false AND ${type1Activities.challenge_id} = ${challenge.id}`)
+                    .where(sql`${type1Activities.done} = false AND ${type1Activities.challenge_id} = ${challenge.id} AND ${type1Activities.startDate} < now() AND ${type1Activities.endDate} > now()`)
 
                 for (let activity of activities) {
                     // Get players
