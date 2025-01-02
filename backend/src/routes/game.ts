@@ -6,6 +6,21 @@ import { contracts, type1Challenges } from "../db/schema";
 import { Success } from "../helpers/success";
 const router = Router();
 import { eq } from "drizzle-orm";
+import multer from "multer";
+const upload = multer({dest: "uploads/"});
+
+router.post("/upload", upload.single("image"), (req, res) => {
+    try {
+        if(!req.file) {
+            res.status(400).json({error: [Errors.IMAGE_UPLOAD_FAILED]});
+        }
+
+        res.status(201).json(req.file!.path);
+    } catch(err) {
+        console.log("Error Uploading Image ->", err);
+        res.status(500).json({error: [Errors.INTERNAL_SERVER_ERROR]});
+    }
+})
 
 router.post("/register", async (req, res) => {
     try {
@@ -17,7 +32,9 @@ router.post("/register", async (req, res) => {
                 .values({
                     address: data.contract_address,
                     abi: data.abi,
-                    name: data.name
+                    name: data.name,
+                    category: data.category,
+                    image: data.image
                 }).returning({id: contracts.id});
 
             // Storing challenges in game

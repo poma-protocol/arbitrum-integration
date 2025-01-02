@@ -79,7 +79,7 @@ router.post("/join", async(req, res) => {
     }
 });
 
-router.get("/", async (req, res) {
+router.get("/", async (req, res) => {
     try {
         let activities = await db.select({
             id: type1Activities.id,
