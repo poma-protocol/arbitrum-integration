@@ -121,7 +121,45 @@ router.get("/", async (req, res) => {
         res.status(500).json({ error: [Errors.INTERNAL_SERVER_ERROR] });
     }
 });
+router.get("/one/:id", async (req, res) => {
+    try {
+        const activityId = parseInt(req.params.id);
+        if (isNaN(activityId)) {
+            return res.status(400).json({ error: [Errors.INVALID_ACTIVITY_ID] });
+        }
 
+        const activity = await db.select({
+            id: type1Activities.id,
+            name: type1Activities.name,
+            reward: type1Activities.reward,
+            goal: type1Activities.goal,
+            image: type1Activities.image,
+            startDate: type1Activities.startDate,
+            endDate: type1Activities.endDate
+        }).from(type1Activities)
+            .where(eq(type1Activities.id, activityId))
+            .limit(1);
+
+        if (activity.length === 0) {
+            return res.status(404).json({ error: [Errors.ACTIVITY_NOT_FOUND] });
+        }
+
+        const count = await db.select({
+            count: sql<number>`cast(count(*) as int)`
+        }).from(activityPlayers)
+            .where(eq(activityPlayers.activityId, activityId));
+
+        const toReturn = {
+            ...activity[0],
+            players: count[0].count
+        };
+
+        res.status(200).json(toReturn);
+    } catch (err) {
+        console.log("Error Getting Activity =>", err);
+        res.status(500).json({ error: [Errors.INTERNAL_SERVER_ERROR] });
+    }
+});
 router.get("*", (req, res) => {
     res.status(404).json({
         error: [

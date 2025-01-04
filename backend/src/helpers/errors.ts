@@ -28,5 +28,7 @@ export enum Errors {
     IMAGE="Image must be uploaded first",
     IMAGE_UPLOAD_FAILED="Image Upload Failed",
     ACTIVITY_START_DATE="Activity start date is invalid",
-    ACTIVITY_END_DATE="Activity end date is invalid"
+    ACTIVITY_END_DATE="Activity end date is invalid",
+    ACTIVITY_NOT_FOUND = "Activity Not Found",
+    INVALID_ACTIVITY_ID = "Invalid Activity ID"
 }

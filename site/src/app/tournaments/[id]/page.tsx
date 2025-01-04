@@ -3,42 +3,21 @@
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { useAccount } from 'wagmi';
-
+import axios from "axios";
+import { useRouter } from "next/router";
+import { daysUntil, formatISODate } from "@/components/utils/tournaments";
 interface Tournament {
     id: number;
-    title: string;
-    game: string;
-    eventType: string;
-    entryFee: number;
-    prizePool: string;
+    name: string;
+    // game?: string;
+    reward: string;
     players: number;
-    maxPlayers: number;
-    date: string;
-    time: string;
-    daysLeft: number;
+    startDate: string;
+    endDate: string;
     image: string;
-    mode: string;
-    format: string;
-    type: string;
 }
 
-const selectedTournament: Tournament = {
-    id: 2,
-    title: "Escape del Polo Norte",
-    game: "Minecraft",
-    eventType: "Evento Minijuegos",
-    entryFee: 0,
-    prizePool: "$29.93",
-    players: 188,
-    maxPlayers: 300,
-    date: "JAN 04",
-    time: "11:00 PM",
-    daysLeft: 3,
-    image: "/assets/images/3.jpeg",
-    mode: "Solo",
-    format: "Leaderboard",
-    type: "Final",
-};
+
 
 export default function TournamentDetail() {
     const { address } = useAccount();
@@ -48,6 +27,30 @@ export default function TournamentDetail() {
         minutes: 0,
         seconds: 0,
     });
+
+    const [selectedTournament, setSelectedTournament] = useState<Tournament>({
+        id: 0,
+        name: "",
+        reward: "",
+        players: 0,
+        startDate: "",
+        endDate: "",
+        image: "",
+    })
+    const id = useRouter().query.id;
+    useEffect(() => {
+        async function fetchActivity() {
+            const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/activity/one/${id}`)
+            if (response.status === 200 || response.status === 201) {
+                setSelectedTournament(response.data)
+            }
+            else {
+                toast.error("Could not get tournament")
+
+            }
+        }
+        fetchActivity()
+    }, [])
     async function joinActivity(activity_id: number) {
         try {
             if (!address) {
@@ -75,7 +78,7 @@ export default function TournamentDetail() {
     }
     useEffect(() => {
         const calculateTimeLeft = () => {
-            const targetDate = new Date(`${selectedTournament.date} ${selectedTournament.time}`);
+            const targetDate = new Date(`${selectedTournament.startDate} ${selectedTournament.startDate}`);
             const now = new Date();
             const difference = targetDate.getTime() - now.getTime();
 
@@ -100,12 +103,12 @@ export default function TournamentDetail() {
             <div className="max-w-5xl mx-auto">
                 <button className="text-gray-400 hover:text-white mb-6">&larr; Back</button>
 
-                <h1 className="text-3xl md:text-4xl font-bold mb-6">{selectedTournament.title}</h1>
+                <h1 className="text-3xl md:text-4xl font-bold mb-6">{selectedTournament.name}</h1>
 
                 <div className="relative bg-gray-800 rounded-lg overflow-hidden shadow-lg">
                     <img
                         src={selectedTournament.image}
-                        alt={selectedTournament.title}
+                        alt={selectedTournament.name}
                         className="w-full h-64 object-cover"
                     />
 
@@ -115,10 +118,10 @@ export default function TournamentDetail() {
 
                     <div className="absolute bottom-4 left-4 text-gray-300 text-sm">
                         <p>
-                            {selectedTournament.date}, {selectedTournament.time}
+                            {formatISODate(selectedTournament.startDate)} - {formatISODate(selectedTournament.endDate)}
                         </p>
                         <p>
-                            {selectedTournament.players}/{selectedTournament.maxPlayers} Players
+                            {selectedTournament.players} Players
                         </p>
                     </div>
 
@@ -129,30 +132,20 @@ export default function TournamentDetail() {
 
                 <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mt-8 bg-gray-800 p-6 rounded-lg">
                     <div className="text-center">
-                        <p className="text-yellow-400 text-xl font-bold">{selectedTournament.prizePool}</p>
+                        <p className="text-yellow-400 text-xl font-bold">{selectedTournament.reward}</p>
                         <p className="text-gray-400 text-sm">Prize Pool</p>
                     </div>
 
                     <div className="text-center">
                         <p className="text-green-400 text-xl font-bold">
-                            {selectedTournament.entryFee === 0 ? "Free" : `$${selectedTournament.entryFee}`}
+                            Free
                         </p>
                         <p className="text-gray-400 text-sm">Entry Fee</p>
                     </div>
 
                     <div className="text-center">
-                        <p className="text-gray-300 text-xl font-bold">{selectedTournament.mode}</p>
+                        <p className="text-gray-300 text-xl font-bold">Solo</p>
                         <p className="text-gray-400 text-sm">Mode</p>
-                    </div>
-
-                    <div className="text-center">
-                        <p className="text-gray-300 text-xl font-bold">{selectedTournament.format}</p>
-                        <p className="text-gray-400 text-sm">Format</p>
-                    </div>
-
-                    <div className="text-center">
-                        <p className="text-gray-300 text-xl font-bold">{selectedTournament.type}</p>
-                        <p className="text-gray-400 text-sm">Type</p>
                     </div>
                 </div>
 
