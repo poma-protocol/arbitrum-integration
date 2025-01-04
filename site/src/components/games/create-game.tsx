@@ -107,7 +107,7 @@ export default function CreateGame() {
 
     return (
         <>
-            <div>
+            <div className="mx-auto max-w-3xl p-6 rounded-lg shadow-md">
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                         <FormField
