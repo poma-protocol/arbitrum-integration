@@ -138,7 +138,7 @@ export default function CreateActivity() {
     }
 
     return (
-        <div className=" w-2/3 p-4 m-auto rounded-2xl min-h-screen">
+        <div className=" max-w-3xl p-4 mx-auto rounded-2xl min-h-screen">
             <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
                     <div className="flex flex-row gap-4">
