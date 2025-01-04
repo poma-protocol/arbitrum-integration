@@ -6,7 +6,6 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { get } from "http";
 interface Game {
     name: string,
     category: string,
@@ -108,7 +107,7 @@ export default function Games() {
                         >
                             <div className="w-full h-40 object-cover">
                                 <Image
-                                    src="/assets/images/1.jpeg"
+                                    src={`http://localhost:4000/${game.image}`}
                                     alt={game.name}
                                     width={225}
                                     height={400}
