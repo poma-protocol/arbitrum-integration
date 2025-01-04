@@ -29,6 +29,8 @@ export enum Errors {
     IMAGE_UPLOAD_FAILED="Image Upload Failed",
     ACTIVITY_START_DATE="Activity start date is invalid",
     ACTIVITY_END_DATE="Activity end date is invalid",
+    LMDB_STORE="Could Not Store In LMDB",
+    LMDB_READ="Could Not Read From LMDB"
     ACTIVITY_NOT_FOUND = "Activity Not Found",
     INVALID_ACTIVITY_ID = "Invalid Activity ID"
 }
