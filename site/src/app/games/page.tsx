@@ -108,7 +108,7 @@ export default function Games() {
                         >
                             <div className="w-full h-40 object-cover">
                                 <Image
-                                    src={game.image}
+                                    src="/assets/images/1.jpeg"
                                     alt={game.name}
                                     width={225}
                                     height={400}

@@ -4,8 +4,15 @@ import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { useAccount } from 'wagmi';
 import axios from "axios";
-import { useRouter } from "next/router";
+import { useRouter, useParams } from "next/navigation";
 import { daysUntil, formatISODate } from "@/components/utils/tournaments";
+import { Button } from "@/components/ui/button";
+import Image from "next/image";
+import { Montserrat } from "next/font/google";
+const montserrat = Montserrat({
+    subsets: ["latin"],
+    weight: ["400", "600"]
+})
 interface Tournament {
     id: number;
     name: string;
@@ -16,8 +23,6 @@ interface Tournament {
     endDate: string;
     image: string;
 }
-
-
 
 export default function TournamentDetail() {
     const { address } = useAccount();
@@ -35,9 +40,11 @@ export default function TournamentDetail() {
         players: 0,
         startDate: "",
         endDate: "",
-        image: "",
+        image: ""
     })
-    const id = useRouter().query.id;
+    const router = useRouter();
+    const { id } = useParams();
+    const tournamentId = id ? parseInt(id as string, 10) : 0;
     useEffect(() => {
         async function fetchActivity() {
             const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/activity/one/${id}`)
@@ -58,8 +65,8 @@ export default function TournamentDetail() {
                 return;
             }
 
-            await fetch(
-                `${process.env.NEXT_PUBLIC_BACKEND_URL}/`,
+            const response = await fetch(
+                `${process.env.NEXT_PUBLIC_BACKEND_URL}/activity/join`,
                 {
                     method: "POST",
                     headers: {
@@ -72,6 +79,9 @@ export default function TournamentDetail() {
                     })
                 }
             );
+            if(response.ok){
+                toast.success("Successfully joined activity")
+            }
         } catch (err) {
             toast.error("Could not join activity");
         }
@@ -99,21 +109,25 @@ export default function TournamentDetail() {
     }, []);
 
     return (
-        <div className="bg-black text-white min-h-screen py-10 px-4 md:px-16">
+        <div className={`bg-black text-white min-h-screen py-10 px-4 md:px-16  ${montserrat.className}`}>
             <div className="max-w-5xl mx-auto">
                 <button className="text-gray-400 hover:text-white mb-6">&larr; Back</button>
 
                 <h1 className="text-3xl md:text-4xl font-bold mb-6">{selectedTournament.name}</h1>
 
                 <div className="relative bg-gray-800 rounded-lg overflow-hidden shadow-lg">
-                    <img
-                        src={selectedTournament.image}
-                        alt={selectedTournament.name}
-                        className="w-full h-64 object-cover"
-                    />
+                    <div className="w-full h-96">
+                        <Image
+                            src="/assets/images/3.jpeg"
+                            alt={selectedTournament.name}
+                            width={1200}
+                            height={400}
+                            layout="responsive"
+                        />
+                    </div>
 
                     <div className="absolute top-4 left-4 bg-purple-500 text-black text-xs px-3 py-1 rounded">
-                        Starting in {timeLeft.days} Days {timeLeft.hours}:{timeLeft.minutes}:{timeLeft.seconds}
+                        Starting in {daysUntil(selectedTournament.startDate)} days
                     </div>
 
                     <div className="absolute bottom-4 left-4 text-gray-300 text-sm">
@@ -130,7 +144,7 @@ export default function TournamentDetail() {
                     </button>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mt-8 bg-gray-800 p-6 rounded-lg">
+                <div className={`grid grid-cols-1 md:grid-cols-5 gap-6 mt-8 bg-gray-800 p-6 rounded-lg ${montserrat.className}`}>
                     <div className="text-center">
                         <p className="text-yellow-400 text-xl font-bold">{selectedTournament.reward}</p>
                         <p className="text-gray-400 text-sm">Prize Pool</p>
@@ -149,12 +163,11 @@ export default function TournamentDetail() {
                     </div>
                 </div>
 
-                <div className="text-center mt-8">
-                    <button className="bg-purple-500 hover:bg-purple-600 text-white font-bold py-3 px-8 rounded-lg">
-                        Join Tournament
-                    </button>
-                </div>
+                <Button onClick={() => joinActivity(tournamentId)} className="bg-purple-500 hover:bg-purple-600 text-white font-bold py-3 px-8 rounded-lg">
+                    Join Tournament
+                </Button>
             </div>
         </div>
+
     );
 }
