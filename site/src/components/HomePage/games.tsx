@@ -23,7 +23,6 @@ function Games() {
         "/assets/images/game4.jpeg",
         "/assets/images/game5.jpeg",
     ];
-
     return (
         <div
             className={`${chakra.className} text-white w-full px-32 py-8`}
