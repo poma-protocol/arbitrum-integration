@@ -48,6 +48,7 @@ export default function Games() {
     const publishers = ["EA", "Ubisoft", "Rockstar", "Bethesda"];
 
     const playerCounts = ["Single Player", "Co-op", "Multiplayer"];
+    const IMAGE_HOSTNAME = process.env.NEXT_PUBLIC_IMAGE_HOSTNAME;
 
     return (
         <div className="bg-gray-900 min-h-screen flex flex-col lg:flex-row">
@@ -107,7 +108,7 @@ export default function Games() {
                         >
                             <div className="w-full h-40 object-cover">
                                 <Image
-                                    src={`http://localhost:4000/${game.image}`}
+                                    src={`${IMAGE_HOSTNAME}/${game.image}`}
                                     alt={game.name}
                                     width={225}
                                     height={400}
