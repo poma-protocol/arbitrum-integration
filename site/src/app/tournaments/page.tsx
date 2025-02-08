@@ -34,6 +34,7 @@ export default function Tournaments() {
         }
         getTournaments();
     }, [])
+    const IMAGE_HOSTNAME = process.env.NEXT_PUBLIC_IMAGE_HOSTNAME;
 
     return (
         <div className="bg-black text-white min-h-screen py-10 px-4 md:px-16">
@@ -59,7 +60,7 @@ export default function Tournaments() {
                         >
                             <div className="relative">
                                 <img
-                                    src={tournament.image}
+                                    src={`${IMAGE_HOSTNAME}/${tournament.image}`}
                                     alt={tournament.name}
                                     className="w-full h-48 object-cover"
                                 />
