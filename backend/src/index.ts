@@ -8,6 +8,10 @@ if(!port) {
     throw new MyError(Errors.SERVER_SETUP);
 }
 
+app.get("/test", (req, res) => {
+    res.send("Reachable");
+})
+
 app.get("*", (req, res) => {
     res.status(404).json({error: [Errors.ROUTE_NOT_FOUND]});
 })
