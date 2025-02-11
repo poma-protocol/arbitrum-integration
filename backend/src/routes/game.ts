@@ -14,7 +14,6 @@ router.post("/upload", upload.single("image"), (req, res) => {
         if(!req.file) {
             res.status(400).json({error: [Errors.IMAGE_UPLOAD_FAILED]});
         }
-
         res.status(201).json(req.file!.path);
     } catch(err) {
         console.log("Error Uploading Image ->", err);
