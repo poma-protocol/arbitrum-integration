@@ -40,15 +40,16 @@ contract Poma {
      * @param _winningPoints - Points required to win the game
      * @param _gameName - Name of the game
      * @param _reward - Reward for the winner
-     * @return activityId - Id of the activity
+     * @return id - Id of the activity
      */
     function createActivity(
+        uint activityId,
         uint _gameId,
         uint _winningPoints,
         string memory _gameName,
         uint _reward
-    ) public returns (uint activityId) {
-        activityId = numActivities++;
+    ) public returns (uint id) {
+        id = numActivities++;
         Activity storage activity = activities[activityId];
         activity.gameId = _gameId;
         activity.winningPoints = _winningPoints;
