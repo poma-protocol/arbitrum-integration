@@ -51,6 +51,7 @@ contract Poma {
     ) public returns (uint id) {
         id = numActivities++;
         Activity storage activity = activities[activityId];
+        activity.activityId = activityId;
         activity.gameId = _gameId;
         activity.winningPoints = _winningPoints;
         activity.gameName = _gameName;
@@ -90,16 +91,23 @@ contract Poma {
 
     /**
      *
-     * @param _activityId - Id of the activity
+     * @param activityId - Id of the activity
      * @param _userAddress - Address of the participant
      */
-    function addParticipant(uint _activityId, address _userAddress) public {
-        Activity storage activity = activities[_activityId];
-        activity.participants[activity.numParticipants++] = Participant({
-            userAddress: _userAddress,
-            points: 0,
-            paid: false
-        });
+    function addParticipant(uint activityId, address _userAddress) public {
+        for (uint i = 0; i <= numActivities; i++) {
+           
+            if (activities[i].activityId == activityId) {
+                Activity storage activity = activities[i];
+                activity.participants[
+                    activity.numParticipants++
+                ] = Participant({
+                    userAddress: _userAddress,
+                    points: 0,
+                    paid: false
+                });
+            }
+        }
     }
 
     /**
@@ -113,13 +121,29 @@ contract Poma {
         address _userAddress,
         uint _points
     ) public {
-        Activity storage activity = activities[_activityId];
-        for (uint i = 0; i < activity.numParticipants; i++) {
-            if (activity.participants[i].userAddress == _userAddress) {
-                activity.participants[i].points += _points;
-                //Check if the participant has won
-                if (hasWon(_userAddress, _activityId, i, activity.winningPoints)) {
-                    sendReward(_userAddress, activity.reward, _activityId, i);
+        for (uint i = 0; i <= numActivities; i++) {
+            if (activities[i].activityId == _activityId) {
+                Activity storage activity = activities[i];
+                for (uint j = 0; j < activity.numParticipants; j++) {
+                    if (activity.participants[j].userAddress == _userAddress) {
+                        activity.participants[j].points += _points;
+                        //Check if the participant has won
+                        if (
+                            hasWon(
+                                _userAddress,
+                                i,
+                                j,
+                                activity.winningPoints
+                            )
+                        ) {
+                            sendReward(
+                                _userAddress,
+                                activity.reward,
+                                i,
+                                j
+                            );
+                        }
+                    }
                 }
             }
         }
@@ -127,17 +151,17 @@ contract Poma {
 
     /**
      * @param userAdress  - Address of the participant
-     * @param activityId  - Id of the activity
+     * @param activityIndex  - Index of the activity
      * @param index  - Index of the participant
      * @param totalPoints  - Total points of the participant
      */
     function hasWon(
         address userAdress,
-        uint activityId,
+        uint activityIndex,
         uint index,
         uint totalPoints
     ) internal view returns (bool) {
-        Activity storage activity = activities[activityId];
+          Activity storage activity = activities[activityIndex];
         if (activity.participants[index].userAddress == userAdress) {
             if (activity.participants[index].points >= totalPoints) {
                 return true;
@@ -150,16 +174,16 @@ contract Poma {
      *
      * @param userAddress  - Address of the participant
      * @param reward  - Reward for the winner
-     * @param activityId  - Id of the activity
+     * @param activityIndex  - Index of the activity
      * @param index  - Index of the participant
      */
     function sendReward(
         address userAddress,
         uint reward,
-        uint activityId,
+        uint activityIndex,
         uint index
     ) internal {
-        Activity storage activity = activities[activityId];
+         Activity storage activity = activities[activityIndex];
         if (
             activity.participants[index].userAddress ==
             userAddress
