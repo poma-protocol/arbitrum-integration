@@ -118,7 +118,7 @@ contract Poma {
             if (activity.participants[i].userAddress == _userAddress) {
                 activity.participants[i].points += _points;
                 //Check if the participant has won
-                if (hasWon(_userAddress, _activityId, activity.winningPoints)) {
+                if (hasWon(_userAddress, _activityId, i, activity.winningPoints)) {
                     sendReward(_userAddress, activity.reward, _activityId, i);
                 }
             }
@@ -127,16 +127,19 @@ contract Poma {
 
     /**
      * @param userAdress  - Address of the participant
+     * @param activityId  - Id of the activity
      * @param index  - Index of the participant
      * @param totalPoints  - Total points of the participant
      */
     function hasWon(
         address userAdress,
+        uint activityId,
         uint index,
         uint totalPoints
     ) internal view returns (bool) {
-        if (activities[index].participants[index].userAddress == userAdress) {
-            if (activities[index].participants[index].points >= totalPoints) {
+        Activity storage activity = activities[activityId];
+        if (activity.participants[index].userAddress == userAdress) {
+            if (activity.participants[index].points >= totalPoints) {
                 return true;
             }
         }
@@ -156,15 +159,16 @@ contract Poma {
         uint activityId,
         uint index
     ) internal {
+        Activity storage activity = activities[activityId];
         if (
-            activities[activityId].participants[index].userAddress ==
+            activity.participants[index].userAddress ==
             userAddress
         ) {
-            if (activities[activityId].participants[index].paid == true) {
+            if (activity.participants[index].paid == true) {
                 return;
             }
             rewardWinner(payable(userAddress), reward);
-            activities[activityId].participants[index].paid = true;
+            activity.participants[index].paid = true;
         }
     }
 
