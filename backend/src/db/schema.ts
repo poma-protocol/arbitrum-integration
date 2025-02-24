@@ -47,5 +47,6 @@ export const type1foundTransactions = pgTable("type_1_found_transactions", {
     id: serial("id").primaryKey(),
     txHash: text("tx_hash").notNull(),
     activity_id: integer("activity_id").references(() => type1Activities.id).notNull(),
-    playerAddress: text("player_address").notNull()
+    playerAddress: text("player_address").notNull(),
+    update_tx_hash: text("updateTransactionHash")
 })
