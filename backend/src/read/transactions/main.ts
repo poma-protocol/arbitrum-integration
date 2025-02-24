@@ -60,8 +60,7 @@ async function main() {
                         }
     
                         // Decode transaction data
-                        //@ts-ignore
-                        const decoded = decodeTransactionInput(transaction.input, activity.abi)
+                        const decoded = decodeTransactionInput(transaction.input, activity.abi, activity.address)
     
                         // Get if transaction is of the right method
                         const method = (decoded["__method__"]) as string
