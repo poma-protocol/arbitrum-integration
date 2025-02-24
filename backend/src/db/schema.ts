@@ -24,7 +24,7 @@ export const type1Activities = pgTable("type_1_activities", {
     name: text("name").notNull(),
     challenge_id: integer("challenge_id").references(() => type1Challenges.id).notNull(),
     reward: integer("reward").notNull(),
-    onChainID: integer("on_chain_id").notNull(),
+    creation_tx_hash: text("creationTransactionHash"),
     startDate: date("start_date").notNull(),
     endDate: date("end_date").notNull(),
     image: text("image").notNull(),
@@ -34,7 +34,8 @@ export const type1Activities = pgTable("type_1_activities", {
 export const activityPlayers = pgTable("activity_players", {
     activityId: integer("activity_id").references(() => type1Activities.id),
     playerAddress: text("player_address").notNull(),
-    done: boolean("done").default(false).notNull()
+    done: boolean("done").default(false).notNull(),
+    creation_tx_hash: text("createdTransactionHash")
 }, (table) => {
     return [{
         pk: primaryKey({columns: [activityPlayers.activityId, activityPlayers.playerAddress]}),
