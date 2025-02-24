@@ -74,18 +74,20 @@ async function main() {
                                 found[decodedPlayer]++;
     
                                 console.log(`Transaction for ${decodedPlayer} in activity ${i} found ${found[decodedPlayer]} times`);
-                                await db.insert(type1foundTransactions).values({
-                                    txHash: transaction.hash,
-                                    activity_id: activity.id,
-                                    playerAddress: decodedPlayer
-                                })
 
                                 // Update contract
-                                await smartContract.updatePoints(
+                                const updateHash = await smartContract.updatePoints(
                                     activity.id,
                                     decodedPlayer,
                                     1
                                 );
+
+                                await db.insert(type1foundTransactions).values({
+                                    txHash: transaction.hash,
+                                    activity_id: activity.id,
+                                    playerAddress: decodedPlayer,
+                                    update_tx_hash: updateHash
+                                })
     
                                 if (found[decodedPlayer] >= goal) {
                                     console.log("ALERT!");
