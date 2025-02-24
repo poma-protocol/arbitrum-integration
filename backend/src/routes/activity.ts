@@ -66,14 +66,15 @@ router.post("/join", async (req, res) => {
             const data = parsed.data;
 
             // Store on contract
-            await smartContract.addParticipant(
+            const txHash = await smartContract.addParticipant(
                 data.activity_id,
                 data.player_address
             );
 
             await db.insert(activityPlayers).values({
                 activityId: data.activity_id,
-                playerAddress: data.player_address.toLowerCase()
+                playerAddress: data.player_address.toLowerCase(),
+                creation_tx_hash: txHash
             });
 
             res.status(201).json({ message: Success.ACTIVITY_JOINED });
