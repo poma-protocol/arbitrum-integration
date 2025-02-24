@@ -74,19 +74,38 @@ export class SmarContract {
         }
     }
 
-    async updatePoints(activityID: number, address: string, points: number) {
+    async updatePoints(activityID: number, address: string, points: number): Promise<string> {
         try {
-            await contract.methods.updatePoints(
-                BigInt(activityID),
-                address,
-                BigInt(points)
-            ).send({
+            const block = await web3.eth.getBlock();
+            const transaction = {
                 from: account.address,
-                gas: '1000000',
-                gasPrice: "10000000000"
-            })
+                to: process.env.CONTRACT,
+                data: contract.methods.updatePoints(
+                    BigInt(activityID),
+                    address,
+                    BigInt(points)
+                ).encodeABI(),
+                maxFeePerGas: block.baseFeePerGas! * 2n,
+                maxPriorityFeePerGas: 100000,
+            };
+
+            const signedTransaction = await web3.eth.accounts.signTransaction(
+                transaction,
+                account.privateKey,
+            );
+            const receipt = await web3.eth.sendSignedTransaction(signedTransaction.rawTransaction);
+            return receipt.transactionHash.toString();
         } catch(err) {
-            console.log("Error Updating Points =>", err);
+            if (err.name) {
+                if (err.name === "ContractExecutionError") {
+                    // TODO: Find way to know that error could be cause of low ETH
+                    console.log(err.cause)
+                } else {
+                    console.log("Error in contract =>", err);
+                }
+            } else {
+                console.log("Error Updating Points =>", err);
+            }
             throw new MyError(Errors.NOT_UPDATE_POINTS);
         }
     }
