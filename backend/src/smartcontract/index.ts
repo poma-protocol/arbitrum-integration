@@ -18,7 +18,7 @@ export class SmarContract {
         }
     }
 
-    async createActivity(activityID: number, gameID: number, winningPoints: number, name: string, reward: number): Promise<number> {
+    async createActivity(activityID: number, gameID: number, winningPoints: number, name: string, reward: number): Promise<string> {
         try {
             const block = await web3.eth.getBlock();
             const transaction = {
@@ -39,32 +39,8 @@ export class SmarContract {
                 account.privateKey,
             );
             const receipt = await web3.eth.sendSignedTransaction(signedTransaction.rawTransaction);
-            console.log("Transaction hash =>", receipt.transactionHash);
 
-            //@ts-ignore
-            // const events = await contract.getPastEvents("ActivityCreated", {from: BigInt(125979537)});
-            // console.log(events);
-
-            // const log = receipt.logs[0];
-            // const data = contract.decodeMethodData(log.data!.toString());
-            // console.log("Data", data);
-            // @ts-ignore
-            // return Number.parseInt(id);
-
-            // const receipt = await contract.methods.createActivity(
-            //     BigInt(activityID),
-            //     BigInt(gameID),
-            //     BigInt(winningPoints),
-            //     name,
-            //     BigInt(reward)
-            // ).send({
-            //     from: account.address,
-            //     gas: '1000000',
-            //     gasPrice: "10000000000",
-            // });
-            // console.log("Receipt =>", receipt);
-
-            return 1;
+            return receipt.transactionHash.toString();
         } catch(err) {
             console.log("Error Creating Activity =>", err);
             throw new MyError(Errors.NOT_CREATE_ACTIVITY);
@@ -107,7 +83,3 @@ export class SmarContract {
 
 const smartContract = new SmarContract(web3);
 export default smartContract;
-(async () => {
-    const id = await smartContract.createActivity(1, 1, 1, "Test", 1);
-    console.log("Done", id);
-})();
