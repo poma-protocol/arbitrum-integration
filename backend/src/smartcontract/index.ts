@@ -21,6 +21,7 @@ export class SmarContract {
 
     async createActivity(activityID: number, gameID: number, winningPoints: number, name: string, reward: number): Promise<string> {
         try {
+            const rewardInWei = Number.parseInt(web3.utils.toWei(reward.toString(), "ether"));
             const block = await web3.eth.getBlock();
             const transaction = {
                 from: account.address,
@@ -30,7 +31,7 @@ export class SmarContract {
                     BigInt(gameID),
                     BigInt(winningPoints),
                     name,
-                    BigInt(reward)
+                    BigInt(rewardInWei)
                 ).encodeABI(),
                 maxFeePerGas: block.baseFeePerGas! * 2n,
                 maxPriorityFeePerGas: 100000,
