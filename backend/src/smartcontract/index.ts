@@ -1,4 +1,4 @@
-import Web3, { Contract } from "web3";
+import Web3, { ContractOnceRequiresCallbackError } from "web3";
 import { account, contract, web3 } from "./account";
 import { Errors, MyError } from "../helpers/errors";
 
@@ -18,23 +18,53 @@ export class SmarContract {
         }
     }
 
-    async createActivity(gameID: number, winningPoints: number, name: string, reward: number): Promise<number> {
+    async createActivity(activityID: number, gameID: number, winningPoints: number, name: string, reward: number): Promise<number> {
         try {
-            const receipt = await contract.methods.createActivity(
-                BigInt(gameID),
-                BigInt(winningPoints),
-                name,
-                BigInt(reward)
-            ).send({
+            const block = await web3.eth.getBlock();
+            const transaction = {
                 from: account.address,
-                gas: '1000000',
-                gasPrice: "10000000000"
-            });
-            console.log("Txhash =>", receipt);
+                to: process.env.CONTRACT,
+                data: contract.methods.createActivity(
+                    BigInt(activityID),
+                    BigInt(gameID),
+                    BigInt(winningPoints),
+                    name,
+                    BigInt(reward)
+                ).encodeABI(),
+                maxFeePerGas: block.baseFeePerGas! * 2n,
+                maxPriorityFeePerGas: 100000,
+            };
+            const signedTransaction = await web3.eth.accounts.signTransaction(
+                transaction,
+                account.privateKey,
+            );
+            const receipt = await web3.eth.sendSignedTransaction(signedTransaction.rawTransaction);
+            console.log("Transaction hash =>", receipt.transactionHash);
 
-            const id = receipt.events!['ActivityCreated']!['returnValues']['activityId']
             //@ts-ignore
-            return Number.parseInt(id);
+            // const events = await contract.getPastEvents("ActivityCreated", {from: BigInt(125979537)});
+            // console.log(events);
+
+            // const log = receipt.logs[0];
+            // const data = contract.decodeMethodData(log.data!.toString());
+            // console.log("Data", data);
+            // @ts-ignore
+            // return Number.parseInt(id);
+
+            // const receipt = await contract.methods.createActivity(
+            //     BigInt(activityID),
+            //     BigInt(gameID),
+            //     BigInt(winningPoints),
+            //     name,
+            //     BigInt(reward)
+            // ).send({
+            //     from: account.address,
+            //     gas: '1000000',
+            //     gasPrice: "10000000000",
+            // });
+            // console.log("Receipt =>", receipt);
+
+            return 1;
         } catch(err) {
             console.log("Error Creating Activity =>", err);
             throw new MyError(Errors.NOT_CREATE_ACTIVITY);
@@ -77,3 +107,7 @@ export class SmarContract {
 
 const smartContract = new SmarContract(web3);
 export default smartContract;
+(async () => {
+    const id = await smartContract.createActivity(1, 1, 1, "Test", 1);
+    console.log("Done", id);
+})();
