@@ -131,7 +131,8 @@ router.get("/one/:id", async (req, res) => {
     try {
         const activityId = parseInt(req.params.id);
         if (isNaN(activityId)) {
-            return res.status(400).json({ error: [Errors.INVALID_ACTIVITY_ID] });
+            res.status(400).json({ error: [Errors.INVALID_ACTIVITY_ID] });
+            return;
         }
 
         const activity = await db.select({
@@ -147,7 +148,8 @@ router.get("/one/:id", async (req, res) => {
             .limit(1);
 
         if (activity.length === 0) {
-            return res.status(404).json({ error: [Errors.ACTIVITY_NOT_FOUND] });
+            res.status(404).json({ error: [Errors.ACTIVITY_NOT_FOUND] });
+            return;
         }
 
         const count = await db.select({
