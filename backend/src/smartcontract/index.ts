@@ -14,7 +14,7 @@ export class SmarContract {
         try {
             const chainID = await this.web3.eth.getChainId()
             console.log("Chain =>", chainID);
-        } catch(err) {
+        } catch (err) {
             console.log("Error =>", err);
         }
     }
@@ -43,7 +43,7 @@ export class SmarContract {
             const receipt = await web3.eth.sendSignedTransaction(signedTransaction.rawTransaction);
 
             return receipt.transactionHash.toString();
-        } catch(err) {
+        } catch (err) {
             console.log("Error Creating Activity =>", err);
             throw new MyError(Errors.NOT_CREATE_ACTIVITY);
         }
@@ -56,7 +56,7 @@ export class SmarContract {
                 from: account.address,
                 to: process.env.CONTRACT,
                 data: contract.methods.addParticipant(
-                    BigInt(activityID), 
+                    BigInt(activityID),
                     address
                 ).encodeABI(),
                 maxFeePerGas: block.baseFeePerGas! * 2n,
@@ -69,7 +69,7 @@ export class SmarContract {
             );
             const receipt = await web3.eth.sendSignedTransaction(signedTransaction.rawTransaction);
             return receipt.transactionHash.toString();
-        } catch(err) {
+        } catch (err) {
             console.log("Error Adding Participant =>", err);
             throw new MyError(Errors.NOT_ADD_PARTICIPANT);
         }
@@ -96,7 +96,7 @@ export class SmarContract {
             );
             const receipt = await web3.eth.sendSignedTransaction(signedTransaction.rawTransaction);
             return receipt.transactionHash.toString();
-        } catch(err) {
+        } catch (err) {
             if (err.name) {
                 if (err.name === "ContractExecutionError") {
                     // TODO: Find way to know that error could be cause of low ETH
