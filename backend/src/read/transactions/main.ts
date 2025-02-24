@@ -40,7 +40,7 @@ async function main() {
 
             let i = 0;
             for (let activity of activities) {
-                console.log(`\nActivity ${i}\n`);
+                console.log(`\nActivity ID => ${activity.id}\n`);
                 i++;
                 const contract = activity.address;
                 const playerAddressVariable = activity.playerAddressVariable;
@@ -73,7 +73,7 @@ async function main() {
                             if (players.includes(decodedPlayer)) {
                                 found[decodedPlayer]++;
     
-                                console.log(`Transaction for ${decodedPlayer} in activity ${i} found ${found[decodedPlayer]} times`);
+                                console.log(`Transaction for ${decodedPlayer} in activity ${activity.id} found ${found[decodedPlayer]} times`);
 
                                 // Update contract
                                 const updateHash = await smartContract.updatePoints(
