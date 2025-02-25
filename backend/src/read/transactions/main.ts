@@ -40,7 +40,7 @@ async function main() {
 
             let i = 0;
             for (let activity of activities) {
-                console.log(`\nActivity ${i}\n`);
+                console.log(`\nActivity ID => ${activity.id}\n`);
                 i++;
                 const contract = activity.address;
                 const playerAddressVariable = activity.playerAddressVariable;
@@ -60,8 +60,7 @@ async function main() {
                         }
     
                         // Decode transaction data
-                        //@ts-ignore
-                        const decoded = decodeTransactionInput(transaction.input, activity.abi)
+                        const decoded = decodeTransactionInput(transaction.input, activity.abi, activity.address)
     
                         // Get if transaction is of the right method
                         const method = (decoded["__method__"]) as string
@@ -74,19 +73,21 @@ async function main() {
                             if (players.includes(decodedPlayer)) {
                                 found[decodedPlayer]++;
     
-                                console.log(`Transaction for ${decodedPlayer} in activity ${i} found ${found[decodedPlayer]} times`);
-                                await db.insert(type1foundTransactions).values({
-                                    txHash: transaction.hash,
-                                    activity_id: activity.id,
-                                    playerAddress: decodedPlayer
-                                })
+                                console.log(`Transaction for ${decodedPlayer} in activity ${activity.id} found ${found[decodedPlayer]} times`);
 
                                 // Update contract
-                                await smartContract.updatePoints(
+                                const updateHash = await smartContract.updatePoints(
                                     activity.id,
                                     decodedPlayer,
                                     1
                                 );
+
+                                await db.insert(type1foundTransactions).values({
+                                    txHash: transaction.hash,
+                                    activity_id: activity.id,
+                                    playerAddress: decodedPlayer,
+                                    update_tx_hash: updateHash
+                                })
     
                                 if (found[decodedPlayer] >= goal) {
                                     console.log("ALERT!");

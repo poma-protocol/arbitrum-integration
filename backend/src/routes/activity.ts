@@ -23,25 +23,30 @@ router.post("/create", async (req, res) => {
                 .leftJoin(contracts, eq(type1Challenges.contractID, contracts.id))
                 .where(eq(type1Challenges.id, data.challenge_id));
 
+            // Create activity on DB
+            const insertedID = await db.insert(type1Activities).values({
+                goal: data.goal,
+                name: data.name,
+                challenge_id: data.challenge_id,
+                reward: data.reward,
+                image: data.image,
+                startDate: data.startDate,
+                endDate: data.endDate
+            }).returning({id: type1Activities.id});
+
             // Storing in contarct
-            const onchainID = await smartContract.createActivity(
+            const txHash = await smartContract.createActivity(
+                insertedID[0].id,
                 gameID[0].id,
                 data.goal,
                 gameID[0].name!,
                 data.reward
             )
 
-            // Storing activity
-            await db.insert(type1Activities).values({
-                goal: data.goal,
-                name: data.name,
-                challenge_id: data.challenge_id,
-                reward: data.reward,
-                onChainID: onchainID,
-                image: data.image,
-                startDate: data.startDate,
-                endDate: data.endDate
-            });
+            // Update activity with transaction hash
+            await db.update(type1Activities).set({
+                creation_tx_hash: txHash
+            }).where(eq(type1Activities.id, insertedID[0].id));
 
             res.status(201).json({ message: Success.ACTIVITY_CREATED });
         } else {
@@ -61,14 +66,15 @@ router.post("/join", async (req, res) => {
             const data = parsed.data;
 
             // Store on contract
-            await smartContract.addParticipant(
+            const txHash = await smartContract.addParticipant(
                 data.activity_id,
                 data.player_address
             );
 
             await db.insert(activityPlayers).values({
                 activityId: data.activity_id,
-                playerAddress: data.player_address.toLowerCase()
+                playerAddress: data.player_address.toLowerCase(),
+                creation_tx_hash: txHash
             });
 
             res.status(201).json({ message: Success.ACTIVITY_JOINED });
@@ -125,7 +131,8 @@ router.get("/one/:id", async (req, res) => {
     try {
         const activityId = parseInt(req.params.id);
         if (isNaN(activityId)) {
-            return res.status(400).json({ error: [Errors.INVALID_ACTIVITY_ID] });
+            res.status(400).json({ error: [Errors.INVALID_ACTIVITY_ID] });
+            return;
         }
 
         const activity = await db.select({
@@ -141,7 +148,8 @@ router.get("/one/:id", async (req, res) => {
             .limit(1);
 
         if (activity.length === 0) {
-            return res.status(404).json({ error: [Errors.ACTIVITY_NOT_FOUND] });
+            res.status(404).json({ error: [Errors.ACTIVITY_NOT_FOUND] });
+            return;
         }
 
         const count = await db.select({
