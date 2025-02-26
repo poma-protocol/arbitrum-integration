@@ -14,7 +14,7 @@ export enum Errors {
     FUNCTION_NAME="Function Name Must Be a string",
     GAME_NAME="Game Name Must Be a string",
     CHALLENGE_ID="Challenge ID Must Be a number",
-    ACTIVITY_GOAL="Activity Goal Must Be A Number",
+    ACTIVITY_GOAL="Activity Goal Must Be Greater Than Zero",
     ACTIVITY_ID="Activity ID Must Be a number",
     PLAYER_ADDRESS="Player Address Must Be a string",
     NOT_GET_ACTIVITIES="Could Not Get Activities",
@@ -32,5 +32,10 @@ export enum Errors {
     LMDB_STORE="Could Not Store In LMDB",
     LMDB_READ="Could Not Read From LMDB",
     ACTIVITY_NOT_FOUND = "Activity Not Found",
-    INVALID_ACTIVITY_ID = "Invalid Activity ID"
+    INVALID_ACTIVITY_ID = "Invalid Activity ID",
+    NOT_CREATE_JACKPOT = "Could Not Create Jackpot",
+    NOT_STORE_JACKPOT = "Could not store jackpot",
+    JACKPOT_REQUIREMENT = "Jackpot requirement must be greater than 0",
+    REWARD_START_DATE="Reward start date is invalid",
+    REWARD_END_DATE="Reward end date is invalid",
 }

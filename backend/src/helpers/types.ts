@@ -23,7 +23,7 @@ export const registerGameSchema = z.object({
 
 export const createActivity = z.object({
     challenge_id: z.number({message: Errors.CHALLENGE_ID}),
-    goal: z.number({message: Errors.ACTIVITY_GOAL}),
+    goal: z.number({message: Errors.ACTIVITY_GOAL}).gt(0, {message: Errors.ACTIVITY_GOAL}),
     reward: z.number({message: Errors.REWARD}).gte(0.000001, {message: Errors.REWARD}),
     name: z.string({message: Errors.ACTIVITY_NAME}),
     startDate: z.string({message: Errors.ACTIVITY_START_DATE}),
@@ -34,4 +34,13 @@ export const createActivity = z.object({
 export const joinActivity = z.object({
     activity_id: z.number({message: Errors.ACTIVITY_ID}),
     player_address: z.string({message: Errors.PLAYER_ADDRESS})
-})
+});
+
+export const createJackpotSchema = z.object({
+    challenge_id: z.number({message: Errors.CHALLENGE_ID}),
+    requirement: z.number({message: Errors.JACKPOT_REQUIREMENT}).gt(0, {message: Errors.JACKPOT_REQUIREMENT}).int({message: Errors.JACKPOT_REQUIREMENT}),
+    startDate: z.string({message: Errors.REWARD_START_DATE}),
+    endDate: z.string({message: Errors.REWARD_END_DATE}),
+    reward: z.number({message: Errors.REWARD}).gte(0.000001, {message: Errors.REWARD}),
+});
+export type CreateJackpot = z.infer<typeof createJackpotSchema>
