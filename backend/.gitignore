@@ -2,3 +2,4 @@ coverage/
 dist/
 uploads/
 /store/
+!test/
