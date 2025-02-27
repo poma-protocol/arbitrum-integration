@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { Errors } from "../helpers/errors";
+import { Errors, MyError } from "../helpers/errors";
 import { createActivity, joinActivity } from "../helpers/types";
 import { activityPlayers, contracts, type1Activities, type1Challenges } from "../db/schema";
 import { db } from "../db/pool";
@@ -7,6 +7,7 @@ import { Success } from "../helpers/success";
 import { eq, sql } from "drizzle-orm";
 import smartContract from "../smartcontract";
 import database from "../database";
+import { getBattleStatistics } from "../controller/statistics/battle";
 
 const router: Router = Router();
 
@@ -135,6 +136,7 @@ router.get("/", async (req, res) => {
         res.status(500).json({ error: [Errors.INTERNAL_SERVER_ERROR] });
     }
 });
+
 router.get("/one/:id", async (req, res) => {
     try {
         const activityId = parseInt(req.params.id);
@@ -176,12 +178,22 @@ router.get("/one/:id", async (req, res) => {
         res.status(500).json({ error: [Errors.INTERNAL_SERVER_ERROR] });
     }
 });
-router.get("*", (req, res) => {
-    res.status(404).json({
-        error: [
-            Errors.ROUTE_NOT_FOUND
-        ]
-    })
+
+router.get("/statistics/:id", async(req, res) => {
+    try {
+        const battleID = Number.parseInt(req.params.id);
+        const statistics = await getBattleStatistics(battleID, database);
+        res.status(200).json(statistics);
+    } catch(err) {
+        if (err instanceof MyError) {
+            if (err.message === Errors.BATTLE_NOT_EXIST) {
+                res.status(400).json({error: [Errors.BATTLE_NOT_EXIST]});
+                return;
+            }
+        }
+
+        res.status(500).json({error: [Errors.INTERNAL_SERVER_ERROR]});
+    }
 })
 
 export default router;
