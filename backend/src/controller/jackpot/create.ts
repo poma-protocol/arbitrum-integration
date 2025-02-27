@@ -1,8 +1,8 @@
-import { Database } from "../../database";
+import { MyDatabase } from "../../database";
 import { Errors, MyError } from "../../helpers/errors";
 import { CreateJackpot } from "../../helpers/types";
 
-export async function createJackpot(args: CreateJackpot, database: Database) {
+export async function createJackpot(args: CreateJackpot, database: MyDatabase) {
     try {
         // Store details in DB
         await database.storeJackpot(args);

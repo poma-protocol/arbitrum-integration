@@ -38,4 +38,9 @@ export enum Errors {
     JACKPOT_REQUIREMENT = "Jackpot requirement must be greater than 0",
     REWARD_START_DATE="Reward start date is invalid",
     REWARD_END_DATE="Reward end date is invalid",
+    NOT_GET_BATTLE_STATISTICS = "Could not get battle statistics",
+    BATTLE_NOT_EXIST = "Battle does not exist",
+    NOT_CHECK_BATTLE_EXIST = "Could not check if battle exists",
+    NOT_GET_NUMBER_BATTLE_PLAYERS = "Could not get number of battle players",
+    NOT_GET_BATTLE_REWARD_GIVEN = "Could not get battle reward given"
 }
