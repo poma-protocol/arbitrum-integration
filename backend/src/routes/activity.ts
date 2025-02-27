@@ -6,8 +6,9 @@ import { db } from "../db/pool";
 import { Success } from "../helpers/success";
 import { eq, sql } from "drizzle-orm";
 import smartContract from "../smartcontract";
+import database from "../database";
 
-const router = Router();
+const router: Router = Router();
 
 router.post("/create", async (req, res) => {
     try {
@@ -64,6 +65,13 @@ router.post("/join", async (req, res) => {
         const parsed = joinActivity.safeParse(req.body);
         if (parsed.success) {
             const data = parsed.data;
+
+            // Check if activity exists
+            const battleExists = await database.doesBattleExist(data.activity_id);
+            if (!battleExists) {
+                res.status(400).json({error: [Errors.BATTLE_NOT_EXIST]});
+                return;
+            }
 
             // Store on contract
             const txHash = await smartContract.addParticipant(
