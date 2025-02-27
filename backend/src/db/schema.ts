@@ -1,5 +1,4 @@
-import { primaryKey } from "drizzle-orm/mysql-core";
-import { boolean, date, integer, json, pgTable, real, serial, text } from "drizzle-orm/pg-core";
+import { boolean, date, integer, json, pgTable, real, serial, text, primaryKey } from "drizzle-orm/pg-core";
 
 export const contracts = pgTable("contracts", {
     id: serial("id").primaryKey(),
@@ -36,12 +35,9 @@ export const activityPlayers = pgTable("activity_players", {
     playerAddress: text("player_address").notNull(),
     done: boolean("done").default(false).notNull(),
     creation_tx_hash: text("createdTransactionHash")
-}, (table) => {
-    return [{
-        pk: primaryKey({columns: [activityPlayers.activityId, activityPlayers.playerAddress]}),
-        pkWithCustomName: primaryKey({ name: 'player_activity', columns: [activityPlayers.activityId, activityPlayers.playerAddress] }),
-    }];
-});
+}, (table) => [
+    primaryKey({ columns: [table.activityId, table.playerAddress] }),
+]);
 
 export const type1foundTransactions = pgTable("type_1_found_transactions", {
     id: serial("id").primaryKey(),
