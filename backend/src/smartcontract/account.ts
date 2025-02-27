@@ -8,7 +8,7 @@ if(!process.env.RPC_URL) {
     throw new MyError(Errors.SERVER_SETUP);
 }
 
-export const web3 = new Web3(process.env.RPC_URL);
+export const web3: Web3 = new Web3(process.env.RPC_URL);
 
 if(!process.env.PRIVATE_KEY) {
     console.log("Set private key in env");

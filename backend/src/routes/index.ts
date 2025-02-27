@@ -1,7 +1,9 @@
 import game from "./game";
 import activity from "./activity";
 
-export default {
+const routes = {
     game,
     activity
 }
+
+export default routes;

@@ -4,7 +4,7 @@ import { registerGameSchema } from "../helpers/types";
 import { db } from "../db/pool";
 import { contracts, type1Challenges } from "../db/schema";
 import { Success } from "../helpers/success";
-const router = Router();
+const router: Router = Router();
 import { eq } from "drizzle-orm";
 import multer from "multer";
 const upload = multer({dest: "uploads/"});
