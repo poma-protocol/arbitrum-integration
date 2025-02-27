@@ -12,9 +12,9 @@ app.get("/test", (req, res) => {
     res.send("Reachable");
 })
 
-app.get("*", (req, res) => {
+app.all("*", (req, res) => {
     res.status(404).json({error: [Errors.ROUTE_NOT_FOUND]});
-})
+});
 
 app.listen(port, () => {
     console.log(`Server listening on ${port}...`)
