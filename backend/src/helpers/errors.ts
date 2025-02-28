@@ -45,4 +45,11 @@ export enum Errors {
     NOT_GET_BATTLE_REWARD_GIVEN = "Could not get battle reward given",
     NOT_PROCESS_BATTLE = "Could not process battle",
     NOT_GET_JACKPOTS = "Could not get jackpots",
+    NOT_MARK_JACKPOT_DONE = "Could not mark jackpot as done",
+    NOT_MARK_JACKPOT_PLAYER_FOUND = "Could not mark jackpot player as found",
+    NOT_ENTER_PLAYER_RAFFLE = "Could not enter player in raffle",
+    NOT_JOIN_JACKPOT = "Could not add player to jackpot",
+    JACKPOT_NOT_EXIST = "Jackpot does not exist",
+    NOT_CHECK_JACKPOT_EXISTS = "Could not check if jackpot exists",
+    NOT_ADD_JACKPOT_PLAYER_DB = "Could not add player to jackpot in DB"
 }

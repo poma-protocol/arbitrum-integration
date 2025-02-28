@@ -1,6 +1,6 @@
 import { and, count, eq } from "drizzle-orm";
 import { db } from "../db/pool";
-import { activityPlayers, jackpotActivity, type1Activities } from "../db/schema";
+import { activityPlayers, jackpotActivity, jackpotFoundTransactions, jackpotPlayers, type1Activities } from "../db/schema";
 import { Errors, MyError } from "../helpers/errors";
 import { CreateJackpot } from "../helpers/types";
 
@@ -71,6 +71,68 @@ export class MyDatabase {
         } catch(err) {
             console.log("Could not get battle rewards given =>", err);
             throw new MyError(Errors.NOT_GET_BATTLE_REWARD_GIVEN);
+        }
+    }
+
+    async markJackpotAsCompleted(id: number) {
+        try {
+            // Update the player rewarded variable
+            await db.update(jackpotActivity).set({
+                playerAwarded: true
+            }).where(eq(jackpotActivity.id, id));
+        } catch(err) {
+            console.log("Error marking jackpot as complete", err);
+            throw new MyError(Errors.NOT_MARK_JACKPOT_DONE);
+        }
+    }
+
+    async markJackpotPlayerFound(jackpot_id: number, player_address: string, txHash: string) {
+        try {
+            await db.insert(jackpotFoundTransactions).values({
+                jackpot_id,
+                playerAddress: player_address,
+                txHash
+            });
+        } catch(err) {
+            console.log("Could not mark jackpot player as found", err);
+            throw new MyError(Errors.NOT_MARK_JACKPOT_PLAYER_FOUND);
+        }
+    }
+
+    async enterPlayerInRaffle(jackpot_id: number, player_address: string) {
+        try {
+            await db.update(jackpotPlayers).set({
+                met_requirement: true
+            }).where(eq(jackpotPlayers.jackpot_id, jackpot_id));
+        } catch(err) {
+            console.log("Could not enter player in raffle", err);
+            throw new MyError(Errors.NOT_ENTER_PLAYER_RAFFLE);
+        }
+    }
+
+    async doesJackpotExist(jackpot_id: number): Promise<boolean> {
+        try {
+            const res = await db.select({
+                id: jackpotActivity.id
+            }).from(jackpotActivity)
+            .where(eq(jackpotActivity.id, jackpot_id));
+
+            return res.length > 0;
+        } catch(err) {
+            console.log("Error checking if jackpot exists", err);
+            throw new MyError(Errors.NOT_CHECK_JACKPOT_EXISTS);
+        }
+    }
+
+    async addPlayerToJackpot(jackpot_id: number, player_address: string) {
+        try {
+            await db.insert(jackpotPlayers).values({
+                jackpot_id,
+                playerAddress: player_address
+            });
+        } catch(err) {
+            console.log("Error adding player to jackpot", err);
+            throw new MyError(Errors.NOT_ADD_JACKPOT_PLAYER_DB);
         }
     }
 }
