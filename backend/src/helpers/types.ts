@@ -44,3 +44,8 @@ export const createJackpotSchema = z.object({
     reward: z.number({message: Errors.REWARD}).gte(0.000001, {message: Errors.REWARD}),
 });
 export type CreateJackpot = z.infer<typeof createJackpotSchema>
+
+export const joinJackpotSchema = z.object({
+    jackpot_id: z.number({message: Errors.JACKPOT_ID}),
+    player_address: z.string({message: Errors.PLAYER_ADDRESS})
+})
