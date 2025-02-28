@@ -148,6 +148,13 @@
       "when": 1740637799835,
       "tag": "0020_married_power_pack",
       "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "7",
+      "when": 1740721118049,
+      "tag": "0021_special_gwen_stacy",
+      "breakpoints": true
     }
   ]
 }

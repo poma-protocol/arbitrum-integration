@@ -42,5 +42,7 @@ export enum Errors {
     BATTLE_NOT_EXIST = "Battle does not exist",
     NOT_CHECK_BATTLE_EXIST = "Could not check if battle exists",
     NOT_GET_NUMBER_BATTLE_PLAYERS = "Could not get number of battle players",
-    NOT_GET_BATTLE_REWARD_GIVEN = "Could not get battle reward given"
+    NOT_GET_BATTLE_REWARD_GIVEN = "Could not get battle reward given",
+    NOT_PROCESS_BATTLE = "Could not process battle",
+    NOT_GET_JACKPOTS = "Could not get jackpots",
 }

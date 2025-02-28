@@ -47,11 +47,27 @@ export const type1foundTransactions = pgTable("type_1_found_transactions", {
     update_tx_hash: text("updateTransactionHash")
 });
 
+export const jackpotFoundTransactions = pgTable("jackpot_found_transactions", {
+    id: serial("id").primaryKey(),
+    txHash: text("tx_hash").notNull(),
+    jackpot_id: integer("jackpot_id").references(() => jackpotActivity.id).notNull(),
+    playerAddress: text("player_address").notNull(),
+});
+
 export const jackpotActivity = pgTable("jackpotActivity", {
     id: serial("id").primaryKey(),
     challenge_id: integer("challenge_id").references(() => type1Challenges.id).notNull(),
     requirement: integer("requirement").notNull(),
     startDate: date("start_date").notNull(),
     endDate: date("end_date").notNull(),
-    reward: real("reward").notNull()
+    reward: real("reward").notNull(),
+    playerAwarded: boolean("player_awarded").notNull().default(false)
 });
+
+export const jackpotPlayers = pgTable("jackpot_players", {
+    jackpot_id: integer("jackpot_id").references(() => jackpotActivity.id),
+    playerAddress: text("player_address").notNull(),
+    met_requirement: boolean("met_requirement").notNull().default(false)
+}, (table) => [
+    primaryKey({ columns: [table.jackpot_id, table.playerAddress] }),
+]);
