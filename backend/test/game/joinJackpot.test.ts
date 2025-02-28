@@ -26,10 +26,36 @@ describe("Join jackpot test", () => {
         }
     });
 
+    it("should fail if player has already joined jackpot", async () => {
+        try {
+            const existingJackpotID = 100;
+            const player_address = "test";
+            mockDatabase.doesJackpotExist = jest.fn().mockResolvedValue(true);
+            mockDatabase.isPlayerInJackpot = jest.fn().mockResolvedValue(true);
+
+            await joinJackpot(existingJackpotID, player_address, mockDatabase);
+            console.log("Expected error but didn't get any");
+            expect(false).toBe(true);
+        } catch (err) {
+            if (err instanceof MyError) {
+                if (err.message === Errors.PLAYER_ALREADY_IN_JACKPOT) {
+                    expect(mockDatabase.addPlayerToJackpot).toHaveBeenCalledTimes(0);
+                } else {
+                    console.log("Unexpected error", err);
+                    expect(false).toBe(true);
+                }
+            } else {
+                console.log("Unexpected error", err);
+                expect(false).toBe(true);
+            }
+        }
+    });
+
     it("should add player to jackpot", async () => {
         const existingJackpotID = 1;
         const player_address = "test";
         mockDatabase.doesJackpotExist = jest.fn().mockResolvedValue(true);
+        mockDatabase.isPlayerInJackpot = jest.fn().mockResolvedValue(false);
 
         await joinJackpot(existingJackpotID, player_address, mockDatabase);
         expect(mockDatabase.addPlayerToJackpot).toHaveBeenCalledTimes(1);

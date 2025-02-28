@@ -74,10 +74,16 @@ router.post("/join", async (req, res) => {
                 return;
             }
 
+            // Check if player already joined
+            const playerAlready = await database.isPlayerInBattle(data.activity_id, data.player_address);
+            if (playerAlready) {
+                res.status(400).json({error: [Errors.PLAYER_ALREADY_IN_BATTLE]});
+            }
+
             // Store on contract
             const txHash = await smartContract.addParticipant(
                 data.activity_id,
-                data.player_address
+                data.player_address.toLowerCase()
             );
 
             await db.insert(activityPlayers).values({

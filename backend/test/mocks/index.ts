@@ -9,5 +9,7 @@ export const mockDatabase = {
     markJackpotAsCompleted: jest.fn(),
     markJackpotPlayerFound: jest.fn(),
     doesJackpotExist: jest.fn(),
-    addPlayerToJackpot: jest.fn()
+    addPlayerToJackpot: jest.fn(),
+    isPlayerInJackpot: jest.fn(),
+    isPlayerInBattle: jest.fn()
 } as MyDatabase

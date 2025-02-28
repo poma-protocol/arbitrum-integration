@@ -74,6 +74,23 @@ export class MyDatabase {
         }
     }
 
+    async isPlayerInBattle(id: number, player_address: string): Promise<boolean> {
+        try {
+            const res = await db.select({
+                id: activityPlayers.activityId
+            }).from(activityPlayers)
+            .where(and(
+                eq(activityPlayers.activityId, id),
+                eq(activityPlayers.playerAddress, player_address)
+            ));
+
+            return res.length > 0;
+        } catch(err) {
+            console.log("Could not check if player already in battle", err);
+            throw new MyError(Errors.NOT_CHECK_PLAYER_IN_BATTLE);
+        }
+    }
+
     async markJackpotAsCompleted(id: number) {
         try {
             // Update the player rewarded variable
@@ -133,6 +150,23 @@ export class MyDatabase {
         } catch(err) {
             console.log("Error adding player to jackpot", err);
             throw new MyError(Errors.NOT_ADD_JACKPOT_PLAYER_DB);
+        }
+    }
+
+    async isPlayerInJackpot(jackpot_id: number, player_address: string): Promise<boolean> {
+        try {
+            const res = await db.select({
+                id: jackpotPlayers.jackpot_id
+            }).from(jackpotPlayers)
+            .where(and(
+                eq(jackpotPlayers.jackpot_id, jackpot_id),
+                eq(jackpotPlayers.playerAddress, player_address)
+            ));
+
+            return res.length > 0;
+        } catch(err) {
+            console.log("Error checking if player is in jackpot", err);
+            throw new MyError(Errors.NOT_CHECK_PLAYER_IN_JACKPOT);
         }
     }
 }
