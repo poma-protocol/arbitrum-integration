@@ -51,7 +51,7 @@ export async function getActivities(): Promise<Activity[]> {
                     
                     const playersToReturn = players.map((p) => p.playerAddress);
 
-                    let found = {};
+                    let found: Record<string, number> = {};
                     // Get found
                     for (let player of players) {
                         const count = await db.select({
