@@ -1,15 +1,13 @@
-import { decodeTransactionInput } from "./decode-transaction";
-import { getTransactions } from "./rpc";
 import "dotenv/config";
 import { sleep } from "../../helpers";
 import { getActivities } from "../../game/getActivities";
 import { Errors, MyError } from "../../helpers/errors";
-import { db } from "../../db/pool";
-import { activityPlayers, type1foundTransactions } from "../../db/schema";
-import { sql } from "drizzle-orm";
-import smartContract from "../../smartcontract";
 import lmdb from "../../store";
 import { START_BLOCK_KEY } from "../../helpers/constants";
+import processBattle from "./process_battle";
+import { getJackpots } from "../../game/getJacpots";
+import processJackpot from "./process_jackpot";
+import database from "../../database";
 
 if (!process.env.BLOCK_NUMBER) {
     console.log("Need to set block number in env");
@@ -36,82 +34,24 @@ async function main() {
         while (true) {
             console.log(`Search starting at ${startBlock}...`)
             let endBlock: number | undefined = undefined;
+
+            console.log(`\nProcessing Battles\n`);
+            // Getting battle activities
             const activities = await getActivities();
 
-            let i = 0;
+            // Processing battle activities
             for (let activity of activities) {
-                console.log(`\nActivity ID => ${activity.id}\n`);
-                i++;
-                const contract = activity.address;
-                const playerAddressVariable = activity.playerAddressVariable;
-                const functionName = activity.functionName;
-                const goal = activity.goal;
-
-                const players = activity.players.map((p) => p.toLowerCase());
-                // Object with found of each player
-                let found = activity.found
-
-                const resp = await getTransactions(startBlock, contract, endBlock);
-                if (players.length > 0) {
-                    for (let transaction of resp.result) {
-                        if (players.length <= 0) {
-                            console.log("Done Searching!");
-                            break;
-                        }
-    
-                        // Decode transaction data
-                        const decoded = decodeTransactionInput(transaction.input, activity.abi, activity.address)
-    
-                        // Get if transaction is of the right method
-                        const method = (decoded["__method__"]) as string
-                        if (method.includes(functionName)) {
-                            // Get player in transaction
-                            const origPlayer = (decoded[playerAddressVariable]) as string
-                            const decodedPlayer = origPlayer.toLowerCase();
-    
-                            // Check if the player is one of the tracked players
-                            if (players.includes(decodedPlayer)) {
-                                found[decodedPlayer]++;
-    
-                                console.log(`Transaction for ${decodedPlayer} in activity ${activity.id} found ${found[decodedPlayer]} times`);
-
-                                // Update contract
-                                const updateHash = await smartContract.updatePoints(
-                                    activity.id,
-                                    decodedPlayer,
-                                    1
-                                );
-
-                                await db.insert(type1foundTransactions).values({
-                                    txHash: transaction.hash,
-                                    activity_id: activity.id,
-                                    playerAddress: decodedPlayer,
-                                    update_tx_hash: updateHash
-                                })
-    
-                                if (found[decodedPlayer] >= goal) {
-                                    console.log("ALERT!");
-                                    // Remove player
-                                    const playerIndex = players.indexOf(decodedPlayer);
-                                    players.splice(playerIndex, 1);
-    
-                                    await db.update(activityPlayers).set({
-                                        done: true
-                                    }).where(sql`${activityPlayers.activityId} = ${activity.id} AND ${activityPlayers.playerAddress} = ${decodedPlayer}`)
-    
-                                    // Remove player from found
-                                    delete found[decodedPlayer];
-                                }
-                            }
-                        }
-                    }
-                } else {
-                    console.log("No players")
-                }
-
-                endBlock = Number.parseInt(resp.result[resp.result.length - 1].blockNumber)
-                console.log("End Block =>", endBlock);
+                endBlock = await processBattle(activity, startBlock, endBlock);
             }
+
+            console.log(`\nProcessing Jackpots\n`);
+            // Getting jackpot activities
+            // const jackpots = await getJackpots();
+
+            // // Processing jackpots
+            // for (let jackpot of jackpots) {
+            //     endBlock = await processJackpot(jackpot, startBlock, endBlock, database);
+            // }
 
             await sleep(3000);
             startBlock = endBlock ?? startBlock;
