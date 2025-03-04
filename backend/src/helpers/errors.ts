@@ -51,5 +51,10 @@ export enum Errors {
     NOT_JOIN_JACKPOT = "Could not add player to jackpot",
     JACKPOT_NOT_EXIST = "Jackpot does not exist",
     NOT_CHECK_JACKPOT_EXISTS = "Could not check if jackpot exists",
-    NOT_ADD_JACKPOT_PLAYER_DB = "Could not add player to jackpot in DB"
+    NOT_ADD_JACKPOT_PLAYER_DB = "Could not add player to jackpot in DB",
+    JACKPOT_ID = "Jackpot ID must be provided",
+    NOT_CHECK_PLAYER_IN_JACKPOT = "Could not check if player is in jackpot",
+    PLAYER_ALREADY_IN_JACKPOT = "Player has already joined jackpot",
+    NOT_CHECK_PLAYER_IN_BATTLE = "Could not check if player is in battle",
+    PLAYER_ALREADY_IN_BATTLE = "Player has already joined battle",
 }
