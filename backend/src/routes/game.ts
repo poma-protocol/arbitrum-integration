@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { Errors } from "../helpers/errors";
+import { Errors, MyError } from "../helpers/errors";
 import { createChallengeSchema, registerGameSchema } from "../helpers/types";
 import { db } from "../db/pool";
 import { contracts, type1Challenges } from "../db/schema";
@@ -35,6 +35,13 @@ router.post("/challenge", async (req, res) => {
             res.status(400).json({error: errors});
         }
     } catch(err) {
+        if (err instanceof MyError) {
+            if (err.message === Errors.CONTRACT_NOT_EXIST) {
+                res.status(400).json({error: [err.message]});
+                return;
+            }
+        }
+
         console.log("Error creating challenge", err);
         res.status(500).json({error: [Errors.INTERNAL_SERVER_ERROR]});
     }
