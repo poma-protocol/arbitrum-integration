@@ -57,4 +57,8 @@ export enum Errors {
     PLAYER_ALREADY_IN_JACKPOT = "Player has already joined jackpot",
     NOT_CHECK_PLAYER_IN_BATTLE = "Could not check if player is in battle",
     PLAYER_ALREADY_IN_BATTLE = "Player has already joined battle",
+    NOT_CREATE_CHALLENGE = "Could not create challenge",
+    CONTRACT_ID = "Contract id must be a number",
+    CONTRACT_NOT_EXIST = "Contract with contract ID does not exist",
+    NOT_CHECK_CONTRACT_EXISTS = "Could not check if contract exists"
 }

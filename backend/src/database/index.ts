@@ -1,6 +1,6 @@
 import { and, count, eq } from "drizzle-orm";
 import { db } from "../db/pool";
-import { activityPlayers, jackpotActivity, jackpotFoundTransactions, jackpotPlayers, type1Activities } from "../db/schema";
+import { activityPlayers, contracts, jackpotActivity, jackpotFoundTransactions, jackpotPlayers, type1Activities } from "../db/schema";
 import { Errors, MyError } from "../helpers/errors";
 import { CreateJackpot } from "../helpers/types";
 
@@ -167,6 +167,20 @@ export class MyDatabase {
         } catch(err) {
             console.log("Error checking if player is in jackpot", err);
             throw new MyError(Errors.NOT_CHECK_PLAYER_IN_JACKPOT);
+        }
+    }
+
+    async doesContractIDExist(contract_id: number): Promise<boolean> {
+        try {
+            const res = await db.select({
+                id: contracts.id
+            }).from(contracts)
+            .where(eq(contracts.id, contract_id));
+
+            return res.length > 0;
+        } catch(err) {
+            console.log("Error checking if contract exists", err);
+            throw new MyError(Errors.NOT_CHECK_CONTRACT_EXISTS);
         }
     }
 }
