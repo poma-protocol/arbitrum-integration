@@ -1,12 +1,14 @@
 import { Router } from "express";
 import { Errors } from "../helpers/errors";
-import { registerGameSchema } from "../helpers/types";
+import { createChallengeSchema, registerGameSchema } from "../helpers/types";
 import { db } from "../db/pool";
 import { contracts, type1Challenges } from "../db/schema";
 import { Success } from "../helpers/success";
 const router: Router = Router();
 import { eq } from "drizzle-orm";
 import multer from "multer";
+import { createChallenge } from "../game/createChallenge";
+import database from "../database";
 const upload = multer({dest: "uploads/"});
 
 router.post("/upload", upload.single("image"), (req, res) => {
@@ -17,6 +19,23 @@ router.post("/upload", upload.single("image"), (req, res) => {
         res.status(201).json(req.file!.path);
     } catch(err) {
         console.log("Error Uploading Image ->", err);
+        res.status(500).json({error: [Errors.INTERNAL_SERVER_ERROR]});
+    }
+});
+
+router.post("/challenge", async (req, res) => {
+    try {
+        const parsed = createChallengeSchema.safeParse(req.body);
+        if (parsed.success) {
+            const args = parsed.data;
+            await createChallenge(args, database);
+            res.status(201).json({message: Success.CHALLENGE_CREATED});
+        } else {    
+            const errors = parsed.error.issues.map((i) => i.message);
+            res.status(400).json({error: errors});
+        }
+    } catch(err) {
+        console.log("Error creating challenge", err);
         res.status(500).json({error: [Errors.INTERNAL_SERVER_ERROR]});
     }
 })
