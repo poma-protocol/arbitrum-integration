@@ -49,3 +49,12 @@ export const joinJackpotSchema = z.object({
     jackpot_id: z.number({message: Errors.JACKPOT_ID}),
     player_address: z.string({message: Errors.PLAYER_ADDRESS})
 })
+
+export const createChallengeSchema = z.object({
+    name: z.string({message: Errors.CHALLENGE_NAME}),
+    player_address_variable: z.string({message: Errors.PLAYER_ADDRESS_VARIABLE}),
+    function_name: z.string({message: Errors.FUNCTION_NAME}),
+    contractID: z.number({message: Errors.CONTRACT_ID}),
+});
+
+export type CreateChallenge = z.infer<typeof createChallengeSchema>

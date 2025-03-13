@@ -1,8 +1,8 @@
 import { and, count, eq } from "drizzle-orm";
 import { db } from "../db/pool";
-import { activityPlayers, contracts, jackpotActivity, jackpotFoundTransactions, jackpotPlayers, type1Activities } from "../db/schema";
+import { activityPlayers, contracts, jackpotActivity, jackpotFoundTransactions, jackpotPlayers, type1Activities, type1Challenges } from "../db/schema";
 import { Errors, MyError } from "../helpers/errors";
-import { CreateJackpot } from "../helpers/types";
+import { CreateChallenge, CreateJackpot } from "../helpers/types";
 
 export class MyDatabase {
     async storeJackpot(args: CreateJackpot) {
@@ -181,6 +181,20 @@ export class MyDatabase {
         } catch(err) {
             console.log("Error checking if contract exists", err);
             throw new MyError(Errors.NOT_CHECK_CONTRACT_EXISTS);
+        }
+    }
+
+    async createChallenge(args: CreateChallenge) {
+        try {
+            await db.insert(type1Challenges).values({
+                name: args.name,
+                contractID: args.contractID,
+                functionName: args.function_name,
+                playerAddressVariable: args.player_address_variable
+            });
+        } catch(err) {
+            console.log("Could not add challenge to DB", err);
+            throw new MyError(Errors.NOT_CREATE_CHALLENGE_DB);
         }
     }
 }

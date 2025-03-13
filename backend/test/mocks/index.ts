@@ -11,5 +11,7 @@ export const mockDatabase = {
     doesJackpotExist: jest.fn(),
     addPlayerToJackpot: jest.fn(),
     isPlayerInJackpot: jest.fn(),
-    isPlayerInBattle: jest.fn()
+    isPlayerInBattle: jest.fn(),
+    doesContractIDExist: jest.fn(),
+    createChallenge: jest.fn()
 } as MyDatabase
