@@ -61,5 +61,6 @@ export enum Errors {
     CONTRACT_ID = "Contract id must be a number",
     CONTRACT_NOT_EXIST = "Contract with contract ID does not exist",
     NOT_CHECK_CONTRACT_EXISTS = "Could not check if contract exists",
-    NOT_CREATE_CHALLENGE_DB = "Could not add challenge to DB"
+    NOT_CREATE_CHALLENGE_DB = "Could not add challenge to DB",
+    NOT_GET_ACCOUNT = "Could not get account",
 }

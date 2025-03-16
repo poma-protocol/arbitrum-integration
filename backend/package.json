@@ -16,6 +16,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@infisical/sdk": "^3.0.6",
     "alchemy-sdk": "^3.5.0",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
