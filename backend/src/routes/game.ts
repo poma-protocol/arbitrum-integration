@@ -72,7 +72,7 @@ router.post("/register", async (req, res) => {
                 })
             }
 
-            res.status(201).json({message: Success.GAME_REGISTERED})
+            res.status(201).json({gameid: contractID[0].id})
         } else {
             const errors = parsed.error.issues.map((e) => e.message);
             res.status(400).json({error: errors});
