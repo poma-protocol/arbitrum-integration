@@ -34,23 +34,33 @@ router.post("/create", async (req, res) => {
                 image: data.image,
                 startDate: data.startDate,
                 endDate: data.endDate
-            }).returning({id: type1Activities.id});
+            }).returning({ id: type1Activities.id });
 
-            // Storing in contarct
-            const txHash = await smartContract.createActivity(
-                insertedID[0].id,
-                gameID[0].id,
-                data.goal,
-                gameID[0].name!,
-                data.reward
-            )
+            let txHash = "";
+            try {
+                // Storing in contarct
+                txHash = await smartContract.createActivity(
+                    insertedID[0].id,
+                    gameID[0].id,
+                    data.goal,
+                    gameID[0].name!,
+                    data.reward
+                )
+            } catch (err) {
+                // Delete db entry
+                await db.delete(type1Activities).where(eq(type1Activities.id, insertedID[0].id));
+                console.log(err);
 
-            // Update activity with transaction hash
-            await db.update(type1Activities).set({
-                creation_tx_hash: txHash
-            }).where(eq(type1Activities.id, insertedID[0].id));
+                // throw error
+                throw err;
+            } finally {
+                // Update activity with transaction hash
+                await db.update(type1Activities).set({
+                    creation_tx_hash: txHash
+                }).where(eq(type1Activities.id, insertedID[0].id));
 
-            res.status(201).json({ message: Success.ACTIVITY_CREATED });
+                res.status(201).json({ message: Success.ACTIVITY_CREATED });
+            }
         } else {
             const errors = parsed.error.issues.map((e) => e.message);
             res.status(400).json({ error: errors });
@@ -70,14 +80,14 @@ router.post("/join", async (req, res) => {
             // Check if activity exists
             const battleExists = await database.doesBattleExist(data.activity_id);
             if (!battleExists) {
-                res.status(400).json({error: [Errors.BATTLE_NOT_EXIST]});
+                res.status(400).json({ error: [Errors.BATTLE_NOT_EXIST] });
                 return;
             }
 
             // Check if player already joined
             const playerAlready = await database.isPlayerInBattle(data.activity_id, data.player_address);
             if (playerAlready) {
-                res.status(400).json({error: [Errors.PLAYER_ALREADY_IN_BATTLE]});
+                res.status(400).json({ error: [Errors.PLAYER_ALREADY_IN_BATTLE] });
             }
 
             // Store on contract
@@ -130,7 +140,7 @@ router.get("/", async (req, res) => {
                 count: sql<number>`cast(count(*) as int)`
             }).from(activityPlayers)
                 .where(eq(activityPlayers.activityId, activity.id));
-            
+
             toReturn.push({
                 ...activity,
                 players: count[0].count
@@ -185,20 +195,20 @@ router.get("/one/:id", async (req, res) => {
     }
 });
 
-router.get("/statistics/:id", async(req, res) => {
+router.get("/statistics/:id", async (req, res) => {
     try {
         const battleID = Number.parseInt(req.params.id);
         const statistics = await getBattleStatistics(battleID, database);
         res.status(200).json(statistics);
-    } catch(err) {
+    } catch (err) {
         if (err instanceof MyError) {
             if (err.message === Errors.BATTLE_NOT_EXIST) {
-                res.status(400).json({error: [Errors.BATTLE_NOT_EXIST]});
+                res.status(400).json({ error: [Errors.BATTLE_NOT_EXIST] });
                 return;
             }
         }
 
-        res.status(500).json({error: [Errors.INTERNAL_SERVER_ERROR]});
+        res.status(500).json({ error: [Errors.INTERNAL_SERVER_ERROR] });
     }
 })
 
