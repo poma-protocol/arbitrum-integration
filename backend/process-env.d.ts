@@ -9,7 +9,8 @@ declare global {
             CLIENT_ID: string,
             RPC_URL: string,
             PROJECT_ID: string,
-            INFISICAL_ENVIRONMENT: string
+            INFISICAL_ENVIRONMENT: string,
+            REGION: string
         }
     }
 }
