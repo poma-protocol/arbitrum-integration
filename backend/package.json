@@ -10,7 +10,8 @@
     "studio": "npx drizzle-kit studio",
     "test": "jest --detectOpenHandles --coverage",
     "build": "rm -rf dist && tsup",
-    "main": "npx tsx src/read/transactions/main.ts"
+    "main": "npx tsx src/read/transactions/main.ts",
+    "start": "node dist/index.mjs"
   },
   "keywords": [],
   "author": "",
