@@ -5,9 +5,6 @@ import { Errors, MyError } from "../../helpers/errors";
 import lmdb from "../../store";
 import { START_BLOCK_KEY } from "../../helpers/constants";
 import processBattle from "./process_battle";
-import { getJackpots } from "../../game/getJacpots";
-import processJackpot from "./process_jackpot";
-import database from "../../database";
 
 if (!process.env.BLOCK_NUMBER) {
     console.log("Need to set block number in env");
