@@ -34,6 +34,7 @@ export class SmarContract {
     async createActivity(activityID: number, gameID: number, winningPoints: number, name: string, reward: number): Promise<string> {
         try {
             const account = await this.getAccount();
+            console.log("Account =>", account.address);
             const rewardInWei = Number.parseInt(web3.utils.toWei(reward.toString(), "ether"));
             const block = await web3.eth.getBlock();
             const transaction = {
