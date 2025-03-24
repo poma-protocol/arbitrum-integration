@@ -2,7 +2,7 @@ import Web3, { ContractOnceRequiresCallbackError, Web3Account } from "web3";
 import { contract, web3 } from "./account";
 import { Errors, MyError } from "../helpers/errors";
 import "dotenv/config";
-import authClient from "../infisical";
+import infisical from "../helpers/infisical";
 
 export class SmarContract {
     web3: Web3
@@ -13,13 +13,8 @@ export class SmarContract {
 
     private async getAccount(): Promise<Web3Account> {
         try {
-            const secrets = await authClient;
-            const privateKey = await secrets.secrets().getSecret({
-                environment: process.env.INFISICAL_ENVIRONMENT,
-                projectId: process.env.PROJECT_ID,
-                secretName: "PRIVATE_KEY",
-            });
-            const account = web3.eth.accounts.privateKeyToAccount(privateKey.secretValue);
+            const privateKey = await infisical.getSecret("PRIVATE_KEY", process.env.INFISICAL_ENVIRONMENT);
+            const account = web3.eth.accounts.privateKeyToAccount(privateKey);
             return account;
         } catch(err) {
             console.log("Error getting account", err);
