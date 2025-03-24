@@ -53,14 +53,14 @@ router.post("/create", async (req, res) => {
 
                 // throw error
                 throw err;
-            } finally {
-                // Update activity with transaction hash
-                await db.update(type1Activities).set({
-                    creation_tx_hash: txHash
-                }).where(eq(type1Activities.id, insertedID[0].id));
-
-                res.status(201).json({ message: Success.ACTIVITY_CREATED });
             }
+
+            // Update activity with transaction hash
+            await db.update(type1Activities).set({
+                creation_tx_hash: txHash
+            }).where(eq(type1Activities.id, insertedID[0].id));
+
+            res.status(201).json({ message: Success.ACTIVITY_CREATED });
         } else {
             const errors = parsed.error.issues.map((e) => e.message);
             res.status(400).json({ error: errors });
