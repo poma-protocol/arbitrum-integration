@@ -5,6 +5,7 @@ import { Errors, MyError } from "../../helpers/errors";
 import lmdb from "../../store";
 import { START_BLOCK_KEY } from "../../helpers/constants";
 import processBattle from "./process_battle";
+import smartContract from "../../smartcontract";
 
 if (!process.env.BLOCK_NUMBER) {
     console.log("Need to set block number in env");
@@ -52,6 +53,13 @@ async function main() {
 
             await sleep(3000);
             startBlock = endBlock ?? startBlock;
+
+            if (activities.length === 0) {
+                console.log("No battles");
+                const latestBlock = await smartContract.getLatestBlock();
+                startBlock = Number(latestBlock);
+            }
+
             await lmdb.store<string>(START_BLOCK_KEY, startBlock.toString());
             console.log("Start block stored =>", startBlock);
         }

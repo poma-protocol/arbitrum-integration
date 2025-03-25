@@ -126,6 +126,15 @@ export class SmarContract {
             throw new MyError(Errors.NOT_UPDATE_POINTS);
         }
     }
+
+    async getLatestBlock(): Promise<BigInt> {
+        try {
+            return this.web3.eth.getBlockNumber();
+        } catch(err) {
+            console.log("Could not get latest block", err);
+            throw new MyError(Errors.NOT_GET_LATEST_BLOCK);
+        }
+    }
 }
 
 const smartContract = new SmarContract(web3);

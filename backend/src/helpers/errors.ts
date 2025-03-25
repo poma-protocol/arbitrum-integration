@@ -63,4 +63,5 @@ export enum Errors {
     NOT_CHECK_CONTRACT_EXISTS = "Could not check if contract exists",
     NOT_CREATE_CHALLENGE_DB = "Could not add challenge to DB",
     NOT_GET_ACCOUNT = "Could not get account",
+    NOT_GET_LATEST_BLOCK = "Could not get latest block",
 }
