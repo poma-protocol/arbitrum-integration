@@ -210,6 +210,6 @@ router.get("/statistics/:id", async (req, res) => {
 
         res.status(500).json({ error: [Errors.INTERNAL_SERVER_ERROR] });
     }
-})
+});
 
 export default router;

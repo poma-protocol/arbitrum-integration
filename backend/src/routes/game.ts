@@ -131,7 +131,7 @@ router.get("/categories", async (req, res) => {
         console.log("Error Getting Game Categories", err);
         res.status(500).json({error: [Errors.INTERNAL_SERVER_ERROR]});
     }
-})
+});
 
 router.get("/challenges/:id", async (req, res) => {
     try {
@@ -145,6 +145,18 @@ router.get("/challenges/:id", async (req, res) => {
         res.status(200).json(challenges);
     } catch(err) {
         console.log("Error Getting Challenges => ", err);
+        res.status(500).json({error: [Errors.INTERNAL_SERVER_ERROR]});
+    }
+});
+
+router.get("/battles/:gameid", async (req, res) => {
+    try {
+        const gameID = Number.parseInt(req.params.gameid);
+        const activities = await database.getBattlesFromGame(gameID);
+        res.status(200).json(activities);
+    } catch(err) {
+        console.log("Error getting activities from game", err);
+        res.status(500).json({error: [Errors.INTERNAL_SERVER_ERROR]});
     }
 })
 

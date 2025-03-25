@@ -208,7 +208,7 @@ export class MyDatabase {
         }
     }
 
-    async getActivitesFromGame(gameID: number): Promise<Activity[]> {
+    async getBattlesFromGame(gameID: number): Promise<Activity[]> {
         try {
             const challenges = await db.select({
                 id: type1Challenges.id
