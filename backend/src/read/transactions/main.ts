@@ -56,7 +56,7 @@ async function main() {
 
             if (activities.length === 0) {
                 console.log("No battles");
-                const latestBlock = await smartContract.getLatestBlock();
+                const latestBlock = await smartContract.getProofOfPlayAlexLatestBlock();
                 startBlock = Number(latestBlock);
             }
 

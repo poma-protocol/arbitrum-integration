@@ -1,14 +1,16 @@
-import Web3, { ContractOnceRequiresCallbackError, Web3Account } from "web3";
-import { contract, web3 } from "./account";
+import Web3, { Web3Account } from "web3";
+import { contract, web3, proofOfPlayAlexWeb3 } from "./account";
 import { Errors, MyError } from "../helpers/errors";
 import "dotenv/config";
 import infisical from "../helpers/infisical";
 
 export class SmarContract {
     web3: Web3
+    proofOfPlayAlexWeb3: Web3
 
     constructor(web3: Web3) {
         this.web3 = web3;
+        this.proofOfPlayAlexWeb3 = proofOfPlayAlexWeb3
     }
 
     private async getAccount(): Promise<Web3Account> {
@@ -127,9 +129,9 @@ export class SmarContract {
         }
     }
 
-    async getLatestBlock(): Promise<BigInt> {
+    async getProofOfPlayAlexLatestBlock(): Promise<BigInt> {
         try {
-            return this.web3.eth.getBlockNumber();
+            return this.proofOfPlayAlexWeb3.eth.getBlockNumber();
         } catch(err) {
             console.log("Could not get latest block", err);
             throw new MyError(Errors.NOT_GET_LATEST_BLOCK);

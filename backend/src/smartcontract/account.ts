@@ -9,6 +9,7 @@ if(!process.env.RPC_URL) {
 }
 
 export const web3: Web3 = new Web3(process.env.RPC_URL);
+export const proofOfPlayAlexWeb3: Web3 = new Web3("https://rpc.apex.proofofplay.com");
 if(!process.env.CONTRACT) {
     console.log("Set contract address in env");
     throw new MyError(Errors.SERVER_SETUP);
