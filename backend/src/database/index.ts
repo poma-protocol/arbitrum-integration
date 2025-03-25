@@ -4,6 +4,16 @@ import { activityPlayers, contracts, jackpotActivity, jackpotFoundTransactions, 
 import { Errors, MyError } from "../helpers/errors";
 import { CreateChallenge, CreateJackpot } from "../helpers/types";
 
+interface Activity {
+    id: number,
+    name: string,
+    reward: number,
+    goal: number,
+    image: string,
+    startDate: string,
+    endDate: string
+}
+
 export class MyDatabase {
     async storeJackpot(args: CreateJackpot) {
         try {
@@ -195,6 +205,37 @@ export class MyDatabase {
         } catch(err) {
             console.log("Could not add challenge to DB", err);
             throw new MyError(Errors.NOT_CREATE_CHALLENGE_DB);
+        }
+    }
+
+    async getActivitesFromGame(gameID: number): Promise<Activity[]> {
+        try {
+            const challenges = await db.select({
+                id: type1Challenges.id
+            }).from(type1Challenges)
+            .where(eq(type1Challenges.contractID, gameID));
+
+            const activities: Activity[] = []
+
+            for (let challenge of challenges) {
+                const activity = await db.select({
+                    id: type1Activities.id,
+                    name: type1Activities.name,
+                    reward: type1Activities.reward,
+                    goal: type1Activities.goal,
+                    image: type1Activities.image,
+                    startDate: type1Activities.startDate,
+                    endDate: type1Activities.endDate
+                }).from(type1Activities)
+                .where(eq(type1Activities.challenge_id, challenge.id));
+
+                activities.push(...activity);
+            }
+
+            return activities;
+        } catch(err) {
+            console.log("Error getting activities from game", err);
+            throw new MyError(Errors.NOT_GET_ACTIVITIES_FROM_GAME);
         }
     }
 }
