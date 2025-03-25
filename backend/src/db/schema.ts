@@ -27,8 +27,14 @@ export const type1Activities = pgTable("type_1_activities", {
     startDate: date("start_date").notNull(),
     endDate: date("end_date").notNull(),
     image: text("image").notNull(),
+    about: text("about"),
     done: boolean("done").default(false).notNull()
 });
+
+export const type1ActivityInstructions = pgTable("type_1_activity_instructions", {
+    activity_id: integer("activity_id").notNull().references(() => type1Activities.id),
+    instruction: text("instruction").notNull()
+})
 
 export const activityPlayers = pgTable("activity_players", {
     activityId: integer("activity_id").references(() => type1Activities.id),

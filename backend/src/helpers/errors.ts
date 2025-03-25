@@ -65,4 +65,6 @@ export enum Errors {
     NOT_GET_ACCOUNT = "Could not get account",
     NOT_GET_LATEST_BLOCK = "Could not get latest block",
     NOT_GET_ACTIVITIES_FROM_GAME = "Could not get activities from game",
+    INVALID_ABOUT = "About should be a string",
+    INVALID_INSTRUCTIONS = "Instructions should be a string"
 }

@@ -28,7 +28,9 @@ export const createActivity = z.object({
     name: z.string({message: Errors.ACTIVITY_NAME}),
     startDate: z.string({message: Errors.ACTIVITY_START_DATE}),
     endDate: z.string({message: Errors.ACTIVITY_END_DATE}),
-    image: z.string({message: Errors.IMAGE})
+    image: z.string({message: Errors.IMAGE}),
+    about: z.string({message: Errors.INVALID_ABOUT}).optional(),
+    instructions: z.array(z.string({message: Errors.INVALID_INSTRUCTIONS})).optional()
 })
 
 export const joinActivity = z.object({

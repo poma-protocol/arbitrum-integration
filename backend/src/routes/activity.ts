@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { Errors, MyError } from "../helpers/errors";
 import { createActivity, joinActivity } from "../helpers/types";
-import { activityPlayers, contracts, type1Activities, type1Challenges } from "../db/schema";
+import { activityPlayers, contracts, type1Activities, type1ActivityInstructions, type1Challenges } from "../db/schema";
 import { db } from "../db/pool";
 import { Success } from "../helpers/success";
 import { eq, sql } from "drizzle-orm";
@@ -33,8 +33,19 @@ router.post("/create", async (req, res) => {
                 reward: data.reward,
                 image: data.image,
                 startDate: data.startDate,
-                endDate: data.endDate
+                endDate: data.endDate,
+                about: data.about
             }).returning({ id: type1Activities.id });
+
+            if (data.instructions) {
+                for (let i of data.instructions) {
+                    // insert instructions
+                    await db.insert(type1ActivityInstructions).values({
+                        activity_id: insertedID[0].id,
+                        instruction: i
+                    });
+                }
+            }
 
             let txHash = "";
             try {
@@ -50,6 +61,11 @@ router.post("/create", async (req, res) => {
                 // Delete db entry
                 await db.delete(type1Activities).where(eq(type1Activities.id, insertedID[0].id));
                 console.log(err);
+
+                if (data.instructions) {
+                    // Delete instructions
+                    await db.delete(type1ActivityInstructions).where(eq(type1ActivityInstructions.activity_id, insertedID[0].id))
+                }
 
                 // throw error
                 throw err;
