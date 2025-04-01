@@ -209,7 +209,7 @@ router.get("/one/:id", async (req, res) => {
         const toReturn = {
             ...activity[0],
             players: count[0].count,
-            instructions: instructions.map((i) => i.instruction)
+            instructions: instructions.length > 0 ? instructions.map((i) => i.instruction) : []
         };
 
         res.status(200).json(toReturn);
