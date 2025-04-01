@@ -184,7 +184,8 @@ router.get("/one/:id", async (req, res) => {
             goal: type1Activities.goal,
             image: type1Activities.image,
             startDate: type1Activities.startDate,
-            endDate: type1Activities.endDate
+            endDate: type1Activities.endDate,
+            about: type1Activities.about
         }).from(type1Activities)
             .where(eq(type1Activities.id, activityId))
             .limit(1);
@@ -199,9 +200,16 @@ router.get("/one/:id", async (req, res) => {
         }).from(activityPlayers)
             .where(eq(activityPlayers.activityId, activityId));
 
+        // Get instructions
+        const instructions = await db.select({
+            instruction: type1ActivityInstructions.instruction
+        }).from(type1ActivityInstructions)
+        .where(eq(type1ActivityInstructions.activity_id, activity[0].id));
+
         const toReturn = {
             ...activity[0],
-            players: count[0].count
+            players: count[0].count,
+            instructions: instructions.map((i) => i.instruction)
         };
 
         res.status(200).json(toReturn);
