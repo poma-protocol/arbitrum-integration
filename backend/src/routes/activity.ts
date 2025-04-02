@@ -76,7 +76,7 @@ router.post("/create", async (req, res) => {
                 creation_tx_hash: txHash
             }).where(eq(type1Activities.id, insertedID[0].id));
 
-            res.status(201).json({ message: Success.ACTIVITY_CREATED });
+            res.status(201).json({ id: insertedID[0].id });
         } else {
             const errors = parsed.error.issues.map((e) => e.message);
             res.status(400).json({ error: errors });
