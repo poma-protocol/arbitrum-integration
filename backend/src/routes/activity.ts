@@ -8,6 +8,7 @@ import { eq, sql } from "drizzle-orm";
 import smartContract from "../smartcontract";
 import database from "../database";
 import { getBattleStatistics } from "../controller/statistics/battle";
+import getMilestonePlayers from "../controller/battle/get_players";
 
 const router: Router = Router();
 
@@ -236,11 +237,21 @@ router.get("/statistics/:id", async (req, res) => {
     }
 });
 
-router.get("/players/:id", async (req, res) => {
+router.get("/milestone/players/:id", async (req, res) => {
     try {
-
+        const id = Number.parseInt(req.params.id);
+        const players = await getMilestonePlayers(id, database);
+        res.json(players);
     } catch(err) {
+        if (err instanceof MyError) {
+            if(err.message === Errors.MILESTONE_NOT_EXIST) {
+                res.status(400).json({error: [err.message]});
+                return;
+            }
+        }
 
+        console.log("Error getting milestone players", err);
+        res.status(500).json({error: [Errors.INTERNAL_SERVER_ERROR]});
     }
 })
 
