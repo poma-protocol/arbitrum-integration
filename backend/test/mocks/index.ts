@@ -14,5 +14,6 @@ export const mockDatabase = {
     isPlayerInBattle: jest.fn(),
     doesContractIDExist: jest.fn(),
     createChallenge: jest.fn(),
-    getBattlesFromGame: jest.fn()
+    getBattlesFromGame: jest.fn(),
+    getExistingMilestonePlayers: jest.fn()
 } as MyDatabase

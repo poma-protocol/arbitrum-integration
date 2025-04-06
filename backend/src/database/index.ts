@@ -3,6 +3,7 @@ import { db } from "../db/pool";
 import { activityPlayers, contracts, jackpotActivity, jackpotFoundTransactions, jackpotPlayers, type1Activities, type1Challenges } from "../db/schema";
 import { Errors, MyError } from "../helpers/errors";
 import { CreateChallenge, CreateJackpot } from "../helpers/types";
+import { MilestonePlayers } from "../controller/battle/get_players";
 
 interface Activity {
     id: number,
@@ -236,6 +237,27 @@ export class MyDatabase {
         } catch(err) {
             console.log("Error getting activities from game", err);
             throw new MyError(Errors.NOT_GET_ACTIVITIES_FROM_GAME);
+        }
+    }
+
+    async getExistingMilestonePlayers(id: number): Promise<MilestonePlayers> {
+        try {
+            const players = await db.select({
+                player: activityPlayers.playerAddress
+            }).from(activityPlayers)
+            .where(eq(activityPlayers.activityId, id));
+
+            const rewarded_players = await db.select({
+                player: activityPlayers.playerAddress
+            }).from(activityPlayers)
+            .where(and(eq(activityPlayers.activityId, id), eq(activityPlayers.done, true)));
+
+            return {
+                players: players.map((i) => i.player),
+                rewarded_players: rewarded_players.map((i) => i.player)
+            }
+        } catch(err) {
+            throw new MyError(Errors.NOT_GET_MILESTONE_PLAYERS);
         }
     }
 }
