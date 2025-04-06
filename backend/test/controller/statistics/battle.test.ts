@@ -13,7 +13,7 @@ describe("Battle statistics test", () => {
             expect(false).toBe(true);
         } catch (err) {
             if (err instanceof MyError) {
-                if (err.message === Errors.BATTLE_NOT_EXIST) {
+                if (err.message === Errors.MILESTONE_NOT_EXIST) {
                     expect(true).toBe(true);
                 } else {
                     console.log("Unwanted error =>", err);

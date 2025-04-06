@@ -96,7 +96,7 @@ router.post("/join", async (req, res) => {
             // Check if activity exists
             const battleExists = await database.doesBattleExist(data.activity_id);
             if (!battleExists) {
-                res.status(400).json({ error: [Errors.BATTLE_NOT_EXIST] });
+                res.status(400).json({ error: [Errors.MILESTONE_NOT_EXIST] });
                 return;
             }
 
@@ -226,8 +226,8 @@ router.get("/statistics/:id", async (req, res) => {
         res.status(200).json(statistics);
     } catch (err) {
         if (err instanceof MyError) {
-            if (err.message === Errors.BATTLE_NOT_EXIST) {
-                res.status(400).json({ error: [Errors.BATTLE_NOT_EXIST] });
+            if (err.message === Errors.MILESTONE_NOT_EXIST) {
+                res.status(400).json({ error: [Errors.MILESTONE_NOT_EXIST] });
                 return;
             }
         }
@@ -235,5 +235,13 @@ router.get("/statistics/:id", async (req, res) => {
         res.status(500).json({ error: [Errors.INTERNAL_SERVER_ERROR] });
     }
 });
+
+router.get("/players/:id", async (req, res) => {
+    try {
+
+    } catch(err) {
+
+    }
+})
 
 export default router;

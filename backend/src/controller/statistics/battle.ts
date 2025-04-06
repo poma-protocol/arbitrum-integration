@@ -11,7 +11,7 @@ export async function getBattleStatistics(battle_id: number, db: MyDatabase): Pr
     try {
         const exists = await db.doesBattleExist(battle_id);
         if (!exists) {
-            throw new MyError(Errors.BATTLE_NOT_EXIST);
+            throw new MyError(Errors.MILESTONE_NOT_EXIST);
         }
 
         const no_players = await db.getNumberOfBattlePlayers(battle_id);
@@ -20,7 +20,7 @@ export async function getBattleStatistics(battle_id: number, db: MyDatabase): Pr
         return {id: 1, reward_given, no_players};
     } catch(err) {
         if (err instanceof MyError) {
-            if (err.message === Errors.BATTLE_NOT_EXIST) {
+            if (err.message === Errors.MILESTONE_NOT_EXIST) {
                 throw err;
             } 
         }
