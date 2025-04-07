@@ -39,6 +39,7 @@ export const type1ActivityInstructions = pgTable("type_1_activity_instructions",
 export const activityPlayers = pgTable("activity_players", {
     activityId: integer("activity_id").references(() => type1Activities.id),
     playerAddress: text("player_address").notNull(),
+    bubbleID: text("bubbleID"),
     done: boolean("done").default(false).notNull(),
     creation_tx_hash: text("createdTransactionHash")
 }, (table) => [

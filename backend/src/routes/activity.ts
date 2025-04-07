@@ -116,6 +116,7 @@ router.post("/join", async (req, res) => {
             await db.insert(activityPlayers).values({
                 activityId: data.activity_id,
                 playerAddress: data.player_address.toLowerCase(),
+                bubbleID: data.bubble_id,
                 creation_tx_hash: txHash
             });
 
