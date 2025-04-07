@@ -10,7 +10,8 @@ declare global {
             RPC_URL: string,
             PROJECT_ID: string,
             INFISICAL_ENVIRONMENT: string,
-            REGION: string
+            REGION: string,
+            WORX_TOKEN: string
         }
     }
 }

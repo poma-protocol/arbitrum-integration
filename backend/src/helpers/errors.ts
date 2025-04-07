@@ -67,5 +67,6 @@ export enum Errors {
     NOT_GET_ACTIVITIES_FROM_GAME = "Could not get activities from game",
     INVALID_ABOUT = "About should be a string",
     INVALID_INSTRUCTIONS = "Instructions should be a string",
-    NOT_GET_MILESTONE_PLAYERS = "Could not get milestone players"
+    NOT_GET_MILESTONE_PLAYERS = "Could not get milestone players",
+    NOT_SEND_WORX_NOTIFICATION = "Could not send Worx notification",
 }
