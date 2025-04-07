@@ -1,0 +1,1 @@
+ALTER TABLE "activity_players" ADD COLUMN "worx_update_id" text;

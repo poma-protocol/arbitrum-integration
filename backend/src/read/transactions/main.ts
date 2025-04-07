@@ -30,7 +30,6 @@ async function main() {
 
 
         while (true) {
-            console.log(`Search starting at ${startBlock}...`)
             let endBlock: number | undefined = undefined;
 
             console.log(`\nProcessing Battles\n`);

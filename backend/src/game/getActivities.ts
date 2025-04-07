@@ -9,9 +9,10 @@ export interface Activity {
     playerAddressVariable: string,
     functionName: string,
     goal: number,
-    players: string[],
+    players: {address: string, worx_id: string | null}[],
     found: Record<string, number>,
-    abi: JSON
+    abi: JSON,
+    reward: number
 }
 
 export async function getActivities(): Promise<Activity[]> {
@@ -38,18 +39,24 @@ export async function getActivities(): Promise<Activity[]> {
                 // Get activites
                 const activities = await db.select({
                     id: type1Activities.id,
-                    goal: type1Activities.goal
+                    goal: type1Activities.goal,
+                    reward: type1Activities.reward,
                 }).from(type1Activities)
                     .where(sql`${type1Activities.done} = false AND ${type1Activities.challenge_id} = ${challenge.id} AND ${type1Activities.startDate} < now() AND ${type1Activities.endDate} > now()`)
 
                 for (let activity of activities) {
                     // Get players
                     const players = await db.select({
-                        playerAddress: activityPlayers.playerAddress
+                        playerAddress: activityPlayers.playerAddress,
+                        worx_id: activityPlayers.bubbleID
                     }).from(activityPlayers)
                         .where(sql`${activityPlayers.done} = false AND ${activityPlayers.activityId} = ${activity.id}`);
                     
-                    const playersToReturn = players.map((p) => p.playerAddress);
+                    const playersToReturn = players.map((p) => {
+                        return {
+                            address: p.playerAddress, worx_id: p.worx_id
+                        }
+                    });
 
                     let found: Record<string, number> = {};
                     // Get found
@@ -69,6 +76,7 @@ export async function getActivities(): Promise<Activity[]> {
                         functionName: challenge.functionName,
                         goal: activity.goal,
                         players: playersToReturn,
+                        reward: activity.reward,
                         found,
                         //@ts-ignore
                         abi: game.abi

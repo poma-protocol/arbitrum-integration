@@ -169,6 +169,13 @@
       "when": 1744019543089,
       "tag": "0023_past_fenris",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1744035109390,
+      "tag": "0024_pretty_rafael_vega",
+      "breakpoints": true
     }
   ]
 }

@@ -9,13 +9,14 @@ export interface SendNotification {
 
 const API_ENDPOINT = "https://pomaprotocol.com/version-test/api/1.1/obj/UserBattles";
 
-export default async function sendWorxNotification(args: SendNotification): Promise<number> {
+export default async function sendWorxNotification(args: SendNotification): Promise<string> {
     if (!process.env.WORX_TOKEN) {
         console.log("Set Worx token in env variables");
         throw new MyError(Errors.SERVER_SETUP);
     }
 
     try {
+        console.log("Send worx notification called with", args);
         const response = await fetch(API_ENDPOINT, {
             method: "POST",
             headers: {
@@ -35,7 +36,7 @@ export default async function sendWorxNotification(args: SendNotification): Prom
                 console.log("Worx did not send id", json);
                 throw new MyError(Errors.NOT_SEND_WORX_NOTIFICATION);
             }
-            return json['id'] as number;
+            return json['id'] as string;
         } else {
             console.log("Invalid response", response);
             throw new MyError(Errors.NOT_SEND_WORX_NOTIFICATION);
