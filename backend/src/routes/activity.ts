@@ -10,6 +10,8 @@ import database from "../database";
 import { getBattleStatistics } from "../controller/statistics/battle";
 import getMilestonePlayers from "../controller/battle/get_players";
 import isMaximumExistingMilestonePlayersReached from "../controller/battle/is_maximum_players_reached";
+import shouldUserJoinBeSentToContract from "../controller/battle/should_join_sent_contract";
+import { NO_TRANSACTION } from "../helpers/constants";
 
 const router: Router = Router();
 
@@ -50,7 +52,7 @@ router.post("/create", async (req, res) => {
                 }
             }
 
-            let txHash = "";
+            let txHash = NO_TRANSACTION;
             try {
                 // Storing in contarct
                 if (data.reward) {
@@ -77,11 +79,9 @@ router.post("/create", async (req, res) => {
             }
 
             // Update activity with transaction hash
-            if (data.reward) {
-                await db.update(type1Activities).set({
-                    creation_tx_hash: txHash
-                }).where(eq(type1Activities.id, insertedID[0].id));
-            }
+            await db.update(type1Activities).set({
+                creation_tx_hash: txHash
+            }).where(eq(type1Activities.id, insertedID[0].id));
 
             res.status(201).json({ id: insertedID[0].id });
         } else {
@@ -110,7 +110,7 @@ router.post("/join", async (req, res) => {
             // Check if maximum number of players had been reached
             const isMaximum = await isMaximumExistingMilestonePlayersReached(data.activity_id);
             if (isMaximum) {
-                res.status(400).json({error: [Errors.MAXIMUM_NUMBER_PLAYERS_REACHED]})
+                res.status(400).json({ error: [Errors.MAXIMUM_NUMBER_PLAYERS_REACHED] })
                 return;
             }
 
@@ -120,11 +120,15 @@ router.post("/join", async (req, res) => {
                 res.status(400).json({ error: [Errors.PLAYER_ALREADY_IN_BATTLE] });
             }
 
-            // Store on contract
-            const txHash = await smartContract.addParticipant(
-                data.activity_id,
-                data.player_address.toLowerCase()
-            );
+            const shouldUpdateContract = await shouldUserJoinBeSentToContract(data.activity_id);
+            let txHash = NO_TRANSACTION;
+            if (shouldUpdateContract) {
+                // Store on contract
+                txHash = await smartContract.addParticipant(
+                    data.activity_id,
+                    data.player_address.toLowerCase()
+                );
+            }
 
             await db.insert(activityPlayers).values({
                 activityId: data.activity_id,
@@ -219,7 +223,7 @@ router.get("/one/:id", async (req, res) => {
         const instructions = await db.select({
             instruction: type1ActivityInstructions.instruction
         }).from(type1ActivityInstructions)
-        .where(eq(type1ActivityInstructions.activity_id, activity[0].id));
+            .where(eq(type1ActivityInstructions.activity_id, activity[0].id));
 
         const toReturn = {
             ...activity[0],
@@ -256,16 +260,16 @@ router.get("/milestone/players/:id", async (req, res) => {
         const id = Number.parseInt(req.params.id);
         const players = await getMilestonePlayers(id, database);
         res.json(players);
-    } catch(err) {
+    } catch (err) {
         if (err instanceof MyError) {
-            if(err.message === Errors.MILESTONE_NOT_EXIST) {
-                res.status(400).json({error: [err.message]});
+            if (err.message === Errors.MILESTONE_NOT_EXIST) {
+                res.status(400).json({ error: [err.message] });
                 return;
             }
         }
 
         console.log("Error getting milestone players", err);
-        res.status(500).json({error: [Errors.INTERNAL_SERVER_ERROR]});
+        res.status(500).json({ error: [Errors.INTERNAL_SERVER_ERROR] });
     }
 })
 

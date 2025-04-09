@@ -50,17 +50,19 @@ export default async function processBattle(activity: Activity, startBlock: numb
                         if (foundPlayer) {
                             found[decodedPlayer]++;
     
-                            console.log(`Transaction for ${decodedPlayer} in activity ${activity.id} found ${found[decodedPlayer]} times`);
+                            console.log(`Transaction for ${decodedPlayer} in activity ${activity.id} found ${found[decodedPlayer]} times with goal ${goal}`);
     
                             // Update contract
                             let updateHash = NO_TRANSACTION;
                             if (activity.reward) {
+                                console.log("Contract called");
                                 updateHash = await smartContract.updatePoints(
                                     activity.id,
                                     decodedPlayer,
                                     1
                                 );
                             }
+
     
                             await db.insert(type1foundTransactions).values({
                                 txHash: transaction.hash,
