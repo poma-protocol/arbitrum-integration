@@ -7,6 +7,7 @@ import smartContract from "../../smartcontract";
 import { decodeTransactionInput } from "./decode-transaction";
 import { getTransactions } from "./rpc";
 import sendWorxNotification from "../../controller/battle/sendNotification";
+import { NO_TRANSACTION } from "../../helpers/constants";
 
 export default async function processBattle(activity: Activity, startBlock: number, endBlock: number | undefined): Promise<number> {
     try {
@@ -52,11 +53,14 @@ export default async function processBattle(activity: Activity, startBlock: numb
                             console.log(`Transaction for ${decodedPlayer} in activity ${activity.id} found ${found[decodedPlayer]} times`);
     
                             // Update contract
-                            const updateHash = await smartContract.updatePoints(
-                                activity.id,
-                                decodedPlayer,
-                                1
-                            );
+                            let updateHash = NO_TRANSACTION;
+                            if (activity.reward) {
+                                updateHash = await smartContract.updatePoints(
+                                    activity.id,
+                                    decodedPlayer,
+                                    1
+                                );
+                            }
     
                             await db.insert(type1foundTransactions).values({
                                 txHash: transaction.hash,

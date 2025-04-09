@@ -4,7 +4,7 @@ import "dotenv/config";
 export interface SendNotification {
     worx_id: string,
     milestone_id: number,
-    reward: number
+    reward: number | null
 }
 
 const API_ENDPOINT = "https://pomaprotocol.com/version-test/api/1.1/obj/UserBattles";

@@ -53,13 +53,15 @@ router.post("/create", async (req, res) => {
             let txHash = "";
             try {
                 // Storing in contarct
-                txHash = await smartContract.createActivity(
-                    insertedID[0].id,
-                    gameID[0].id,
-                    data.goal,
-                    gameID[0].name!,
-                    data.reward ?? 0
-                )
+                if (data.reward) {
+                    txHash = await smartContract.createActivity(
+                        insertedID[0].id,
+                        gameID[0].id,
+                        data.goal,
+                        gameID[0].name!,
+                        data.reward
+                    )
+                }
             } catch (err) {
                 // Delete db entry
                 await db.delete(type1Activities).where(eq(type1Activities.id, insertedID[0].id));
@@ -75,9 +77,11 @@ router.post("/create", async (req, res) => {
             }
 
             // Update activity with transaction hash
-            await db.update(type1Activities).set({
-                creation_tx_hash: txHash
-            }).where(eq(type1Activities.id, insertedID[0].id));
+            if (data.reward) {
+                await db.update(type1Activities).set({
+                    creation_tx_hash: txHash
+                }).where(eq(type1Activities.id, insertedID[0].id));
+            }
 
             res.status(201).json({ id: insertedID[0].id });
         } else {
