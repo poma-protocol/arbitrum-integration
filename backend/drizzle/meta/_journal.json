@@ -176,6 +176,13 @@
       "when": 1744035109390,
       "tag": "0024_pretty_rafael_vega",
       "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "7",
+      "when": 1744208943498,
+      "tag": "0025_neat_pride",
+      "breakpoints": true
     }
   ]
 }

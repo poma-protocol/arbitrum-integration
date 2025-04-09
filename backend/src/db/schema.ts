@@ -28,7 +28,8 @@ export const type1Activities = pgTable("type_1_activities", {
     endDate: date("end_date").notNull(),
     image: text("image").notNull(),
     about: text("about"),
-    done: boolean("done").default(false).notNull()
+    done: boolean("done").default(false).notNull(),
+    maximum_number_players: integer("maximum_number_players")
 });
 
 export const type1ActivityInstructions = pgTable("type_1_activity_instructions", {
