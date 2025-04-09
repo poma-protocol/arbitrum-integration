@@ -8,7 +8,7 @@ import { MilestonePlayers } from "../controller/battle/get_players";
 interface Activity {
     id: number,
     name: string,
-    reward: number,
+    reward: number | null,
     goal: number,
     image: string,
     startDate: string,
