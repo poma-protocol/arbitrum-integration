@@ -69,4 +69,7 @@ export enum Errors {
     INVALID_INSTRUCTIONS = "Instructions should be a string",
     NOT_GET_MILESTONE_PLAYERS = "Could not get milestone players",
     NOT_SEND_WORX_NOTIFICATION = "Could not send Worx notification",
+    MAXIMUM_NUMBER_PLAYERS = "Maximum number of players should be greater than zero",
+    NOT_CHECK_MAXIMUM_NUM_PLAYETS = "Could not check maximum number of players",
+    MAXIMUM_NUMBER_PLAYERS_REACHED = "Maximum number of players has been reached"
 }

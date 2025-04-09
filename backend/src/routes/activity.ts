@@ -9,6 +9,7 @@ import smartContract from "../smartcontract";
 import database from "../database";
 import { getBattleStatistics } from "../controller/statistics/battle";
 import getMilestonePlayers from "../controller/battle/get_players";
+import isMaximumExistingMilestonePlayersReached from "../controller/battle/is_maximum_players_reached";
 
 const router: Router = Router();
 
@@ -103,6 +104,11 @@ router.post("/join", async (req, res) => {
             }
 
             // Check if maximum number of players had been reached
+            const isMaximum = await isMaximumExistingMilestonePlayersReached(data.activity_id);
+            if (isMaximum) {
+                res.status(400).json({error: [Errors.MAXIMUM_NUMBER_PLAYERS_REACHED]})
+                return;
+            }
 
             // Check if player already joined
             const playerAlready = await database.isPlayerInBattle(data.activity_id, data.player_address);
