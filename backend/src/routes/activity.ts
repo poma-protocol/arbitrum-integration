@@ -58,7 +58,7 @@ router.post("/create", async (req, res) => {
                     gameID[0].id,
                     data.goal,
                     gameID[0].name!,
-                    data.reward
+                    data.reward ?? 0
                 )
             } catch (err) {
                 // Delete db entry
@@ -155,7 +155,7 @@ router.get("/", async (req, res) => {
         const toReturn: {
             id: number,
             name: string,
-            reward: number,
+            reward: number | null,
             goal: number,
             image: string,
             startDate: string,

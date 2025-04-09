@@ -12,7 +12,7 @@ export interface Activity {
     players: {address: string, worx_id: string | null}[],
     found: Record<string, number>,
     abi: JSON,
-    reward: number
+    reward: number | null
 }
 
 export async function getActivities(): Promise<Activity[]> {

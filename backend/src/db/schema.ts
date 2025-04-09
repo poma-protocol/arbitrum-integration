@@ -22,7 +22,7 @@ export const type1Activities = pgTable("type_1_activities", {
     goal: integer("goal").notNull(),
     name: text("name").notNull(),
     challenge_id: integer("challenge_id").references(() => type1Challenges.id).notNull(),
-    reward: real("reward").notNull(),
+    reward: real("reward"),
     creation_tx_hash: text("creationTransactionHash"),
     startDate: date("start_date").notNull(),
     endDate: date("end_date").notNull(),
