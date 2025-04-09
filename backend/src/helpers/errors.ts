@@ -71,5 +71,6 @@ export enum Errors {
     NOT_SEND_WORX_NOTIFICATION = "Could not send Worx notification",
     MAXIMUM_NUMBER_PLAYERS = "Maximum number of players should be greater than zero",
     NOT_CHECK_MAXIMUM_NUM_PLAYETS = "Could not check maximum number of players",
-    MAXIMUM_NUMBER_PLAYERS_REACHED = "Maximum number of players has been reached"
+    MAXIMUM_NUMBER_PLAYERS_REACHED = "Maximum number of players has been reached",
+    NOT_CHECK_IF_CONTRACT_INFORMED_JOIN = "Could not check if contract needs to be informed of join"
 }
