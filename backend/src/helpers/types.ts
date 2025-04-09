@@ -30,7 +30,8 @@ export const createActivity = z.object({
     endDate: z.string({message: Errors.ACTIVITY_END_DATE}),
     image: z.string({message: Errors.IMAGE}),
     about: z.string({message: Errors.INVALID_ABOUT}).optional(),
-    instructions: z.array(z.string({message: Errors.INVALID_INSTRUCTIONS})).optional()
+    instructions: z.array(z.string({message: Errors.INVALID_INSTRUCTIONS})).optional(),
+    maximum_num_players: z.number({message: Errors.MAXIMUM_NUMBER_PLAYERS}).gt(0, {message: Errors.MAXIMUM_NUMBER_PLAYERS})
 })
 
 export const joinActivity = z.object({

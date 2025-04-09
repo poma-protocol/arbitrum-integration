@@ -35,6 +35,7 @@ router.post("/create", async (req, res) => {
                 image: data.image,
                 startDate: data.startDate,
                 endDate: data.endDate,
+                maximum_number_players: data.maximum_num_players,
                 about: data.about
             }).returning({ id: type1Activities.id });
 
@@ -100,6 +101,8 @@ router.post("/join", async (req, res) => {
                 res.status(400).json({ error: [Errors.MILESTONE_NOT_EXIST] });
                 return;
             }
+
+            // Check if maximum number of players had been reached
 
             // Check if player already joined
             const playerAlready = await database.isPlayerInBattle(data.activity_id, data.player_address);
