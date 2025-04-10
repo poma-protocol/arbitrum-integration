@@ -2,7 +2,7 @@ import { Errors, MyError } from "../helpers/errors";
 import {open} from "lmdb";
 
 const myDB = open({
-    path: 'store',
+    path: 'storev2',
     compression: true
 });
 
