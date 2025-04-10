@@ -1,5 +1,5 @@
 import Web3, { Web3Account } from "web3";
-import { contract, web3, proofOfPlayAlexWeb3 } from "./account";
+import { contract, web3, proofOfPlayBobWeb3 } from "./account";
 import { Errors, MyError } from "../helpers/errors";
 import "dotenv/config";
 import infisical from "../helpers/infisical";
@@ -10,7 +10,7 @@ export class SmarContract {
 
     constructor(web3: Web3) {
         this.web3 = web3;
-        this.proofOfPlayAlexWeb3 = proofOfPlayAlexWeb3
+        this.proofOfPlayAlexWeb3 = proofOfPlayBobWeb3
     }
 
     private async getAccount(): Promise<Web3Account> {
@@ -129,7 +129,7 @@ export class SmarContract {
         }
     }
 
-    async getProofOfPlayAlexLatestBlock(): Promise<BigInt> {
+    async getProofOfPlayAlexBossLatestBlock(): Promise<BigInt> {
         try {
             return this.proofOfPlayAlexWeb3.eth.getBlockNumber();
         } catch(err) {
