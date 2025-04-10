@@ -1,0 +1,1 @@
+ALTER TABLE "activity_players" ADD COLUMN "owner_address" text;

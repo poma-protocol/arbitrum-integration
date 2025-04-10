@@ -43,7 +43,8 @@ export const activityPlayers = pgTable("activity_players", {
     bubbleID: text("bubbleID"),
     done: boolean("done").default(false).notNull(),
     worxUpdateID: text("worx_update_id"),
-    creation_tx_hash: text("createdTransactionHash")
+    creation_tx_hash: text("createdTransactionHash"),
+    operator_address: text("owner_address"),
 }, (table) => [
     primaryKey({ columns: [table.activityId, table.playerAddress] }),
 ]);

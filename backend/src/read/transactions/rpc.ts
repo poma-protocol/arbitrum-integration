@@ -29,9 +29,9 @@ export async function getTransactions(startBlock: number, contractAddress: strin
     try {
         let endpoint: string;
         if(endBlock) {
-            endpoint = `https://explorer.apex.proofofplay.com/api?module=account&action=txlist&address=${contractAddress}&startblock=${startBlock}&endblock=${endBlock}&sort=asc`;
+            endpoint = `https://explorer.boss.proofofplay.com/api?module=account&action=txlist&address=${contractAddress}&startblock=${startBlock}&endblock=${endBlock}&sort=asc`;
         } else {
-            endpoint = `https://explorer.apex.proofofplay.com/api?module=account&action=txlist&address=${contractAddress}&startblock=${startBlock}&sort=asc`
+            endpoint = `https://explorer.boss.proofofplay.com/api?module=account&action=txlist&address=${contractAddress}&startblock=${startBlock}&sort=asc`
         }
 
         const response = await fetch(
@@ -56,7 +56,7 @@ export async function getTransactions(startBlock: number, contractAddress: strin
 
 export async function getBlockNumber(): Promise<string> {
     try {
-        const response = await fetch("https://explorer.apex.proofofplay.com/api?module=block&action=eth_block_number");
+        const response = await fetch("https://explorer.boss.proofofplay.com/api?module=block&action=eth_block_number");
         
         if (response.ok) {
             const body = await response.json();

@@ -9,7 +9,7 @@ export interface Activity {
     playerAddressVariable: string,
     functionName: string,
     goal: number,
-    players: {address: string, worx_id: string | null}[],
+    players: {address: string, worx_id: string | null, operator: string | null}[],
     found: Record<string, number>,
     abi: JSON,
     reward: number | null
@@ -48,13 +48,14 @@ export async function getActivities(): Promise<Activity[]> {
                     // Get players
                     const players = await db.select({
                         playerAddress: activityPlayers.playerAddress,
-                        worx_id: activityPlayers.bubbleID
+                        worx_id: activityPlayers.bubbleID,
+                        operator: activityPlayers.operator_address
                     }).from(activityPlayers)
                         .where(sql`${activityPlayers.done} = false AND ${activityPlayers.activityId} = ${activity.id}`);
                     
                     const playersToReturn = players.map((p) => {
                         return {
-                            address: p.playerAddress, worx_id: p.worx_id
+                            address: p.playerAddress, worx_id: p.worx_id, operator: p.operator
                         }
                     });
 
@@ -66,7 +67,7 @@ export async function getActivities(): Promise<Activity[]> {
                         }).from(type1foundTransactions)
                             .where(sql`${type1foundTransactions.activity_id} = ${activity.id} AND ${type1foundTransactions.playerAddress} = ${player.playerAddress}`);
 
-                        found[player.playerAddress] = count[0].count
+                        found[player.operator ?? player.playerAddress] = count[0].count
                     }
 
                     toReturn.push({

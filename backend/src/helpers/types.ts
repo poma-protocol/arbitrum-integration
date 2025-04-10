@@ -37,7 +37,8 @@ export const createActivity = z.object({
 export const joinActivity = z.object({
     activity_id: z.number({message: Errors.ACTIVITY_ID}),
     player_address: z.string({message: Errors.PLAYER_ADDRESS}),
-    bubble_id: z.string({message: "Bubble ID should be a string"})
+    bubble_id: z.string({message: "Bubble ID should be a string"}),
+    operator_address: z.string({message: "Owner address must be a string"}).optional()
 });
 
 export const createJackpotSchema = z.object({
