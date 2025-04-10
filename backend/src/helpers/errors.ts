@@ -72,5 +72,6 @@ export enum Errors {
     MAXIMUM_NUMBER_PLAYERS = "Maximum number of players should be greater than zero",
     NOT_CHECK_MAXIMUM_NUM_PLAYETS = "Could not check maximum number of players",
     MAXIMUM_NUMBER_PLAYERS_REACHED = "Maximum number of players has been reached",
-    NOT_CHECK_IF_CONTRACT_INFORMED_JOIN = "Could not check if contract needs to be informed of join"
+    NOT_CHECK_IF_CONTRACT_INFORMED_JOIN = "Could not check if contract needs to be informed of join",
+    NOT_CHECK_IF_MULTI_LEVEL = "Could not check if method is multi level"
 }
