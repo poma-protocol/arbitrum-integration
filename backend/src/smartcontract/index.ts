@@ -6,11 +6,11 @@ import infisical from "../helpers/infisical";
 
 export class SmarContract {
     web3: Web3
-    proofOfPlayAlexWeb3: Web3
+    proofOfPlayBobWeb3: Web3
 
     constructor(web3: Web3) {
         this.web3 = web3;
-        this.proofOfPlayAlexWeb3 = proofOfPlayBobWeb3
+        this.proofOfPlayBobWeb3 = proofOfPlayBobWeb3
     }
 
     private async getAccount(): Promise<Web3Account> {
@@ -131,7 +131,7 @@ export class SmarContract {
 
     async getProofOfPlayAlexBossLatestBlock(): Promise<BigInt> {
         try {
-            return this.proofOfPlayAlexWeb3.eth.getBlockNumber();
+            return this.proofOfPlayBobWeb3.eth.getBlockNumber();
         } catch(err) {
             console.log("Could not get latest block", err);
             throw new MyError(Errors.NOT_GET_LATEST_BLOCK);
