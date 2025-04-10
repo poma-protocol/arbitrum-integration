@@ -40,6 +40,8 @@ export default async function processBattle(activity: Activity, startBlock: numb
     
                     // Get if transaction is of the right method
                     const method = (decoded["__method__"]) as string
+                    console.log(method);
+
                     if (method.includes(functionName)) {
                         // Get player in transaction
                         const origPlayer = (decoded[playerAddressVariable]) as string
