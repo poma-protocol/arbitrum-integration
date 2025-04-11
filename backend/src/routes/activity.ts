@@ -135,7 +135,7 @@ router.post("/join", async (req, res) => {
                 playerAddress: data.player_address.toLowerCase(),
                 bubbleID: data.bubble_id,
                 creation_tx_hash: txHash,
-                operator_address: data.operator_address
+                operator_address: data.operator_address?.toLowerCase()
             });
 
             res.status(201).json({ message: Success.ACTIVITY_JOINED });

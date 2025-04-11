@@ -14,6 +14,7 @@ export default async function processBattle(activity: Activity, startBlock: numb
     try {
         console.log(`\nActivity ID => ${activity.id}\n`);
         const contract = activity.address;
+        console.log(contract);
         const playerAddressVariable = activity.playerAddressVariable;
         const functionName = activity.functionName;
         const goal = activity.goal;
@@ -22,9 +23,11 @@ export default async function processBattle(activity: Activity, startBlock: numb
             return {
                 address: p.address.toLocaleLowerCase(),
                 worx_id: p.worx_id,
-                operator: p.operator
+                operator: p.operator?.toLocaleLowerCase()
             }
         });
+        console.log("Players", players);
+        console.log("Found", activity.found);
         // Object with found of each player
         let found = activity.found
 
@@ -37,6 +40,7 @@ export default async function processBattle(activity: Activity, startBlock: numb
                         break;
                     }
 
+                    // console.log("Transcation ID =>", transaction.blockNumber);
                     // Decode transaction data
                     const decoded = decodeTransactionInput(transaction.input, activity.abi, activity.address)
 
@@ -55,10 +59,13 @@ export default async function processBattle(activity: Activity, startBlock: numb
                         }
                         // Get player in transaction
                         const origPlayer = intermediate as string
+                        
                         const decodedPlayer = origPlayer.toLowerCase();
+                        // console.log("Player =>", decodedPlayer)
 
                         // Check if the player is one of the tracked players
                         const foundPlayer = players.find((p) => p.operator === decodedPlayer || p.address === decodedPlayer);
+                        // console.log("found player ->", foundPlayer);
                         if (foundPlayer) {
                             found[decodedPlayer]++;
 

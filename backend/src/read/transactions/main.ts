@@ -61,6 +61,7 @@ async function main() {
 
             await lmdb.store<string>(START_BLOCK_KEY, startBlock.toString());
             console.log("Start block stored =>", startBlock);
+            await sleep(2000);
         }
     } catch (err) {
         console.log("Error Processing Transactions =>", err);

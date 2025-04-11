@@ -67,7 +67,7 @@ export async function getActivities(): Promise<Activity[]> {
                         }).from(type1foundTransactions)
                             .where(sql`${type1foundTransactions.activity_id} = ${activity.id} AND ${type1foundTransactions.playerAddress} = ${player.playerAddress}`);
 
-                        found[player.operator ?? player.playerAddress] = count[0].count
+                        found[player.operator?.toLocaleLowerCase() ?? player.playerAddress.toLocaleLowerCase()] = count[0].count
                     }
 
                     toReturn.push({
