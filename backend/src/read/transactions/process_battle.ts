@@ -115,8 +115,6 @@ export default async function processBattle(activity: Activity, startBlock: numb
                                     delete found[decodedPlayer];
                                 }
                             }
-                        } else {
-                            console.log("Decoded", decoded, "transaction", transaction);
                         }
                     }
                 }
