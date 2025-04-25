@@ -58,61 +58,65 @@ export default async function processBattle(activity: Activity, startBlock: numb
                             }
                         }
                         // Get player in transaction
-                        const origPlayer = intermediate as string
-                        
-                        const decodedPlayer = origPlayer.toLowerCase();
-                        // console.log("Player =>", decodedPlayer)
+                        if (intermediate) {
+                            const origPlayer = intermediate as string
 
-                        // Check if the player is one of the tracked players
-                        const foundPlayer = players.find((p) => p.operator === decodedPlayer || p.address === decodedPlayer);
-                        // console.log("found player ->", foundPlayer);
-                        if (foundPlayer) {
-                            found[decodedPlayer]++;
+                            const decodedPlayer = origPlayer.toLowerCase();
+                            // console.log("Player =>", decodedPlayer)
 
-                            console.log(`Transaction for ${decodedPlayer} in activity ${activity.id} found ${found[decodedPlayer]} times with goal ${goal}`);
+                            // Check if the player is one of the tracked players
+                            const foundPlayer = players.find((p) => p.operator === decodedPlayer || p.address === decodedPlayer);
+                            // console.log("found player ->", foundPlayer);
+                            if (foundPlayer) {
+                                found[decodedPlayer]++;
 
-                            // Update contract
-                            let updateHash = NO_TRANSACTION;
-                            if (activity.reward) {
-                                console.log("Contract called");
-                                updateHash = await smartContract.updatePoints(
-                                    activity.id,
-                                    foundPlayer.address.toLowerCase(),
-                                    1
-                                );
-                            }
+                                console.log(`Transaction for ${decodedPlayer} in activity ${activity.id} found ${found[decodedPlayer]} times with goal ${goal}`);
 
-                            await db.insert(type1foundTransactions).values({
-                                txHash: transaction.hash,
-                                activity_id: activity.id,
-                                playerAddress: foundPlayer.address.toLowerCase(),
-                                update_tx_hash: updateHash
-                            });
-
-                            if (found[decodedPlayer] >= goal) {
-                                // Update Worx
-                                let worx_id = "";
-                                if (foundPlayer.worx_id) {
-                                    worx_id = await sendWorxNotification({
-                                        worx_id: foundPlayer.worx_id,
-                                        milestone_id: activity.id,
-                                        reward: activity.reward
-                                    })
+                                // Update contract
+                                let updateHash = NO_TRANSACTION;
+                                if (activity.reward) {
+                                    console.log("Contract called");
+                                    updateHash = await smartContract.updatePoints(
+                                        activity.id,
+                                        foundPlayer.address.toLowerCase(),
+                                        1
+                                    );
                                 }
 
-                                console.log("ALERT!");
-                                // Remove player
-                                const playerIndex = players.indexOf(foundPlayer);
-                                players.splice(playerIndex, 1);
+                                await db.insert(type1foundTransactions).values({
+                                    txHash: transaction.hash,
+                                    activity_id: activity.id,
+                                    playerAddress: foundPlayer.address.toLowerCase(),
+                                    update_tx_hash: updateHash
+                                });
 
-                                await db.update(activityPlayers).set({
-                                    done: true,
-                                    worxUpdateID: worx_id
-                                }).where(and(eq(activityPlayers.activityId, activity.id), eq(activityPlayers.playerAddress, foundPlayer.address)));
+                                if (found[decodedPlayer] >= goal) {
+                                    // Update Worx
+                                    let worx_id = "";
+                                    if (foundPlayer.worx_id) {
+                                        worx_id = await sendWorxNotification({
+                                            worx_id: foundPlayer.worx_id,
+                                            milestone_id: activity.id,
+                                            reward: activity.reward
+                                        })
+                                    }
 
-                                // Remove player from found
-                                delete found[decodedPlayer];
+                                    console.log("ALERT!");
+                                    // Remove player
+                                    const playerIndex = players.indexOf(foundPlayer);
+                                    players.splice(playerIndex, 1);
+
+                                    await db.update(activityPlayers).set({
+                                        done: true,
+                                        worxUpdateID: worx_id
+                                    }).where(and(eq(activityPlayers.activityId, activity.id), eq(activityPlayers.playerAddress, foundPlayer.address)));
+
+                                    // Remove player from found
+                                    delete found[decodedPlayer];
+                                }
                             }
+                        } else {
+                            console.log("Decoded", decoded, "transaction", transaction);
                         }
                     }
                 }
