@@ -129,7 +129,7 @@ export class SmarContract {
         }
     }
 
-    async getProofOfPlayAlexBossLatestBlock(): Promise<BigInt> {
+    async getProofOfPlayBossLatestBlock(): Promise<BigInt> {
         try {
             return this.proofOfPlayBobWeb3.eth.getBlockNumber();
         } catch(err) {
