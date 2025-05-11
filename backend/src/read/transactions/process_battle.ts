@@ -73,7 +73,8 @@ export default async function processBattle(activity: Activity, startBlock: numb
                                     abi: TEMP_FORWARDING_CONTRACT_ABI,
                                     address: TEMP_FORWARDING_CONTRACT_ADDRESS
                                 },
-                                activity
+                                activity,
+                                players
                             );
                         }
                     } catch (err) {
@@ -203,23 +204,27 @@ interface ForwardedContract {
 }
 
 // Assumes transaction that hit the forwarding contract contains the player address, contract being sent to and its data
-async function processForwadedEvent(transaction: Transaction, forwarded_contract: ForwardedContract, activity: Activity) {
+async function processForwadedEvent(transaction: Transaction, forwarded_contract: ForwardedContract, activity: Activity, players: Players[]) {
     try {
         // Decoded forwarded event to get player address, contract and data
         const decoded = decodeTransactionInput(transaction.input, forwarded_contract.abi, forwarded_contract.address);
 
-        const player_address: string = decoded['0']['from'];
-        const contract: string = decoded['0']['to'];
+        const player_address: string = decoded['0']['from'].toLowerCase();
+        const contract: string = decoded['0']['to'].toLowerCase();
         const data: string = decoded['0']['data'];
         
         // If contract is not for event end
-        console.log(contract);
-        if (contract.toLowerCase() !== activity.address.toLowerCase()) {
-            console.info("The event does not belong to activity", activity.id);
+        if (contract !== activity.address.toLowerCase()) {
+            console.info("The event does not belong to activity", activity.id, "activity address =>", activity.address, "event contract =>", contract);
             return;
         }
 
         // If player not participating in activity end
+        const foundPlayer = players.find((p) => p.operator === player_address || p.address === player_address);
+        if (!foundPlayer) {
+            console.info("Event does not include player for activity", activity.id, "detected player =>", player_address);
+            return;
+        }
 
         // Decode forwarded event data to check if correct method
 
