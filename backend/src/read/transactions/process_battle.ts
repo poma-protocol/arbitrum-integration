@@ -72,7 +72,8 @@ export default async function processBattle(activity: Activity, startBlock: numb
                                 {
                                     abi: TEMP_FORWARDING_CONTRACT_ABI,
                                     address: TEMP_FORWARDING_CONTRACT_ADDRESS
-                                }
+                                },
+                                activity
                             );
                         }
                     } catch (err) {
@@ -202,17 +203,21 @@ interface ForwardedContract {
 }
 
 // Assumes transaction that hit the forwarding contract contains the player address, contract being sent to and its data
-async function processForwadedEvent(transaction: Transaction, forwarded_contract: ForwardedContract) {
+async function processForwadedEvent(transaction: Transaction, forwarded_contract: ForwardedContract, activity: Activity) {
     try {
         // Decoded forwarded event to get player address, contract and data
         const decoded = decodeTransactionInput(transaction.input, forwarded_contract.abi, forwarded_contract.address);
 
-        const player_address = decoded['0']['from'];
-        const contract = decoded['0']['to'];
-        const data = decoded['0']['data'];
-
-        console.log("Player address =>", player_address, "contract =>", contract, "data =>", data)
+        const player_address: string = decoded['0']['from'];
+        const contract: string = decoded['0']['to'];
+        const data: string = decoded['0']['data'];
+        
         // If contract is not for event end
+        console.log(contract);
+        if (contract.toLowerCase() !== activity.address.toLowerCase()) {
+            console.info("The event does not belong to activity", activity.id);
+            return;
+        }
 
         // If player not participating in activity end
 
