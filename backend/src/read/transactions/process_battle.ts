@@ -23,7 +23,6 @@ export default async function processBattle(activity: Activity, startBlock: numb
         const contract = activity.address;
         console.log(contract);
         const playerAddressVariable = activity.playerAddressVariable;
-        const functionName = activity.functionName;
 
         const players = activity.players.map((p) => {
             return {
@@ -62,7 +61,6 @@ export default async function processBattle(activity: Activity, startBlock: numb
                             await processNonForwardedEvent(
                                 transaction,
                                 activity,
-                                functionName,
                                 playerAddressVariable,
                                 players
                             );
@@ -98,7 +96,7 @@ export default async function processBattle(activity: Activity, startBlock: numb
     }
 }
 
-async function processNonForwardedEvent(transaction: Transaction, activity: Activity, functionName: string, playerAddressVariable: string, players: Players[]) {
+async function processNonForwardedEvent(transaction: Transaction, activity: Activity, playerAddressVariable: string, players: Players[]) {
     console.info("Processing non forwarded event");
     try {
         // Decode transaction data
@@ -107,7 +105,7 @@ async function processNonForwardedEvent(transaction: Transaction, activity: Acti
         // Get if transaction is of the right method
         const method = (decoded["__method__"]) as string
 
-        if (method.includes(functionName)) {
+        if (method.includes(activity.functionName)) {
             const isMulti = isMultiLevelFunction(playerAddressVariable);
             let intermediate: any;
             for (let i = 0; i < isMulti.length; i++) {
@@ -227,6 +225,13 @@ async function processForwadedEvent(transaction: Transaction, forwarded_contract
         }
 
         // Decode forwarded event data to check if correct method
+        const decoded_event = decodeTransactionInput(data, activity.abi, activity.address);
+        const method = (decoded_event["__method__"]) as string;
+
+        if (!method.includes(activity.functionName)) {
+            console.info("Event is for a different function", activity.id, "activity function =>", activity.functionName, "detected function =>", method);
+            return;
+        }
 
         // If corret send reward
     } catch (err) {
