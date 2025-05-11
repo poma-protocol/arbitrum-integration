@@ -5,7 +5,7 @@ import { Activity } from "../../game/getActivities";
 import { Errors, MyError } from "../../helpers/errors";
 import smartContract from "../../smartcontract";
 import { decodeTransactionInput } from "./decode-transaction";
-import { getTransactions } from "./rpc";
+import { getTransactions, TransactionResponse } from "./rpc";
 import sendWorxNotification from "../../controller/battle/sendNotification";
 import { NO_TRANSACTION } from "../../helpers/constants";
 import isMultiLevelFunction from "../../controller/is_multi_method";
@@ -31,7 +31,21 @@ export default async function processBattle(activity: Activity, startBlock: numb
         // Object with found of each player
         let found = activity.found
 
-        const resp = await getTransactions(startBlock, contract, endBlock);
+        // In pop forwarder first arguement is operator address of player
+
+        // Get if using a forwarder or using contract
+        const usingForwarder = true;
+        
+        let resp: TransactionResponse;
+        if (usingForwarder === true) {
+            console.log("Here")
+            const forwardingContract = "0xFD6d3F4b2c9f998457e767df9dCDcfA840B44648";
+            resp = await getTransactions(startBlock, forwardingContract, endBlock);
+        } else {
+            console.log("There");
+            resp = await getTransactions(startBlock, contract, endBlock);
+        }
+
         if (resp.result) {
             console.log("Transactions => ", resp.result.length);
             if (players.length > 0) {
