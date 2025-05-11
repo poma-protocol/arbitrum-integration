@@ -9,6 +9,7 @@ import { getTransactions, Transaction, TransactionResponse } from "./rpc";
 import sendWorxNotification from "../../controller/battle/sendNotification";
 import { NO_TRANSACTION } from "../../helpers/constants";
 import isMultiLevelFunction from "../../controller/is_multi_method";
+import { TEMP_FORWARDING_CONTRACT_ABI, TEMP_FORWARDING_CONTRACT_ADDRESS } from "./temp_forwarding_contract_details";
 
 interface Players {
     address: string;
@@ -23,7 +24,6 @@ export default async function processBattle(activity: Activity, startBlock: numb
         console.log(contract);
         const playerAddressVariable = activity.playerAddressVariable;
         const functionName = activity.functionName;
-        const goal = activity.goal;
 
         const players = activity.players.map((p) => {
             return {
@@ -34,17 +34,15 @@ export default async function processBattle(activity: Activity, startBlock: numb
         });
         console.log("Players", players);
         console.log("Found", activity.found);
-        // Object with found of each player
-        let found = activity.found
 
         // In pop forwarder first arguement is operator address of player
 
         // Get if using a forwarder or using contract
-        const usingForwarder = false;
+        const usingForwarder = true;
 
         let resp: TransactionResponse;
         if (usingForwarder === true) {
-            const forwardingContract = "0xFD6d3F4b2c9f998457e767df9dCDcfA840B44648";
+            const forwardingContract = TEMP_FORWARDING_CONTRACT_ADDRESS;
             resp = await getTransactions(startBlock, forwardingContract, endBlock);
         } else {
             resp = await getTransactions(startBlock, contract, endBlock);
@@ -69,7 +67,13 @@ export default async function processBattle(activity: Activity, startBlock: numb
                                 players
                             );
                         } else {
-                            await processForwadedEvent();
+                            await processForwadedEvent(
+                                transaction,
+                                {
+                                    abi: TEMP_FORWARDING_CONTRACT_ABI,
+                                    address: TEMP_FORWARDING_CONTRACT_ADDRESS
+                                }
+                            );
                         }
                     } catch (err) {
                         console.error(err);
@@ -192,9 +196,29 @@ async function processNonForwardedEvent(transaction: Transaction, activity: Acti
     }
 }
 
-async function processForwadedEvent() {
+interface ForwardedContract {
+    abi: JSON,
+    address: string
+}
+
+// Assumes transaction that hit the forwarding contract contains the player address, contract being sent to and its data
+async function processForwadedEvent(transaction: Transaction, forwarded_contract: ForwardedContract) {
     try {
-        console.info("Processing forwaded event");
+        // Decoded forwarded event to get player address, contract and data
+        const decoded = decodeTransactionInput(transaction.input, forwarded_contract.abi, forwarded_contract.address);
+
+        const player_address = decoded['0']['from'];
+        const contract = decoded['0']['to'];
+        const data = decoded['0']['data'];
+
+        console.log("Player address =>", player_address, "contract =>", contract, "data =>", data)
+        // If contract is not for event end
+
+        // If player not participating in activity end
+
+        // Decode forwarded event data to check if correct method
+
+        // If corret send reward
     } catch (err) {
         console.error("Could not process forwarded event", err);
     }
