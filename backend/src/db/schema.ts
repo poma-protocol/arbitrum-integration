@@ -1,5 +1,4 @@
 import { boolean, date, integer, json, pgTable, real, serial, text, primaryKey } from "drizzle-orm/pg-core";
-import { contract } from "../smartcontract/account";
 
 export const contracts = pgTable("contracts", {
     id: serial("id").primaryKey(),
@@ -15,7 +14,7 @@ export const type1Challenges = pgTable("type_1_challenges", {
     name: text("name").notNull(),
     functionName: text("function_name").notNull(),
     playerAddressVariable: text("player_address_variable").notNull(),
-    contractID: integer("contractID").references(() => contracts.id).notNull(),
+    contractID: integer("contractID").references(() => contracts.id, {onDelete: "cascade"}).notNull(),
     useForwarder: boolean("use_forwader").notNull().default(false),
     forwarderAddress: text("forwarder_address"),
     forwarderABI: json("forwarder_abi"),
@@ -25,7 +24,7 @@ export const type1Activities = pgTable("type_1_activities", {
     id: serial("id").primaryKey(),
     goal: integer("goal").notNull(),
     name: text("name").notNull(),
-    challenge_id: integer("challenge_id").references(() => type1Challenges.id).notNull(),
+    challenge_id: integer("challenge_id").references(() => type1Challenges.id, {onDelete: "cascade"}).notNull(),
     reward: real("reward"),
     creation_tx_hash: text("creationTransactionHash"),
     startDate: date("start_date").notNull(),
@@ -37,12 +36,12 @@ export const type1Activities = pgTable("type_1_activities", {
 });
 
 export const type1ActivityInstructions = pgTable("type_1_activity_instructions", {
-    activity_id: integer("activity_id").notNull().references(() => type1Activities.id),
+    activity_id: integer("activity_id").notNull().references(() => type1Activities.id, {onDelete: "cascade"}),
     instruction: text("instruction").notNull()
 })
 
 export const activityPlayers = pgTable("activity_players", {
-    activityId: integer("activity_id").references(() => type1Activities.id),
+    activityId: integer("activity_id").references(() => type1Activities.id, {onDelete: "cascade"}).notNull(),
     playerAddress: text("player_address").notNull(),
     bubbleID: text("bubbleID"),
     done: boolean("done").default(false).notNull(),
@@ -56,7 +55,7 @@ export const activityPlayers = pgTable("activity_players", {
 export const type1foundTransactions = pgTable("type_1_found_transactions", {
     id: serial("id").primaryKey(),
     txHash: text("tx_hash").notNull(),
-    activity_id: integer("activity_id").references(() => type1Activities.id).notNull(),
+    activity_id: integer("activity_id").references(() => type1Activities.id, {onDelete: "cascade"}).notNull(),
     playerAddress: text("player_address").notNull(),
     update_tx_hash: text("updateTransactionHash")
 });
@@ -64,13 +63,13 @@ export const type1foundTransactions = pgTable("type_1_found_transactions", {
 export const jackpotFoundTransactions = pgTable("jackpot_found_transactions", {
     id: serial("id").primaryKey(),
     txHash: text("tx_hash").notNull(),
-    jackpot_id: integer("jackpot_id").references(() => jackpotActivity.id).notNull(),
+    jackpot_id: integer("jackpot_id").references(() => jackpotActivity.id, {onDelete: "cascade"}).notNull(),
     playerAddress: text("player_address").notNull(),
 });
 
 export const jackpotActivity = pgTable("jackpotActivity", {
     id: serial("id").primaryKey(),
-    challenge_id: integer("challenge_id").references(() => type1Challenges.id).notNull(),
+    challenge_id: integer("challenge_id").references(() => type1Challenges.id, {onDelete: "cascade"}).notNull(),
     requirement: integer("requirement").notNull(),
     startDate: date("start_date").notNull(),
     endDate: date("end_date").notNull(),
@@ -79,7 +78,7 @@ export const jackpotActivity = pgTable("jackpotActivity", {
 });
 
 export const jackpotPlayers = pgTable("jackpot_players", {
-    jackpot_id: integer("jackpot_id").references(() => jackpotActivity.id),
+    jackpot_id: integer("jackpot_id").references(() => jackpotActivity.id, {onDelete: "cascade"}),
     playerAddress: text("player_address").notNull(),
     met_requirement: boolean("met_requirement").notNull().default(false)
 }, (table) => [

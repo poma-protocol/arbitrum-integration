@@ -204,6 +204,20 @@
       "when": 1747034411183,
       "tag": "0028_optimal_doorman",
       "breakpoints": true
+    },
+    {
+      "idx": 29,
+      "version": "7",
+      "when": 1747061862558,
+      "tag": "0029_careless_microbe",
+      "breakpoints": true
+    },
+    {
+      "idx": 30,
+      "version": "7",
+      "when": 1747061938390,
+      "tag": "0030_small_lizard",
+      "breakpoints": true
     }
   ]
 }
