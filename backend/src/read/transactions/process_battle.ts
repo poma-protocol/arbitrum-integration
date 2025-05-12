@@ -1,4 +1,4 @@
-import { and, eq, or, sql } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { db } from "../../db/pool";
 import { activityPlayers, type1foundTransactions } from "../../db/schema";
 import { Activity } from "../../game/getActivities";
@@ -9,7 +9,6 @@ import { getTransactions, Transaction, TransactionResponse } from "./rpc";
 import sendWorxNotification from "../../controller/battle/sendNotification";
 import { NO_TRANSACTION } from "../../helpers/constants";
 import isMultiLevelFunction from "../../controller/is_multi_method";
-import { TEMP_FORWARDING_CONTRACT_ABI, TEMP_FORWARDING_CONTRACT_ADDRESS } from "./temp_forwarding_contract_details";
 
 interface Players {
     address: string;
@@ -37,12 +36,11 @@ export default async function processBattle(activity: Activity, startBlock: numb
         // In pop forwarder first arguement is operator address of player
 
         // Get if using a forwarder or using contract
-        const usingForwarder = true;
+        const usingForwarder = activity.forwarder !== undefined;
 
         let resp: TransactionResponse;
         if (usingForwarder === true) {
-            const forwardingContract = TEMP_FORWARDING_CONTRACT_ADDRESS;
-            resp = await getTransactions(startBlock, forwardingContract, endBlock);
+            resp = await getTransactions(startBlock, activity.forwarder!.address, endBlock);
         } else {
             resp = await getTransactions(startBlock, contract, endBlock);
         }
@@ -58,19 +56,15 @@ export default async function processBattle(activity: Activity, startBlock: numb
 
                     try {
                         if (usingForwarder === false) {
-                            await processNonForwardedEvent(
+                            await _processNonForwardedEvent(
                                 transaction,
                                 activity,
                                 playerAddressVariable,
                                 players
                             );
                         } else {
-                            await processForwadedEvent(
+                            await _processForwadedEvent(
                                 transaction,
-                                {
-                                    abi: TEMP_FORWARDING_CONTRACT_ABI,
-                                    address: TEMP_FORWARDING_CONTRACT_ADDRESS
-                                },
                                 activity,
                                 players
                             );
@@ -96,7 +90,7 @@ export default async function processBattle(activity: Activity, startBlock: numb
     }
 }
 
-async function processNonForwardedEvent(transaction: Transaction, activity: Activity, playerAddressVariable: string, players: Players[]) {
+async function _processNonForwardedEvent(transaction: Transaction, activity: Activity, playerAddressVariable: string, players: Players[]) {
     console.info("Processing non forwarded event");
     try {
         // Decode transaction data
@@ -127,67 +121,13 @@ async function processNonForwardedEvent(transaction: Transaction, activity: Acti
                 const foundPlayer = players.find((p) => p.operator === decodedPlayer || p.address === decodedPlayer);
                 // console.log("found player ->", foundPlayer);
                 if (foundPlayer) {
-
-                    let foundPlayerAddress = decodedPlayer;
-                    if (Number.isNaN(activity.found[decodedPlayer]) || activity.found[decodedPlayer] === undefined) {
-                        console.log("Decoded player not in found");
-                        // This means that decodedPlayer is the players address and not the operator address
-                        const player = players.find((p) => p.address === decodedPlayer);
-                        if (player) {
-                            console.log("Found player =>", player);
-                            foundPlayerAddress = player?.operator ?? "";
-                        }
-                    }
-                    activity.found[foundPlayerAddress] += 1;
-
-                    console.log(`Transaction for ${decodedPlayer} in activity ${activity.id} found ${activity.found[foundPlayerAddress]} times with goal ${activity.goal}`);
-
-                    // Update contract
-                    let updateHash = NO_TRANSACTION;
-                    if (activity.reward) {
-                        console.log("Contract called");
-                        updateHash = await smartContract.updatePoints(
-                            activity.id,
-                            foundPlayer.address.toLowerCase(),
-                            1
-                        );
-                    }
-
-                    await db.insert(type1foundTransactions).values({
-                        txHash: transaction.hash,
-                        activity_id: activity.id,
-                        playerAddress: foundPlayer.address.toLowerCase(),
-                        update_tx_hash: updateHash
-                    });
-
-                    if (activity.found[foundPlayerAddress] >= activity.goal) {
-                        console.log("ALERT!");
-                        // Remove player
-                        const playerIndex = players.indexOf(foundPlayer);
-                        players.splice(playerIndex, 1);
-
-                        // Update Worx
-                        let worx_id = "";
-                        try {
-                            if (foundPlayer.worx_id) {
-                                worx_id = await sendWorxNotification({
-                                    worx_id: foundPlayer.worx_id,
-                                    milestone_id: activity.id,
-                                    reward: activity.reward
-                                })
-                            }
-                        } catch (err) {
-                            console.log("Update worx failed", err);
-                        }
-
-                        await db.update(activityPlayers).set({
-                            done: true,
-                            worxUpdateID: worx_id
-                        }).where(and(eq(activityPlayers.activityId, activity.id), eq(activityPlayers.playerAddress, foundPlayer.address)));
-
-                        // Remove player from found
-                        delete activity.found[foundPlayerAddress];
-                    }
+                    await _processFoundTransaction(
+                        decodedPlayer,
+                        activity,
+                        players,
+                        foundPlayer,
+                        transaction
+                    );
                 }
             }
         }
@@ -196,21 +136,20 @@ async function processNonForwardedEvent(transaction: Transaction, activity: Acti
     }
 }
 
-interface ForwardedContract {
-    abi: JSON,
-    address: string
-}
-
 // Assumes transaction that hit the forwarding contract contains the player address, contract being sent to and its data
-async function processForwadedEvent(transaction: Transaction, forwarded_contract: ForwardedContract, activity: Activity, players: Players[]) {
+async function _processForwadedEvent(transaction: Transaction, activity: Activity, players: Players[]) {
     try {
+        if (!activity.forwarder) {
+            console.info("Details of forwarder contract are missing");
+            return;
+        }
         // Decoded forwarded event to get player address, contract and data
-        const decoded = decodeTransactionInput(transaction.input, forwarded_contract.abi, forwarded_contract.address);
+        const decoded = decodeTransactionInput(transaction.input, activity.forwarder!.abi, activity.forwarder!.address);
 
         const player_address: string = decoded['0']['from'].toLowerCase();
         const contract: string = decoded['0']['to'].toLowerCase();
         const data: string = decoded['0']['data'];
-        
+
         // If contract is not for event end
         if (contract !== activity.address.toLowerCase()) {
             console.info("The event does not belong to activity", activity.id, "activity address =>", activity.address, "event contract =>", contract);
@@ -229,12 +168,86 @@ async function processForwadedEvent(transaction: Transaction, forwarded_contract
         const method = (decoded_event["__method__"]) as string;
 
         if (!method.includes(activity.functionName)) {
-            console.info("Event is for a different function", activity.id, "activity function =>", activity.functionName, "detected function =>", method);
+            console.info("Event is for a different function", activity.id, "activity function =>", activity.functionName, "detected function =>", method, "found player address =>", foundPlayer.address);
             return;
         }
 
         // If corret send reward
+        await _processFoundTransaction(
+            player_address,
+            activity,
+            players,
+            foundPlayer,
+            transaction
+        );
     } catch (err) {
         console.error("Could not process forwarded event", err);
+    }
+}
+
+async function _processFoundTransaction(decodedPlayer: string, activity: Activity, players: Players[], foundPlayer: Players, transaction: Transaction) {
+    try {
+        let foundPlayerAddress = decodedPlayer;
+        if (Number.isNaN(activity.found[decodedPlayer]) || activity.found[decodedPlayer] === undefined) {
+            console.log("Decoded player not in found");
+            // This means that decodedPlayer is the players address and not the operator address
+            const player = players.find((p) => p.address === decodedPlayer);
+            if (player) {
+                console.log("Found player =>", player);
+                foundPlayerAddress = player?.operator ?? "";
+            }
+        }
+        activity.found[foundPlayerAddress] += 1;
+
+        console.log(`Transaction for ${decodedPlayer} in activity ${activity.id} found ${activity.found[foundPlayerAddress]} times with goal ${activity.goal}`);
+
+        // Update contract
+        let updateHash = NO_TRANSACTION;
+        if (activity.reward) {
+            console.log("Contract called");
+            updateHash = await smartContract.updatePoints(
+                activity.id,
+                foundPlayer.address.toLowerCase(),
+                1
+            );
+        }
+
+        await db.insert(type1foundTransactions).values({
+            txHash: transaction.hash,
+            activity_id: activity.id,
+            playerAddress: foundPlayer.address.toLowerCase(),
+            update_tx_hash: updateHash
+        });
+
+        if (activity.found[foundPlayerAddress] >= activity.goal) {
+            console.log("ALERT!");
+            // Remove player
+            const playerIndex = players.indexOf(foundPlayer);
+            players.splice(playerIndex, 1);
+
+            // Update Worx
+            let worx_id = "";
+            try {
+                if (foundPlayer.worx_id) {
+                    worx_id = await sendWorxNotification({
+                        worx_id: foundPlayer.worx_id,
+                        milestone_id: activity.id,
+                        reward: activity.reward
+                    })
+                }
+            } catch (err) {
+                console.log("Update worx failed", err);
+            }
+
+            await db.update(activityPlayers).set({
+                done: true,
+                worxUpdateID: worx_id
+            }).where(and(eq(activityPlayers.activityId, activity.id), eq(activityPlayers.playerAddress, foundPlayer.address)));
+
+            // Remove player from found
+            delete activity.found[foundPlayerAddress];
+        }
+    } catch (err) {
+        console.error("Could not process the found transcation", err);
     }
 }
