@@ -9,10 +9,14 @@ export interface Activity {
     playerAddressVariable: string,
     functionName: string,
     goal: number,
-    players: {address: string, worx_id: string | null, operator: string | null}[],
+    players: { address: string, worx_id: string | null, operator: string | null }[],
     found: Record<string, number>,
     abi: JSON,
-    reward: number | null
+    reward: number | null,
+    forwarder?: {
+        address: string,
+        abi: JSON
+    }
 }
 
 export async function getActivities(): Promise<Activity[]> {
@@ -31,7 +35,10 @@ export async function getActivities(): Promise<Activity[]> {
             const challenges = await db.select({
                 id: type1Challenges.id,
                 functionName: type1Challenges.functionName,
-                playerAddressVariable: type1Challenges.playerAddressVariable
+                playerAddressVariable: type1Challenges.playerAddressVariable,
+                useForwarder: type1Challenges.useForwarder,
+                forwarderAddress: type1Challenges.forwarderAddress,
+                forwarderABI: type1Challenges.forwarderABI
             }).from(type1Challenges)
                 .where(eq(type1Challenges.contractID, game.id));
 
@@ -45,6 +52,7 @@ export async function getActivities(): Promise<Activity[]> {
                     .where(sql`${type1Activities.done} = false AND ${type1Activities.challenge_id} = ${challenge.id} AND ${type1Activities.startDate} < now() AND ${type1Activities.endDate} > now()`)
 
                 for (let activity of activities) {
+
                     // Get players
                     const players = await db.select({
                         playerAddress: activityPlayers.playerAddress,
@@ -52,7 +60,7 @@ export async function getActivities(): Promise<Activity[]> {
                         operator: activityPlayers.operator_address
                     }).from(activityPlayers)
                         .where(sql`${activityPlayers.done} = false AND ${activityPlayers.activityId} = ${activity.id}`);
-                    
+
                     const playersToReturn = players.map((p) => {
                         return {
                             address: p.playerAddress, worx_id: p.worx_id, operator: p.operator
@@ -69,7 +77,27 @@ export async function getActivities(): Promise<Activity[]> {
 
                         found[player.operator?.toLocaleLowerCase() ?? player.playerAddress.toLocaleLowerCase()] = count[0].count
                     }
-
+                    //check if it uses forwarder
+                    const useForwarder = challenge.useForwarder;
+                    if (useForwarder && challenge.forwarderABI && challenge.forwarderAddress) {
+                        toReturn.push({
+                            id: activity.id,
+                            address: game.address,
+                            playerAddressVariable: challenge.playerAddressVariable,
+                            functionName: challenge.functionName,
+                            goal: activity.goal,
+                            players: playersToReturn,
+                            reward: activity.reward,
+                            found,
+                            forwarder: {
+                                address: challenge.forwarderAddress,
+                                //@ts-ignore
+                                abi: challenge.forwarderABI
+                            },
+                            //@ts-ignore
+                            abi: game.abi
+                        })
+                    }
                     toReturn.push({
                         id: activity.id,
                         address: game.address,
