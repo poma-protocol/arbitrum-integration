@@ -1,4 +1,5 @@
 import { boolean, date, integer, json, pgTable, real, serial, text, primaryKey } from "drizzle-orm/pg-core";
+import { contract } from "../smartcontract/account";
 
 export const contracts = pgTable("contracts", {
     id: serial("id").primaryKey(),
@@ -14,7 +15,10 @@ export const type1Challenges = pgTable("type_1_challenges", {
     name: text("name").notNull(),
     functionName: text("function_name").notNull(),
     playerAddressVariable: text("player_address_variable").notNull(),
-    contractID: integer("contractID").references(() => contracts.id).notNull()
+    contractID: integer("contractID").references(() => contracts.id).notNull(),
+    useForwarder: boolean("use_forwader").notNull().default(false),
+    forwarderAddress: text("forwarder_address"),
+    forwarderABI: json("forwarder_abi"),
 });
 
 export const type1Activities = pgTable("type_1_activities", {
