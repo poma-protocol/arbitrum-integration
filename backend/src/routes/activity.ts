@@ -169,6 +169,7 @@ router.get("/", async (req, res) => {
             image: string,
             startDate: string,
             endDate: string,
+            type: "milestone" | "jackpot" | "record" | "tournament"
             players: number
         }[] = [];
         for (const activity of activities) {
@@ -179,6 +180,7 @@ router.get("/", async (req, res) => {
 
             toReturn.push({
                 ...activity,
+                type: "milestone",
                 players: count[0].count
             });
         }
