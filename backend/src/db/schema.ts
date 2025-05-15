@@ -19,6 +19,10 @@ export const type1Challenges = pgTable("type_1_challenges", {
     useForwarder: boolean("use_forwader").notNull().default(false),
     forwarderAddress: text("forwarder_address"),
     forwarderABI: json("forwarder_abi"),
+    methodDataAttributeName: text("method_data_attribute_name"),
+    wantedData: text("wanted_data"),
+    countItems: boolean("count_items").notNull().default(false),
+
 });
 
 export const type1Activities = pgTable("type_1_activities", {
