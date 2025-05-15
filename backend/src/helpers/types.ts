@@ -60,6 +60,12 @@ export const createChallengeSchema = z.object({
     player_address_variable: z.string({message: Errors.PLAYER_ADDRESS_VARIABLE}),
     function_name: z.string({message: Errors.FUNCTION_NAME}),
     contractID: z.number({message: Errors.CONTRACT_ID}),
+    useForwarder: z.boolean({message: Errors.USE_FORWARDER}).default(false),
+    forwarderAddress: z.string({message: Errors.FORWARDER_ADDRESS}).optional(),
+    forwarderABI: jsonSchema.optional(),
+    methodDataAttributeName: z.string({message: Errors.METHOD_DATA_ATTRIBUTE_NAME}).optional(),
+    wantedData: z.string({message: Errors.WANTED_DATA}).optional(),
+    countItems: z.boolean({message: Errors.COUNT_ITEMS}).default(false),
 });
 
 export type CreateChallenge = z.infer<typeof createChallengeSchema>

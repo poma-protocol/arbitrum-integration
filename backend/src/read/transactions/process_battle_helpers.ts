@@ -117,27 +117,24 @@ export async function _processFoundTransaction(decodedPlayer: string, activity: 
         let foundPlayerAddress = decodedPlayer;
 
         // Check if the event with the player has the additional information needed
-        const additionalInformationNeeded = true;
-        if (additionalInformationNeeded === true) {
+        if (activity.methodDataAttributeName) {
             console.info("Additional info is needed");
-            const methodDataAttributeName = "transformInstanceEntities";
-            const methodData = getListOfMethodData(decodedEvent, methodDataAttributeName);
-            const wantedData = "1906095189314217384240960817313607732492074601154461341919454707972530450";
+            const methodData = getListOfMethodData(decodedEvent, activity.methodDataAttributeName);
             if (methodData) {
                 let found = false;
                 for (let data of methodData) {
-                    if (wantedData === data) {
+                    if (activity.wantedData === data) {
                         found = true;
                         break;
                     }
                 }
 
                 if (found === false) {
-                    console.info("The wanted data", wantedData, "was not found in decoded data", decodedEvent, "but this was found", methodData);
+                    console.info("The wanted data", activity.wantedData, "was not found in decoded data", decodedEvent, "but this was found", methodData);
                     return;
                 }
             } else {
-                console.info("Could not decode method data needed for additional checks", decodedEvent, "method data wanted", methodDataAttributeName);
+                console.info("Could not decode method data needed for additional checks", decodedEvent, "method data wanted", activity.methodDataAttributeName);
                 return;
             }
         }
@@ -151,7 +148,12 @@ export async function _processFoundTransaction(decodedPlayer: string, activity: 
                 foundPlayerAddress = player?.operator ?? "";
             }
         }
-        activity.found[foundPlayerAddress] += 1;
+        let foundTimes = 1;
+        if (activity.countItems && activity.methodDataAttributeName) {
+            const methodData = getListOfMethodData(decodedEvent, activity.methodDataAttributeName);
+            foundTimes = methodData.length;
+        }
+        activity.found[foundPlayerAddress] += foundTimes;
 
         console.log(`Transaction for ${decodedPlayer} in activity ${activity.id} found ${activity.found[foundPlayerAddress]} times with goal ${activity.goal}`);
 
@@ -162,7 +164,7 @@ export async function _processFoundTransaction(decodedPlayer: string, activity: 
             updateHash = await smartContract.updatePoints(
                 activity.id,
                 foundPlayer.address.toLowerCase(),
-                1
+                foundTimes
             );
         }
 

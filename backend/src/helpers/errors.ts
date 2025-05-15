@@ -73,5 +73,10 @@ export enum Errors {
     NOT_CHECK_MAXIMUM_NUM_PLAYETS = "Could not check maximum number of players",
     MAXIMUM_NUMBER_PLAYERS_REACHED = "Maximum number of players has been reached",
     NOT_CHECK_IF_CONTRACT_INFORMED_JOIN = "Could not check if contract needs to be informed of join",
-    NOT_CHECK_IF_MULTI_LEVEL = "Could not check if method is multi level"
+    NOT_CHECK_IF_MULTI_LEVEL = "Could not check if method is multi level",
+    USE_FORWARDER = "Use forwarder must be a boolean",
+    FORWARDER_ADDRESS = "Forwarder address must be a string",
+    METHOD_DATA_ATTRIBUTE_NAME = "Method data attribute name must be a string",
+    WANTED_DATA = "Wanted data must be a string",
+    COUNT_ITEMS = "Count items must be a boolean",
 }

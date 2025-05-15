@@ -16,7 +16,10 @@ export interface Activity {
     forwarder?: {
         address: string,
         abi: JSON
-    }
+    },
+    methodDataAttributeName: string | null,
+    wantedData: string | null,
+    countItems: boolean | null
 }
 
 export async function getActivities(): Promise<Activity[]> {
@@ -38,7 +41,10 @@ export async function getActivities(): Promise<Activity[]> {
                 playerAddressVariable: type1Challenges.playerAddressVariable,
                 useForwarder: type1Challenges.useForwarder,
                 forwarderAddress: type1Challenges.forwarderAddress,
-                forwarderABI: type1Challenges.forwarderABI
+                forwarderABI: type1Challenges.forwarderABI,
+                methodDataAttributeName: type1Challenges.methodDataAttributeName,
+                wantedData: type1Challenges.wantedData,
+                countItems: type1Challenges.countItems
             }).from(type1Challenges)
                 .where(eq(type1Challenges.contractID, game.id));
 
@@ -95,7 +101,10 @@ export async function getActivities(): Promise<Activity[]> {
                                 abi: challenge.forwarderABI
                             },
                             //@ts-ignore
-                            abi: game.abi
+                            abi: game.abi,
+                            methodDataAttributeName: challenge.methodDataAttributeName,
+                            wantedData: challenge.wantedData,
+                            countItems: challenge.countItems
                         })
                     }
                     toReturn.push({
@@ -108,7 +117,11 @@ export async function getActivities(): Promise<Activity[]> {
                         reward: activity.reward,
                         found,
                         //@ts-ignore
-                        abi: game.abi
+                        abi: game.abi,
+                        methodDataAttributeName: challenge.methodDataAttributeName,
+                        wantedData: challenge.wantedData,
+                        countItems: challenge.countItems
+
                     })
                 }
             }
