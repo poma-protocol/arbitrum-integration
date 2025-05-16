@@ -11,7 +11,8 @@ declare global {
             PROJECT_ID: string,
             INFISICAL_ENVIRONMENT: string,
             REGION: string,
-            WORX_TOKEN: string
+            WORX_TOKEN: string,
+            END_BLOCK: string | undefined,
         }
     }
 }

@@ -27,18 +27,29 @@ async function main() {
             }
         }
 
-
+        let endBlock: number | undefined = undefined;
+        if (process.env.END_BLOCK) {
+            endBlock = Number.parseInt(process.env.END_BLOCK);
+        }
 
         while (true) {
-            let endBlock: number | undefined = undefined;
+            if (startBlock === endBlock) {
+                endBlock = undefined;
+            }
 
             console.log(`\nProcessing Battles\n`);
             // Getting battle activities
             const activities = await getActivities();
+            console.log("Number of activities", activities.length);
 
             // Processing battle activities
             for (let activity of activities) {
-                endBlock = await processBattle(activity, startBlock, endBlock);
+                console.log("Start block ->", startBlock, "End block ->", endBlock);
+                const newEndBlock = await processBattle(activity, startBlock, endBlock);
+                if (newEndBlock && (endBlock === undefined || endBlock < newEndBlock)) {
+                    endBlock = newEndBlock;
+                }
+                console.log("Returned endblock", newEndBlock, "Current endblock =>", endBlock);
             }
 
             console.log(`\nProcessing Jackpots\n`);
@@ -52,6 +63,7 @@ async function main() {
 
             await sleep(3000);
             startBlock = endBlock ?? startBlock;
+
 
             if (activities.length === 0) {
                 console.log("No battles");

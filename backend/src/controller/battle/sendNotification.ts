@@ -7,7 +7,7 @@ export interface SendNotification {
     reward: number | null
 }
 
-const API_ENDPOINT = "https://pomaprotocol.com/version-test/api/1.1/obj/UserBattles";
+const API_ENDPOINT = "https://zendocash.com/version-test/api/1.1/obj/UserBattles";
 
 export default async function sendWorxNotification(args: SendNotification): Promise<string> {
     if (!process.env.WORX_TOKEN) {
