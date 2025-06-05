@@ -2,7 +2,7 @@ import { and, count, eq } from "drizzle-orm";
 import { db } from "../db/pool";
 import { activityPlayers, games, jackpotActivity, jackpotFoundTransactions, jackpotPlayers, type1Activities, type1Challenges } from "../db/schema";
 import { Errors, MyError } from "../helpers/errors";
-import { CreateChallenge, CreateChallengeType, CreateJackpot } from "../helpers/types";
+import { CreateChallengeType, CreateJackpot } from "../helpers/types";
 import { MilestonePlayers } from "../controller/battle/get_players";
 
 interface Activity {
@@ -221,7 +221,7 @@ export class MyDatabase {
             const challenges = await db.select({
                 id: type1Challenges.id
             }).from(type1Challenges)
-            .where(eq(type1Challenges.contractID, gameID));
+            .where(eq(type1Challenges.gameID, gameID));
 
             const activities: Activity[] = []
 

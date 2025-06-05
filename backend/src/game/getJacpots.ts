@@ -1,6 +1,6 @@
 import { db } from "../db/pool";
 import {eq, sql, and, count} from "drizzle-orm";
-import { contracts, jackpotActivity, jackpotFoundTransactions, jackpotPlayers, type1Challenges } from "../db/schema";
+import { games, jackpotActivity, jackpotFoundTransactions, jackpotPlayers, type1Challenges } from "../db/schema";
 import { Errors, MyError } from "../helpers/errors";
 
 export interface Jackpot {
@@ -20,20 +20,20 @@ export async function getJackpots(): Promise<Jackpot[]> {
         let toReturn: Jackpot[] = [];
         
         // Get all games
-        const games = await db.select({
-            id: contracts.id,
-            address: contracts.address,
-            abi: contracts.abi
-        }).from(contracts);
+        const retrievedGames = await db.select({
+            id: games.id,
+        }).from(games);
 
-        for (let game of games) {
+        for (let game of retrievedGames) {
             // Get challenges
             const challenges = await db.select({
                 id: type1Challenges.id,
+                address: type1Challenges.contarct_address,
+                abi: type1Challenges.abi,
                 functionName: type1Challenges.functionName,
                 playerAddressVariable: type1Challenges.playerAddressVariable
             }).from(type1Challenges)
-                .where(eq(type1Challenges.contractID, game.id));
+                .where(eq(type1Challenges.gameID, game.id));
 
             for (let challenge of challenges) {
                 // Get jackpots for a challenge
@@ -72,14 +72,14 @@ export async function getJackpots(): Promise<Jackpot[]> {
 
                     toReturn.push({
                         id: jackpot.id,
-                        address: game.address,
+                        address: challenge.address,
                         playerAddressVariable: challenge.playerAddressVariable,
                         functionName: challenge.functionName,
                         requirement: jackpot.requirement,
                         players: playersToReturn,
                         found,
                         //@ts-ignore
-                        abi: game.abi,
+                        abi: challenge.abi,
                         endDate: new Date(Date.parse(jackpot.endDate))
                     })
                 }
