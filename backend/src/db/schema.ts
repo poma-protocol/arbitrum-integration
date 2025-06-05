@@ -3,25 +3,31 @@ import { boolean, date, integer, json, pgTable, real, serial, text, primaryKey }
 export const contracts = pgTable("contracts", {
     id: serial("id").primaryKey(),
     name: text("name").notNull(),
-    address: text("address").notNull(),
-    abi: json("ABI").notNull(),
     image: text("image").notNull(),
     category: text("category").notNull(),
+});
+
+export const games = pgTable("games", {
+    id: serial("id").primaryKey(),
+    name: text("name").notNull(),
+    image: text("image").notNull(),
+    category: text("category").notNull()
 });
 
 export const type1Challenges = pgTable("type_1_challenges", {
     id: serial("id").primaryKey(),
     name: text("name").notNull(),
+    contarct_address: text("contract_address").notNull(),
+    abi: json("ABI").notNull(),
     functionName: text("function_name").notNull(),
     playerAddressVariable: text("player_address_variable").notNull(),
-    contractID: integer("contractID").references(() => contracts.id, {onDelete: "cascade"}).notNull(),
+    gameID: integer("gameID").references(() => games.id, {onDelete: "cascade"}).notNull(),
     useForwarder: boolean("use_forwader").notNull().default(false),
     forwarderAddress: text("forwarder_address"),
     forwarderABI: json("forwarder_abi"),
     methodDataAttributeName: text("method_data_attribute_name"),
     wantedData: text("wanted_data"),
     countItems: boolean("count_items").notNull().default(false),
-
 });
 
 export const type1Activities = pgTable("type_1_activities", {
