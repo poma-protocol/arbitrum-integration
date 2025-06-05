@@ -1,8 +1,8 @@
 import { and, count, eq } from "drizzle-orm";
 import { db } from "../db/pool";
-import { activityPlayers, contracts, jackpotActivity, jackpotFoundTransactions, jackpotPlayers, type1Activities, type1Challenges } from "../db/schema";
+import { activityPlayers, games, jackpotActivity, jackpotFoundTransactions, jackpotPlayers, type1Activities, type1Challenges } from "../db/schema";
 import { Errors, MyError } from "../helpers/errors";
-import { CreateChallenge, CreateJackpot } from "../helpers/types";
+import { CreateChallenge, CreateChallengeType, CreateJackpot } from "../helpers/types";
 import { MilestonePlayers } from "../controller/battle/get_players";
 
 interface Activity {
@@ -181,12 +181,12 @@ export class MyDatabase {
         }
     }
 
-    async doesContractIDExist(contract_id: number): Promise<boolean> {
+    async doesGameIDExist(gameID: number): Promise<boolean> {
         try {
             const res = await db.select({
-                id: contracts.id
-            }).from(contracts)
-            .where(eq(contracts.id, contract_id));
+                id: games.id
+            }).from(games)
+            .where(eq(games.id, gameID));
 
             return res.length > 0;
         } catch(err) {
@@ -195,14 +195,21 @@ export class MyDatabase {
         }
     }
 
-    async createChallenge(args: CreateChallenge) {
+    async createChallenge(args: CreateChallengeType): Promise<number> {
         try {
-            await db.insert(type1Challenges).values({
+            const inserted = await db.insert(type1Challenges).values({
                 name: args.name,
-                contractID: args.contractID,
+                gameID: args.gameID,
                 functionName: args.function_name,
-                playerAddressVariable: args.player_address_variable
-            });
+                playerAddressVariable: args.player_address_variable,
+                contarct_address: args.contract_address,
+                abi: args.abi,
+                useForwarder: args.useForwarder,
+                forwarderABI: args.forwarderABI,
+                forwarderAddress: args.forwarderAddress
+            }).returning({id: type1Challenges.id});
+
+            return inserted[0].id;
         } catch(err) {
             console.log("Could not add challenge to DB", err);
             throw new MyError(Errors.NOT_CREATE_CHALLENGE_DB);

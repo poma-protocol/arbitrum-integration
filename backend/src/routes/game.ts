@@ -2,13 +2,14 @@ import { Router } from "express";
 import { Errors, MyError } from "../helpers/errors";
 import { createChallengeSchema, registerGameSchema } from "../helpers/types";
 import { db } from "../db/pool";
-import { contracts, type1Challenges } from "../db/schema";
+import { games, type1Challenges } from "../db/schema";
 import { Success } from "../helpers/success";
 const router: Router = Router();
 import { eq } from "drizzle-orm";
 import multer from "multer";
-import { createChallenge } from "../game/createChallenge";
 import database from "../database";
+import battleChallengeController from "../controller/challenges/battle";
+import gameController from "../controller/game";
 const upload = multer({dest: "uploads/"});
 
 router.post("/upload", upload.single("image"), (req, res) => {
@@ -23,20 +24,20 @@ router.post("/upload", upload.single("image"), (req, res) => {
     }
 });
 
-router.post("/challenge", async (req, res) => {
+router.post("/challenge/battle", async (req, res) => {
     try {
         const parsed = createChallengeSchema.safeParse(req.body);
         if (parsed.success) {
             const args = parsed.data;
-            await createChallenge(args, database);
-            res.status(201).json({message: Success.CHALLENGE_CREATED});
+            const createdChallengeID = await battleChallengeController.create(args);
+            res.status(201).json({message: Success.CHALLENGE_CREATED, challenge_id: createdChallengeID});
         } else {    
             const errors = parsed.error.issues.map((i) => i.message);
             res.status(400).json({error: errors});
         }
     } catch(err) {
         if (err instanceof MyError) {
-            if (err.message === Errors.CONTRACT_NOT_EXIST) {
+            if (err.message === Errors.GAME_NOT_EXIST) {
                 res.status(400).json({error: [err.message]});
                 return;
             }
@@ -53,31 +54,13 @@ router.post("/register", async (req, res) => {
         if (parsed.success) {
             // Storing contract details
             const data = parsed.data
-            const contractID = await db.insert(contracts)
-                .values({
-                    address: data.contract_address,
-                    abi: data.abi,
-                    name: data.name,
-                    category: data.category,
-                    image: data.image
-                }).returning({id: contracts.id});
+            const gameID = await gameController.create(data);
 
-            // Storing challenges in game
-            for (let challenge of data.challenges) {
-                await db.insert(type1Challenges).values({
-                    name: challenge.name,
-                    functionName: challenge.function_name,
-                    playerAddressVariable: challenge.player_address_variable,
-                    contractID: contractID[0].id
-                })
-            }
-
-            res.status(201).json({gameid: contractID[0].id})
+            res.status(201).json({gameid: gameID});
         } else {
             const errors = parsed.error.issues.map((e) => e.message);
             res.status(400).json({error: errors});
         }
-        
     } catch(err) {
         console.log("Error Regisetering Game", err);
         res.status(500).json({error:[Errors.INTERNAL_SERVER_ERROR]})
@@ -86,14 +69,14 @@ router.post("/register", async (req, res) => {
 
 router.get("/", async (req, res) => {
     try {
-        const games = await db.select({
-            id: contracts.id,
-            name: contracts.name,
-            image: contracts.image,
-            category: contracts.category
-        }).from(contracts);
+        const retrievedGames = await db.select({
+            id: games.id,
+            name: games.name,
+            image: games.image,
+            category: games.category
+        }).from(games);
 
-        res.status(200).json(games);
+        res.status(200).json(retrievedGames);
     } catch(err) {
         console.log("Error Getting Games =>", err);
         res.status(500).json({error: [Errors.INTERNAL_SERVER_ERROR]});
@@ -104,15 +87,15 @@ router.get("/:category", async (req, res) => {
     try {
         const category = req.params.category;
 
-        const games = await db.select({
-            id: contracts.id,
-            name: contracts.name,
-            image: contracts.image,
-            category: contracts.category
-        }).from(contracts)
-        .where(eq(contracts.category, category));
+        const retrievedGames = await db.select({
+            id: games.id,
+            name: games.name,
+            image: games.image,
+            category: games.category
+        }).from(games)
+        .where(eq(games.category, category));
 
-        res.status(200).json(games);
+        res.status(200).json(retrievedGames);
     } catch(err) {
         console.log("Error Getting Games =>", err);
         res.status(500).json({error: [Errors.INTERNAL_SERVER_ERROR]});
@@ -122,8 +105,8 @@ router.get("/:category", async (req, res) => {
 router.get("/categories", async (req, res) => {
     try {
         const categories = await db.selectDistinct({
-            category: contracts.category
-        }).from(contracts).orderBy(contracts.category);
+            category: games.category
+        }).from(games).orderBy(games.category);
 
         const categs = categories.map((category) => category.category);
         res.status(200).json(categs);
@@ -140,7 +123,7 @@ router.get("/challenges/:id", async (req, res) => {
             id: type1Challenges.id,
             name: type1Challenges.name
         }).from(type1Challenges)
-            .where(eq(type1Challenges.contractID, gameID));
+            .where(eq(type1Challenges.gameID, gameID));
 
         res.status(200).json(challenges);
     } catch(err) {

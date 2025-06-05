@@ -1,12 +1,5 @@
 import { boolean, date, integer, json, pgTable, real, serial, text, primaryKey } from "drizzle-orm/pg-core";
 
-export const contracts = pgTable("contracts", {
-    id: serial("id").primaryKey(),
-    name: text("name").notNull(),
-    image: text("image").notNull(),
-    category: text("category").notNull(),
-});
-
 export const games = pgTable("games", {
     id: serial("id").primaryKey(),
     name: text("name").notNull(),

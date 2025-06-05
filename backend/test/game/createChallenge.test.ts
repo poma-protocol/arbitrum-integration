@@ -8,7 +8,7 @@ describe("Create Challenge Test", () => {
     const existingContractID = 1;
 
     beforeAll(async () => {
-        mockDatabase.doesContractIDExist = jest.fn().mockImplementation((contract_id) => {
+        mockDatabase.doesGameIDExist = jest.fn().mockImplementation((contract_id) => {
             return new Promise((res, rej) => {
                 if (contract_id === nonExistentContractID) {
                     res(false);
@@ -34,7 +34,7 @@ describe("Create Challenge Test", () => {
             expect(false).toBe(true);
         } catch(err) {
             if (err instanceof MyError) {
-                if (err.message === Errors.CONTRACT_NOT_EXIST) {
+                if (err.message === Errors.GAME_NOT_EXIST) {
                     expect(true).toBe(true);
                 } else {
                     console.log("Unexpected error =>", err);
