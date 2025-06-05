@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { Errors, MyError } from "../helpers/errors";
 import { createActivity, joinActivity } from "../helpers/types";
-import { activityPlayers, contracts, type1Activities, type1ActivityInstructions, type1Challenges } from "../db/schema";
+import { activityPlayers, games, type1Activities, type1ActivityInstructions, type1Challenges } from "../db/schema";
 import { db } from "../db/pool";
 import { Success } from "../helpers/success";
 import { eq, sql } from "drizzle-orm";
@@ -23,10 +23,10 @@ router.post("/create", async (req, res) => {
 
             // Get game ID
             const gameID = await db.select({
-                id: type1Challenges.contractID,
-                name: contracts.name
+                id: type1Challenges.gameID,
+                name: games.name
             }).from(type1Challenges)
-                .leftJoin(contracts, eq(type1Challenges.contractID, contracts.id))
+                .leftJoin(games, eq(type1Challenges.gameID, games.id))
                 .where(eq(type1Challenges.id, data.challenge_id));
 
             // Create activity on DB
