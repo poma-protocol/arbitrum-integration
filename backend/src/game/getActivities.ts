@@ -1,6 +1,6 @@
 import { Errors, MyError } from "../helpers/errors";
 import { db } from "../db/pool";
-import { activityPlayers, contracts, type1Activities, type1Challenges, type1foundTransactions } from "../db/schema";
+import { activityPlayers, games, type1Activities, type1Challenges, type1foundTransactions } from "../db/schema";
 import { eq, sql } from "drizzle-orm";
 
 export interface Activity {
@@ -27,13 +27,11 @@ export async function getActivities(): Promise<Activity[]> {
         let toReturn: Activity[] = [];
 
         // Get all games
-        const games = await db.select({
-            id: contracts.id,
-            address: contracts.address,
-            abi: contracts.abi
-        }).from(contracts);
+        const retrievedGames = await db.select({
+            id: games.id,
+        }).from(games);
 
-        for (let game of games) {
+        for (let game of retrievedGames) {
             // Get challenges
             const challenges = await db.select({
                 id: type1Challenges.id,
@@ -44,9 +42,11 @@ export async function getActivities(): Promise<Activity[]> {
                 forwarderABI: type1Challenges.forwarderABI,
                 methodDataAttributeName: type1Challenges.methodDataAttributeName,
                 wantedData: type1Challenges.wantedData,
-                countItems: type1Challenges.countItems
+                countItems: type1Challenges.countItems,
+                address: type1Challenges.contarct_address,
+                abi: type1Challenges.abi
             }).from(type1Challenges)
-                .where(eq(type1Challenges.contractID, game.id));
+                .where(eq(type1Challenges.gameID, game.id));
 
             for (let challenge of challenges) {
                 // Get activites
@@ -88,7 +88,7 @@ export async function getActivities(): Promise<Activity[]> {
                     if (useForwarder && challenge.forwarderABI && challenge.forwarderAddress) {
                         toReturn.push({
                             id: activity.id,
-                            address: game.address,
+                            address: challenge.address,
                             playerAddressVariable: challenge.playerAddressVariable,
                             functionName: challenge.functionName,
                             goal: activity.goal,
@@ -100,29 +100,28 @@ export async function getActivities(): Promise<Activity[]> {
                                 //@ts-ignore
                                 abi: challenge.forwarderABI
                             },
-                            //@ts-ignore
-                            abi: game.abi,
+                            abi: challenge.abi,
                             methodDataAttributeName: challenge.methodDataAttributeName,
                             wantedData: challenge.wantedData,
                             countItems: challenge.countItems
                         })
-                    }
-                    toReturn.push({
-                        id: activity.id,
-                        address: game.address,
-                        playerAddressVariable: challenge.playerAddressVariable,
-                        functionName: challenge.functionName,
-                        goal: activity.goal,
-                        players: playersToReturn,
-                        reward: activity.reward,
-                        found,
-                        //@ts-ignore
-                        abi: game.abi,
-                        methodDataAttributeName: challenge.methodDataAttributeName,
-                        wantedData: challenge.wantedData,
-                        countItems: challenge.countItems
+                    } else {
+                        toReturn.push({
+                            id: activity.id,
+                            address: challenge.address,
+                            playerAddressVariable: challenge.playerAddressVariable,
+                            functionName: challenge.functionName,
+                            goal: activity.goal,
+                            players: playersToReturn,
+                            reward: activity.reward,
+                            found,
+                            abi: challenge.abi,
+                            methodDataAttributeName: challenge.methodDataAttributeName,
+                            wantedData: challenge.wantedData,
+                            countItems: challenge.countItems
 
-                    })
+                        })
+                    }
                 }
             }
         }
