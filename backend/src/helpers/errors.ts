@@ -79,4 +79,8 @@ export enum Errors {
     METHOD_DATA_ATTRIBUTE_NAME = "Method data attribute name must be a string",
     WANTED_DATA = "Wanted data must be a string",
     COUNT_ITEMS = "Count items must be a boolean",
+    CONTRACT_ADDRESS_NOT_VALID = "Contract address is not valid",
+    FORWARDER_ADDRESS_NOT_VALID = "Forwarder address is not valid",
+    PLAYER_ADDRESS_NOT_VALID = "Player address is not valid",
+    OPERATOR_ADDRESS_NOT_VALID = "Operator address is not valid"
 }

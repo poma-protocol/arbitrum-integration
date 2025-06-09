@@ -12,6 +12,7 @@ import getMilestonePlayers from "../controller/battle/get_players";
 import isMaximumExistingMilestonePlayersReached from "../controller/battle/is_maximum_players_reached";
 import shouldUserJoinBeSentToContract from "../controller/battle/should_join_sent_contract";
 import { NO_TRANSACTION } from "../helpers/constants";
+import { isAddress } from "web3-validator";
 
 const router: Router = Router();
 
@@ -99,6 +100,20 @@ router.post("/join", async (req, res) => {
         const parsed = joinActivity.safeParse(req.body);
         if (parsed.success) {
             const data = parsed.data;
+
+            const playerAddressValid = isAddress(data.player_address);
+            if (!playerAddressValid) {
+                res.status(400).json({error: [Errors.PLAYER_ADDRESS_NOT_VALID]});
+                return;
+            }
+
+            if (data.operator_address) {
+                const operatorAddressValid = isAddress(data.operator_address);
+                if (!operatorAddressValid) {
+                    res.status(400).json({error: [Errors.OPERATOR_ADDRESS_NOT_VALID]});
+                    return;
+                }
+            }
 
             // Check if activity exists
             const battleExists = await database.doesBattleExist(data.activity_id);

@@ -14,12 +14,12 @@ export const createChallengeSchema = z.object({
     function_name: z.string({ message: Errors.FUNCTION_NAME }),
     gameID: z.number({ message: Errors.GAME_ID }),
     useForwarder: z.boolean({ message: Errors.USE_FORWARDER }).default(false),
-    forwarderAddress: z.string({ message: Errors.FORWARDER_ADDRESS }).optional(),
+    forwarderAddress: z.string({ message: Errors.FORWARDER_ADDRESS }).regex(/^(0x)?[0-9a-fA-F]{40}$/, {message: "Forwarder address must be a valid ethereum address"}).optional(),
     forwarderABI: jsonSchema.optional(),
     methodDataAttributeName: z.string({ message: Errors.METHOD_DATA_ATTRIBUTE_NAME }).optional(),
     wantedData: z.string({ message: Errors.WANTED_DATA }).optional(),
     countItems: z.boolean({ message: Errors.COUNT_ITEMS }).default(false),
-    contract_address: z.string({ message: Errors.CONTRACT_ADDRESS }),
+    contract_address: z.string({ message: Errors.CONTRACT_ADDRESS }).regex(/^(0x)?[0-9a-fA-F]{40}$/, {message: "Contract address must be a valid ethereum address"}),
     abi: jsonSchema,
 });
 
@@ -34,12 +34,12 @@ export const registerGameSchema = z.object({
         player_address_variable: z.string({ message: Errors.PLAYER_ADDRESS_VARIABLE }),
         function_name: z.string({ message: Errors.FUNCTION_NAME }),
         useForwarder: z.boolean({ message: Errors.USE_FORWARDER }).default(false),
-        forwarderAddress: z.string({ message: Errors.FORWARDER_ADDRESS }).optional(),
+        forwarderAddress: z.string({ message: Errors.FORWARDER_ADDRESS }).regex(/^(0x)?[0-9a-fA-F]{40}$/, {message: "Forwarder address must be a valid ethereum address"}).optional(),
         forwarderABI: jsonSchema.optional(),
         methodDataAttributeName: z.string({ message: Errors.METHOD_DATA_ATTRIBUTE_NAME }).optional(),
         wantedData: z.string({ message: Errors.WANTED_DATA }).optional(),
         countItems: z.boolean({ message: Errors.COUNT_ITEMS }).default(false),
-        contract_address: z.string({ message: Errors.CONTRACT_ADDRESS }),
+        contract_address: z.string({ message: Errors.CONTRACT_ADDRESS }).regex(/^(0x)?[0-9a-fA-F]{40}$/, {message: "Contract address must be a valid ethereum address"}),
         abi: jsonSchema,
     }))
 });
@@ -61,9 +61,9 @@ export const createActivity = z.object({
 
 export const joinActivity = z.object({
     activity_id: z.number({ message: Errors.ACTIVITY_ID }),
-    player_address: z.string({ message: Errors.PLAYER_ADDRESS }),
+    player_address: z.string({ message: Errors.PLAYER_ADDRESS }).regex(/^(0x)?[0-9a-fA-F]{40}$/, {message: "Player address must be a valid ethereum address"}),
     bubble_id: z.string({ message: "Bubble ID should be a string" }),
-    operator_address: z.string({ message: "Owner address must be a string" }).optional()
+    operator_address: z.string({ message: "Operator address must be a string" }).regex(/^(0x)?[0-9a-fA-F]{40}$/, {message: "Operator address must be a valid ethereum address"}).optional()
 });
 
 export const createJackpotSchema = z.object({

@@ -37,7 +37,7 @@ router.post("/challenge/battle", async (req, res) => {
         }
     } catch(err) {
         if (err instanceof MyError) {
-            if (err.message === Errors.GAME_NOT_EXIST) {
+            if (err.message === Errors.GAME_NOT_EXIST || err.message === Errors.FORWARDER_ADDRESS_NOT_VALID || err.message === Errors.CONTRACT_ADDRESS_NOT_VALID) {
                 res.status(400).json({error: [err.message]});
                 return;
             }
