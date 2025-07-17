@@ -49,7 +49,7 @@ export type RegisterGameType = z.infer<typeof registerGameSchema>;
 export const createActivity = z.object({
     challenge_id: z.number({ message: Errors.CHALLENGE_ID }),
     goal: z.number({ message: Errors.ACTIVITY_GOAL }).gt(0, { message: Errors.ACTIVITY_GOAL }),
-    reward: z.number({ message: Errors.REWARD }).gte(0.000001, { message: Errors.REWARD }).optional(),
+    reward: z.number({ message: Errors.REWARD }).gte(0.000001, { message: Errors.REWARD }),
     name: z.string({ message: Errors.ACTIVITY_NAME }),
     startDate: z.string({ message: Errors.ACTIVITY_START_DATE }),
     endDate: z.string({ message: Errors.ACTIVITY_END_DATE }),

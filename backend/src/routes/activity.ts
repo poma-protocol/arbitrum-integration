@@ -13,6 +13,9 @@ import isMaximumExistingMilestonePlayersReached from "../controller/battle/is_ma
 import shouldUserJoinBeSentToContract from "../controller/battle/should_join_sent_contract";
 import { NO_TRANSACTION } from "../helpers/constants";
 import { isAddress } from "web3-validator";
+import activityController from "../controller/activity";
+import activityModel from "../database/activity";
+import { formatDate } from "../helpers/formatters";
 
 const router: Router = Router();
 
@@ -37,8 +40,8 @@ router.post("/create", async (req, res) => {
                 challenge_id: data.challenge_id,
                 reward: data.reward,
                 image: data.image,
-                startDate: data.startDate,
-                endDate: data.endDate,
+                startDate: new Date(data.startDate),
+                endDate: new Date(data.endDate),
                 maximum_number_players: data.maximum_num_players,
                 about: data.about
             }).returning({ id: type1Activities.id });
@@ -196,7 +199,9 @@ router.get("/", async (req, res) => {
             toReturn.push({
                 ...activity,
                 type: "milestone",
-                players: count[0].count
+                players: count[0].count,
+                startDate: formatDate(activity.startDate),
+                endDate: formatDate(activity.endDate)
             });
         }
         res.status(200).json(toReturn);
@@ -288,6 +293,16 @@ router.get("/milestone/players/:id", async (req, res) => {
 
         console.log("Error getting milestone players", err);
         res.status(500).json({ error: [Errors.INTERNAL_SERVER_ERROR] });
+    }
+});
+
+router.get("/featured", async (req , res) => {
+    try {
+        const featured = await activityController.getFeaturedActivities(activityModel);
+        res.json(featured);
+    } catch(err) {
+        console.error("Error getting featured activities", err);
+        res.status(500).json({message: Errors.INTERNAL_SERVER_ERROR});
     }
 })
 

@@ -1,4 +1,4 @@
-import { boolean, date, integer, json, pgTable, real, serial, text, primaryKey } from "drizzle-orm/pg-core";
+import { boolean, date, integer, json, pgTable, real, serial, text, primaryKey, timestamp } from "drizzle-orm/pg-core";
 
 export const games = pgTable("games", {
     id: serial("id").primaryKey(),
@@ -28,14 +28,14 @@ export const type1Activities = pgTable("type_1_activities", {
     goal: integer("goal").notNull(),
     name: text("name").notNull(),
     challenge_id: integer("challenge_id").references(() => type1Challenges.id, {onDelete: "cascade"}).notNull(),
-    reward: real("reward"),
+    reward: real("reward").notNull(),
     creation_tx_hash: text("creationTransactionHash"),
-    startDate: date("start_date").notNull(),
-    endDate: date("end_date").notNull(),
+    startDate: timestamp("start_date").notNull(),
+    endDate: timestamp("end_date").notNull(),
     image: text("image").notNull(),
     about: text("about"),
     done: boolean("done").default(false).notNull(),
-    maximum_number_players: integer("maximum_number_players")
+    maximum_number_players: integer("maximum_number_players").notNull()
 });
 
 export const type1ActivityInstructions = pgTable("type_1_activity_instructions", {
