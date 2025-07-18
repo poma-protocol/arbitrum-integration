@@ -79,3 +79,14 @@ export const joinJackpotSchema = z.object({
     jackpot_id: z.number({ message: Errors.JACKPOT_ID }),
     player_address: z.string({ message: Errors.PLAYER_ADDRESS })
 });
+
+export const filterAcitivitiesSchema = z.object({
+    game: z.string().optional(),
+    category: z.string().optional(),
+    status: z.string().optional(),
+    rewards: z.string().optional(),
+    search: z.string().optional(),
+    page: z.string().transform((arg) => Number.parseInt(arg))
+});
+
+export type FilteredActivity = z.infer<typeof filterAcitivitiesSchema>;

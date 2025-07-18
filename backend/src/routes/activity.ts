@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { Errors, MyError } from "../helpers/errors";
-import { createActivity, joinActivity } from "../helpers/types";
+import { createActivity, filterAcitivitiesSchema, joinActivity } from "../helpers/types";
 import { activityPlayers, games, type1Activities, type1ActivityInstructions, type1Challenges } from "../db/schema";
 import { db } from "../db/pool";
 import { Success } from "../helpers/success";
@@ -302,6 +302,24 @@ router.get("/featured", async (req , res) => {
         res.json(featured);
     } catch(err) {
         console.error("Error getting featured activities", err);
+        res.status(500).json({message: Errors.INTERNAL_SERVER_ERROR});
+    }
+});
+
+router.get("/filter", async (req , res) => {
+    try {
+        const parsed = filterAcitivitiesSchema.safeParse(req.query);
+        if (parsed.success) {
+            const args = parsed.data;
+            const filtered = await activityController.filterAcitivities(args, activityModel);
+            res.json(filtered);
+        } else {    
+            const error = parsed.error.issues[0].message;
+            res.status(400).json({message: error});
+            return;
+        }
+    } catch(err) {
+        console.error("Error filtering battles", err);
         res.status(500).json({message: Errors.INTERNAL_SERVER_ERROR});
     }
 })

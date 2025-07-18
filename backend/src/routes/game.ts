@@ -141,7 +141,16 @@ router.get("/battles/:gameid", async (req, res) => {
         console.log("Error getting activities from game", err);
         res.status(500).json({error: [Errors.INTERNAL_SERVER_ERROR]});
     }
-})
+});
+
+router.get("/filterDetails", async (req , res) => {
+    try {
+        
+    } catch(err) {
+        console.error("Error getting filter details", err)
+        res.status(500).json({message: Errors.INTERNAL_SERVER_ERROR});
+    }
+});
 
 router.get("*", (req, res) => {
     res.status(404).json({error: [Errors.ROUTE_NOT_FOUND]});
