@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { Errors, MyError } from "../helpers/errors";
-import { createChallengeSchema, registerGameSchema } from "../helpers/types";
+import { createChallengeSchema, filterGamesSchema, registerGameSchema } from "../helpers/types";
 import { db } from "../db/pool";
 import { games, type1Challenges } from "../db/schema";
 import { Success } from "../helpers/success";
@@ -10,6 +10,7 @@ import multer from "multer";
 import database from "../database";
 import battleChallengeController from "../controller/challenges/battle";
 import gameController from "../controller/game";
+import gamesModel from "../database/games";
 const upload = multer({dest: "uploads/"});
 
 router.post("/upload", upload.single("image"), (req, res) => {
@@ -143,11 +144,20 @@ router.get("/battles/:gameid", async (req, res) => {
     }
 });
 
-router.get("/filterDetails", async (req , res) => {
+router.get("/filter", async (req , res) => {
     try {
-        
+        const parsed = filterGamesSchema.safeParse(req.query);
+        if (parsed.success) {
+            const data = parsed.data;   
+            const games = await gameController.filter(data, gamesModel);
+            res.json(games);
+        } else {
+            const error = parsed.error.issues[0].message;
+            res.status(400).json({message: error});
+            return;
+        }
     } catch(err) {
-        console.error("Error getting filter details", err)
+        console.error("Error filtering games", err)
         res.status(500).json({message: Errors.INTERNAL_SERVER_ERROR});
     }
 });

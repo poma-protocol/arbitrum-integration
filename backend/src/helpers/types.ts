@@ -93,5 +93,11 @@ export const loginSchema = z.object({
     password: z.string()
 });
 
+export const filterGamesSchema = z.object({
+    search: z.string().optional(),
+    category: z.string().optional()
+});
+
+export type FilterGames = z.infer<typeof filterGamesSchema>;
 export type LoginSchema = z.infer<typeof loginSchema>;
 export type FilteredActivity = z.infer<typeof filterAcitivitiesSchema>;

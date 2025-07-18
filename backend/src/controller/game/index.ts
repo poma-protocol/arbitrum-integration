@@ -1,8 +1,22 @@
+import { GamesModel } from "../../database/games";
 import { db } from "../../db/pool";
 import { games } from "../../db/schema";
 import { MyError } from "../../helpers/errors";
-import { RegisterGameType } from "../../helpers/types";
+import { formatDate } from "../../helpers/formatters";
+import { FilterGames, RegisterGameType } from "../../helpers/types";
+import { DEFAULT_FILTER_VALUE, DEFAULT_SEARCH_VALUE } from "../activity";
 import battleChallengeController from "../challenges/battle";
+
+interface GameDetails {
+    id: number,
+    name: string,
+    category: string,
+    image: string,
+    challenges: number,
+    activeBattles: number,
+    totalPlayers: number,
+    createdAt: string
+}
 
 class GameController {
     async create(args: RegisterGameType): Promise<number> {
@@ -25,6 +39,31 @@ class GameController {
         } catch (err) {
             console.error("Error registering game", err);
             throw new MyError("Error registering game");
+        }
+    }
+
+    async filter(args: FilterGames, gamesModel: GamesModel): Promise<GameDetails[]> {
+        try {
+            const sanitizedArgs: FilterGames = {};
+            sanitizedArgs.category = args.category === DEFAULT_FILTER_VALUE || args.category === undefined ? undefined : args.category;
+            sanitizedArgs.search = args.search === DEFAULT_SEARCH_VALUE || args.search === undefined ? undefined : args.search;
+
+            const filteredGames = await gamesModel.filter(sanitizedArgs);
+            const games: GameDetails[] = [];
+
+            for (const game of filteredGames) {
+                const createdAt = formatDate(game.createdAt);
+
+                games.push({
+                    ...game,
+                    createdAt
+                });
+            }
+
+            return games;
+        } catch(err) {
+            console.error("Error filtering games", err);
+            throw new Error("Error filtering games");
         }
     }
 }

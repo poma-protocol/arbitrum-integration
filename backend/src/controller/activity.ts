@@ -14,8 +14,8 @@ interface DealCardDetails {
     status: ActivityStatus;
 }
 
-const DEFAULT_FILTER_VALUE = 'all';
-const DEFAULT_SEARCH_VALUE = '';
+export const DEFAULT_FILTER_VALUE = 'all';
+export const DEFAULT_SEARCH_VALUE = '';
 
 class ActivityController {
     private _processRawDealCardDetails(raw: RawDealCardDetails[]): DealCardDetails[] {
