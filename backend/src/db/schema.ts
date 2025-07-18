@@ -4,7 +4,8 @@ export const games = pgTable("games", {
     id: serial("id").primaryKey(),
     name: text("name").notNull(),
     image: text("image").notNull(),
-    category: text("category").notNull()
+    category: text("category").notNull(),
+    createdAt: timestamp("creationTime").notNull().defaultNow()
 });
 
 export const type1Challenges = pgTable("type_1_challenges", {
