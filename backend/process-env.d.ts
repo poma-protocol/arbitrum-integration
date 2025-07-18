@@ -13,6 +13,8 @@ declare global {
             REGION: string,
             WORX_TOKEN: string,
             END_BLOCK: string | undefined,
+            ADMIN_EMAIL: string,
+            ADMIN_PASSWORD: string,
         }
     }
 }
