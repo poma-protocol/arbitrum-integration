@@ -1,7 +1,7 @@
-import { ActivityModel, ActivityStatus, RawDealCardDetails } from "../database/activity";
+import activityModel, { ActivityModel, ActivityStatus, RawDealCardDetails } from "../database/activity";
 import { Errors, MyError } from "../helpers/errors";
 import { formatDate } from "../helpers/formatters";
-import { FilteredActivity, StoreOperatorWallet } from "../helpers/types";
+import { FilteredActivity, GetOperatorWalletSchema, StoreOperatorWallet } from "../helpers/types";
 
 interface DealCardDetails {
     id: number;
@@ -93,6 +93,16 @@ class ActivityController {
         } catch(err) {
             console.error("Error storing operator wallet", err);
             throw new Error("Error storing operator wallet");
+        }
+    }
+
+    async getOperatorWallet(args: GetOperatorWalletSchema): Promise<string | null> {
+        try {
+            const operatorWallet = await activityModel.getOperatorWallet(args.userwallet, args.activityid);
+            return operatorWallet;
+        } catch(err) {
+            console.log("Error getting operator wallet for user", err);
+            throw new Error("Error getting operator wallet");
         }
     }
 }

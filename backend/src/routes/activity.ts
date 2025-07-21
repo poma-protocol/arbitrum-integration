@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { Errors, MyError } from "../helpers/errors";
-import { createActivity, filterAcitivitiesSchema, joinActivity, storeOperatorWalletSchema } from "../helpers/types";
+import { createActivity, filterAcitivitiesSchema, getOperatorWalletSchema, joinActivity, storeOperatorWalletSchema } from "../helpers/types";
 import { activityPlayers, games, type1Activities, type1ActivityInstructions, type1Challenges } from "../db/schema";
 import { db } from "../db/pool";
 import { Success } from "../helpers/success";
@@ -332,6 +332,24 @@ router.post("/operatorAddress", async (req , res) => {
         }
     } catch(err) {
         console.error("Error storing user's operator address", err);
+        res.status(500).json({message: Errors.INTERNAL_SERVER_ERROR});
+    }
+});
+
+router.get("/operatorAddress", async (req , res) => {
+    try {
+        const parsed = getOperatorWalletSchema.safeParse(req.query);
+        if (parsed.success) {
+            const data = parsed.data;
+            const operatorWallet = await activityController.getOperatorWallet(data);
+            res.json({operatorWallet: operatorWallet});
+        } else {
+            const error = parsed.error.issues[0].message;
+            res.status(400).json({message: error});
+            return;
+        }
+    } catch(err) {
+        console.log("Error getting operator address for player", err);
         res.status(500).json({message: Errors.INTERNAL_SERVER_ERROR});
     }
 })

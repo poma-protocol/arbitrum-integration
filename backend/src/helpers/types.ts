@@ -103,6 +103,12 @@ export const storeOperatorWalletSchema = z.object({
     operatoraddress: z.string({ message: "Operator address must be a string" }).regex(/^(0x)?[0-9a-fA-F]{40}$/, {message: "Operator address must be a valid ethereum address"})
 });
 
+export const getOperatorWalletSchema = z.object({
+    activityid: z.string().transform((arg) => Number.parseInt(arg)),
+    userwallet: z.string({ message: Errors.PLAYER_ADDRESS }).regex(/^(0x)?[0-9a-fA-F]{40}$/, {message: "Player address must be a valid ethereum address"}),
+})
+
+export type GetOperatorWalletSchema = z.infer<typeof getOperatorWalletSchema>;
 export type StoreOperatorWallet = z.infer<typeof storeOperatorWalletSchema>;
 export type FilterGames = z.infer<typeof filterGamesSchema>;
 export type LoginSchema = z.infer<typeof loginSchema>;
