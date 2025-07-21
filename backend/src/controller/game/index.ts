@@ -18,6 +18,15 @@ interface GameDetails {
     createdAt: string
 }
 
+interface GameChallenges {
+    id: number,
+    name: string,
+    function_name: string,
+    player_address_variable: string,
+    countItems: boolean,
+    battles: number
+}
+
 class GameController {
     async create(args: RegisterGameType): Promise<number> {
         try {
@@ -64,6 +73,16 @@ class GameController {
         } catch(err) {
             console.error("Error filtering games", err);
             throw new Error("Error filtering games");
+        }
+    }
+
+    async getChallenges(id: number, gamesModel: GamesModel): Promise<GameChallenges[]> {
+        try {
+            const challenges = await gamesModel.getChallenges(id);
+            return challenges;
+        } catch(err) {
+            console.error("Error getting challenges for games", err);
+            throw new Error("Error getting game's challenges");
         }
     }
 }

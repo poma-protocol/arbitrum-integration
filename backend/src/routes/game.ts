@@ -120,13 +120,9 @@ router.get("/categories", async (req, res) => {
 router.get("/challenges/:id", async (req, res) => {
     try {
         const gameID = Number.parseInt(req.params.id);
-        const challenges = await db.select({
-            id: type1Challenges.id,
-            name: type1Challenges.name
-        }).from(type1Challenges)
-            .where(eq(type1Challenges.gameID, gameID));
+        const challenges = await gameController.getChallenges(gameID, gamesModel);
 
-        res.status(200).json(challenges);
+        res.json(challenges);
     } catch(err) {
         console.log("Error Getting Challenges => ", err);
         res.status(500).json({error: [Errors.INTERNAL_SERVER_ERROR]});
