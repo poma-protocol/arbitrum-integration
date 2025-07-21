@@ -361,7 +361,7 @@ router.get("/my-battles/:userAddress", async (req, res) => {
             return;
         }
         const battles = await activityController.getUserBattles(userAddress);
-        res.json(battles);
+        res.status(200).json(battles);
     }
     catch (err) {
         console.error("Error getting user's battles", err);

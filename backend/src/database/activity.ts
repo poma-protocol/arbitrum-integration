@@ -198,11 +198,13 @@ export class ActivityModel {
                 playerCount: count(activityPlayers),
                 maxPlayers: type1Activities.maximum_number_players,
                 startDate: type1Activities.startDate,
-                endDate: type1Activities.endDate
+                endDate: type1Activities.endDate,
+                userDone: sql<boolean>`bool_or(${activityPlayers.done})`, // or max() if you prefer
+                battleDone: type1Activities.done
             }).from(type1Activities)
                 .leftJoin(activityPlayers, eq(activityPlayers.activityId, type1Activities.id))
                 .where(eq(activityPlayers.playerAddress, userAddress.toLowerCase()))
-                .groupBy(type1Activities.id, activityPlayers.activityId);
+                .groupBy(type1Activities.id, type1Activities.done);
 
             return rawBattles;
         } catch (err) {
