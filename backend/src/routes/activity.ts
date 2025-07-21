@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { Errors, MyError } from "../helpers/errors";
-import { createActivity, filterAcitivitiesSchema, joinActivity } from "../helpers/types";
+import { createActivity, filterAcitivitiesSchema, joinActivity, storeOperatorWalletSchema } from "../helpers/types";
 import { activityPlayers, games, type1Activities, type1ActivityInstructions, type1Challenges } from "../db/schema";
 import { db } from "../db/pool";
 import { Success } from "../helpers/success";
@@ -110,13 +110,8 @@ router.post("/join", async (req, res) => {
                 return;
             }
 
-            if (data.operator_address) {
-                const operatorAddressValid = isAddress(data.operator_address);
-                if (!operatorAddressValid) {
-                    res.status(400).json({error: [Errors.OPERATOR_ADDRESS_NOT_VALID]});
-                    return;
-                }
-            }
+            let operatorAddress: string | null;
+            operatorAddress = await activityModel.getOperatorWallet(data.player_address, data.activity_id);
 
             // Check if activity exists
             const battleExists = await database.doesBattleExist(data.activity_id);
@@ -152,7 +147,7 @@ router.post("/join", async (req, res) => {
                 activityId: data.activity_id,
                 playerAddress: data.player_address.toLowerCase(),
                 creation_tx_hash: txHash,
-                operator_address: data.operator_address?.toLowerCase()
+                operator_address: operatorAddress?.toLowerCase()
             });
 
             res.status(201).json({ message: Success.ACTIVITY_JOINED });
@@ -319,6 +314,24 @@ router.get("/filter", async (req , res) => {
         }
     } catch(err) {
         console.error("Error filtering battles", err);
+        res.status(500).json({message: Errors.INTERNAL_SERVER_ERROR});
+    }
+});
+
+router.post("/operatorAddress", async (req , res) => {
+    try {
+        const parsed = storeOperatorWalletSchema.safeParse(req.body);
+        if (parsed.success) {
+            const data = parsed.data;
+            await activityController.storeOperatorWallet(data, activityModel);
+            res.status(201).json({message: "Stored operator address successfully"});
+        } else {
+            const error = parsed.error.issues[0].message;
+            res.status(400).json({message: error});
+            return;
+        }
+    } catch(err) {
+        console.error("Error storing user's operator address", err);
         res.status(500).json({message: Errors.INTERNAL_SERVER_ERROR});
     }
 })

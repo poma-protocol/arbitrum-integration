@@ -1,9 +1,9 @@
-import { and, count, desc, sql } from "drizzle-orm";
+import { and, count, desc, not, sql } from "drizzle-orm";
 
 import { db } from "../db/pool";
-import { activityPlayers, games, type1Activities, type1Challenges } from "../db/schema";
+import { activityPlayers, games, playerOperatorWalletTable, type1Activities, type1Challenges } from "../db/schema";
 import { eq } from "drizzle-orm";
-import { FilteredActivity } from "../helpers/types";
+import { FilteredActivity, StoreOperatorWallet } from "../helpers/types";
 
 export interface RawDealCardDetails {
     id: number;
@@ -107,6 +107,63 @@ export class ActivityModel {
         } catch(err) {
             console.error("Error filtering milestone activities", err);
             throw new Error("Could not filter milestone activities");
+        }
+    }
+
+    async isOperatorAddressUsedByOtherPlayer(operatorAddress: string, playerAddress: string): Promise<boolean> {
+        try {
+            const res = await db.select({
+                operatorAddress: playerOperatorWalletTable.operatorAddress
+            }).from(playerOperatorWalletTable)
+            .where(and(eq(playerOperatorWalletTable.operatorAddress, operatorAddress.toLowerCase()), not(eq(playerOperatorWalletTable.userAddress, playerAddress.toLowerCase()))));
+
+            return res.length > 0;
+        } catch(err) {
+            console.log("Error checking if operator address is being used by other player", err);
+            throw new Error("Could not check if operator address used by other player");
+        }
+    }
+
+    async isOperatorAddressAlreadyStored(userAddress: string, operatorAddress: string): Promise<boolean> {
+        try {
+            const res = await db.select({
+                operatorAddress: playerOperatorWalletTable.userAddress
+            }).from(playerOperatorWalletTable)
+            .where(and(eq(playerOperatorWalletTable.operatorAddress, operatorAddress.toLowerCase()), eq(playerOperatorWalletTable.userAddress, userAddress.toLowerCase())));
+
+            return res.length > 0;
+        } catch(err) {
+            console.error("Error checking if operator address has already been stored", err);
+            throw new Error("Could not check if operator address has already been stored");
+        }
+    }
+
+    async storeOperatorWallet(args: StoreOperatorWallet) {
+        try {
+            await db.insert(playerOperatorWalletTable).values({
+                userAddress: args.useraddress.toLowerCase(),
+                operatorAddress: args.operatoraddress.toLowerCase(),
+                gameID: args.gameid
+            });
+        } catch(err) {
+            console.error("Error storing operator wallet", err);
+            throw new Error("Error storing operator wallet");
+        }
+    }
+
+    async getOperatorWallet(userAddress: string, activityID: number): Promise<string | null> {
+        try {
+            const res = await db.select({
+                operatorAddress: playerOperatorWalletTable.operatorAddress
+            }).from(playerOperatorWalletTable)
+            .innerJoin(type1Challenges, eq(type1Challenges.gameID, playerOperatorWalletTable.gameID))
+            .innerJoin(type1Activities, eq(type1Activities.challenge_id, type1Challenges.id))
+            .where(and(eq(playerOperatorWalletTable.userAddress, userAddress.toLowerCase()), eq(type1Activities.id, activityID)));
+
+            return res[0]?.operatorAddress;
+        } catch(err) {
+            console.log("Error getting operator wallet of user", err);
+            throw new Error("Could not get operator address of user");
         }
     }
 }

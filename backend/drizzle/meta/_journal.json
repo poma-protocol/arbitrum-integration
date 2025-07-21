@@ -253,6 +253,13 @@
       "when": 1752865329315,
       "tag": "0035_cool_deadpool",
       "breakpoints": true
+    },
+    {
+      "idx": 36,
+      "version": "7",
+      "when": 1753068796215,
+      "tag": "0036_futuristic_iron_fist",
+      "breakpoints": true
     }
   ]
 }

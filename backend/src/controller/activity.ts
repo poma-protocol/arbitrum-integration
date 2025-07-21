@@ -1,6 +1,7 @@
 import { ActivityModel, ActivityStatus, RawDealCardDetails } from "../database/activity";
+import { Errors, MyError } from "../helpers/errors";
 import { formatDate } from "../helpers/formatters";
-import { FilteredActivity } from "../helpers/types";
+import { FilteredActivity, StoreOperatorWallet } from "../helpers/types";
 
 interface DealCardDetails {
     id: number;
@@ -73,6 +74,25 @@ class ActivityController {
         } catch (err) {
             console.error("Error filtering activities", err);
             throw new Error("Could not filter activities");
+        }
+    }
+
+    async storeOperatorWallet(args: StoreOperatorWallet, activityModel: ActivityModel) {
+        try {
+            const isAlreadyStored = await activityModel.isOperatorAddressAlreadyStored(args.useraddress, args.operatoraddress);
+            if (isAlreadyStored) {
+                return;
+            }
+
+            const isUsedByOtherPlayer = await activityModel.isOperatorAddressUsedByOtherPlayer(args.operatoraddress, args.useraddress);
+            if (isUsedByOtherPlayer) {
+                throw new MyError(Errors.OPERATOR_ADDRESS_USED_BY_OTHER_PLAYER);
+            }
+
+            await activityModel.storeOperatorWallet(args);
+        } catch(err) {
+            console.error("Error storing operator wallet", err);
+            throw new Error("Error storing operator wallet");
         }
     }
 }

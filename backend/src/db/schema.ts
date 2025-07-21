@@ -24,6 +24,14 @@ export const type1Challenges = pgTable("type_1_challenges", {
     countItems: boolean("count_items").notNull().default(false),
 });
 
+export const playerOperatorWalletTable = pgTable("operatoraddresses", {
+    userAddress: text("useraddress").notNull(),
+    gameID: integer("gameid").notNull().references(() => games.id, {onDelete: 'cascade'}),
+    operatorAddress: text("operatoraddress").notNull()
+}, (table) => [
+    primaryKey({columns: [table.userAddress, table.gameID]})
+]);
+
 export const type1Activities = pgTable("type_1_activities", {
     id: serial("id").primaryKey(),
     goal: integer("goal").notNull(),
