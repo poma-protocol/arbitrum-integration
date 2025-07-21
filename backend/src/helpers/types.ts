@@ -62,7 +62,6 @@ export const createActivity = z.object({
 export const joinActivity = z.object({
     activity_id: z.number({ message: Errors.ACTIVITY_ID }),
     player_address: z.string({ message: Errors.PLAYER_ADDRESS }).regex(/^(0x)?[0-9a-fA-F]{40}$/, {message: "Player address must be a valid ethereum address"}),
-    bubble_id: z.string({ message: "Bubble ID should be a string" }),
     operator_address: z.string({ message: "Operator address must be a string" }).regex(/^(0x)?[0-9a-fA-F]{40}$/, {message: "Operator address must be a valid ethereum address"}).optional()
 });
 
@@ -89,4 +88,16 @@ export const filterAcitivitiesSchema = z.object({
     page: z.string().transform((arg) => Number.parseInt(arg))
 });
 
+export const loginSchema = z.object({
+    email: z.string(),
+    password: z.string()
+});
+
+export const filterGamesSchema = z.object({
+    search: z.string().optional(),
+    category: z.string().optional()
+});
+
+export type FilterGames = z.infer<typeof filterGamesSchema>;
+export type LoginSchema = z.infer<typeof loginSchema>;
 export type FilteredActivity = z.infer<typeof filterAcitivitiesSchema>;
