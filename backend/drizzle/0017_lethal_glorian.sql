@@ -1,1 +1,0 @@
-ALTER TABLE "type_1_found_transactions" ADD COLUMN "updateTransactionHash" text;

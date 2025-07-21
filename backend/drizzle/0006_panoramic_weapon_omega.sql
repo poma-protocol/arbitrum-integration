@@ -1,1 +1,0 @@
-ALTER TABLE "type_1_challenges" ADD COLUMN "name" text DEFAULT '' NOT NULL;

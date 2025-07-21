@@ -1,1 +1,0 @@
-ALTER TABLE "games" ADD COLUMN "creationTime" timestamp DEFAULT now() NOT NULL;
