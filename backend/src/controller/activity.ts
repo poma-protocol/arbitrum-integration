@@ -110,6 +110,16 @@ class ActivityController {
             throw new Error("Error getting operator wallet");
         }
     }
+    async getUserBattles(userAddress: string): Promise<DealCardDetails[]> {
+        try {
+            const rawBattles = await activityModel.getUserBattles(userAddress);
+            const battles = this._processRawDealCardDetails(rawBattles);
+            return battles;
+        } catch (err) {
+            console.error("Error getting user's battles", err);
+            throw new Error("Error getting user's battles");
+        }
+    }
 }
 
 const activityController = new ActivityController();
