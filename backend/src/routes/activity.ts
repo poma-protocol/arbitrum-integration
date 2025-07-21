@@ -106,7 +106,7 @@ router.post("/join", async (req, res) => {
 
             const playerAddressValid = isAddress(data.player_address);
             if (!playerAddressValid) {
-                res.status(400).json({error: [Errors.PLAYER_ADDRESS_NOT_VALID]});
+                res.status(400).json({ error: [Errors.PLAYER_ADDRESS_NOT_VALID] });
                 return;
             }
 
@@ -290,67 +290,82 @@ router.get("/milestone/players/:id", async (req, res) => {
     }
 });
 
-router.get("/featured", async (req , res) => {
+router.get("/featured", async (req, res) => {
     try {
         const featured = await activityController.getFeaturedActivities(activityModel);
         res.json(featured);
-    } catch(err) {
+    } catch (err) {
         console.error("Error getting featured activities", err);
-        res.status(500).json({message: Errors.INTERNAL_SERVER_ERROR});
+        res.status(500).json({ message: Errors.INTERNAL_SERVER_ERROR });
     }
 });
 
-router.get("/filter", async (req , res) => {
+router.get("/filter", async (req, res) => {
     try {
         const parsed = filterAcitivitiesSchema.safeParse(req.query);
         if (parsed.success) {
             const args = parsed.data;
             const filtered = await activityController.filterAcitivities(args, activityModel);
             res.json(filtered);
-        } else {    
+        } else {
             const error = parsed.error.issues[0].message;
-            res.status(400).json({message: error});
+            res.status(400).json({ message: error });
             return;
         }
-    } catch(err) {
+    } catch (err) {
         console.error("Error filtering battles", err);
-        res.status(500).json({message: Errors.INTERNAL_SERVER_ERROR});
+        res.status(500).json({ message: Errors.INTERNAL_SERVER_ERROR });
     }
 });
 
-router.post("/operatorAddress", async (req , res) => {
+router.post("/operatorAddress", async (req, res) => {
     try {
         const parsed = storeOperatorWalletSchema.safeParse(req.body);
         if (parsed.success) {
             const data = parsed.data;
             await activityController.storeOperatorWallet(data, activityModel);
-            res.status(201).json({message: "Stored operator address successfully"});
+            res.status(201).json({ message: "Stored operator address successfully" });
         } else {
             const error = parsed.error.issues[0].message;
-            res.status(400).json({message: error});
+            res.status(400).json({ message: error });
             return;
         }
-    } catch(err) {
+    } catch (err) {
         console.error("Error storing user's operator address", err);
-        res.status(500).json({message: Errors.INTERNAL_SERVER_ERROR});
+        res.status(500).json({ message: Errors.INTERNAL_SERVER_ERROR });
     }
 });
 
-router.get("/operatorAddress", async (req , res) => {
+router.get("/operatorAddress", async (req, res) => {
     try {
         const parsed = getOperatorWalletSchema.safeParse(req.query);
         if (parsed.success) {
             const data = parsed.data;
             const operatorWallet = await activityController.getOperatorWallet(data);
-            res.json({operatorWallet: operatorWallet});
+            res.json({ operatorWallet: operatorWallet });
         } else {
             const error = parsed.error.issues[0].message;
-            res.status(400).json({message: error});
+            res.status(400).json({ message: error });
             return;
         }
-    } catch(err) {
+    } catch (err) {
         console.log("Error getting operator address for player", err);
-        res.status(500).json({message: Errors.INTERNAL_SERVER_ERROR});
+        res.status(500).json({ message: Errors.INTERNAL_SERVER_ERROR });
+    }
+})
+router.get("/my-battles/:userAddress", async (req, res) => {
+    try {
+        const userAddress = req.params.userAddress;
+        if (!isAddress(userAddress)) {
+            res.status(400).json({ error: [Errors.PLAYER_ADDRESS_NOT_VALID] });
+            return;
+        }
+        const battles = await activityController.getUserBattles(userAddress);
+        res.json(battles);
+    }
+    catch (err) {
+        console.error("Error getting user's battles", err);
+        res.status(500).json({ error: [Errors.INTERNAL_SERVER_ERROR] });
     }
 })
 

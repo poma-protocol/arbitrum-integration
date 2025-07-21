@@ -53,14 +53,14 @@ export class ActivityModel {
                 startDate: type1Activities.startDate,
                 endDate: type1Activities.endDate
             }).from(type1Activities)
-            .leftJoin(activityPlayers, eq(activityPlayers.activityId, type1Activities.id))
-            .where(eq(type1Activities.done, false))
-            .orderBy(desc(type1Activities.reward))
-            .groupBy(type1Activities.id, activityPlayers.activityId)
-            .limit(3)
+                .leftJoin(activityPlayers, eq(activityPlayers.activityId, type1Activities.id))
+                .where(eq(type1Activities.done, false))
+                .orderBy(desc(type1Activities.reward))
+                .groupBy(type1Activities.id, activityPlayers.activityId)
+                .limit(3)
 
             return rawActivities;
-        } catch(err) {
+        } catch (err) {
             console.error("Error getting featured deals from database", err);
             throw new Error("Error getting featured deals from database");
         }
@@ -91,11 +91,11 @@ export class ActivityModel {
                 startDate: type1Activities.startDate,
                 endDate: type1Activities.endDate
             }).from(type1Activities)
-            .leftJoin(activityPlayers, eq(activityPlayers.activityId, type1Activities.id))
-            .innerJoin(type1Challenges, eq(type1Activities.challenge_id, type1Challenges.id))
-            .innerJoin(games, eq(type1Challenges.gameID, games.id))
-            .where(
-                sql`
+                .leftJoin(activityPlayers, eq(activityPlayers.activityId, type1Activities.id))
+                .innerJoin(type1Challenges, eq(type1Activities.challenge_id, type1Challenges.id))
+                .innerJoin(games, eq(type1Challenges.gameID, games.id))
+                .where(
+                    sql`
                     ${args.category ?? null}::text IS NULL OR ${games.category} = ${args.category ?? null}
                     AND (${args.game ?? null}::text IS NULL OR ${games.name} = ${args.game ?? null})
                     AND (${args.rewards ?? null}::text IS NULL OR ${type1Activities.reward} >= ${minimumReward})
@@ -103,14 +103,14 @@ export class ActivityModel {
                     AND(${args.search ?? null}::text IS NULL OR (${type1Activities.name} LIKE ${args.search ?? null} OR ${games.name} LIKE ${args.search ?? null} OR ${type1Challenges.name} LIKE ${args.status ?? null}))
                     AND ${type1Activities.done} = false
                 `,
-            )
-            .orderBy(desc(type1Activities.reward))
-            .groupBy(type1Activities.id, activityPlayers.activityId)
-            .offset((args.page - 1) * PAGE_SIZE)
-            .limit(PAGE_SIZE);
+                )
+                .orderBy(desc(type1Activities.reward))
+                .groupBy(type1Activities.id, activityPlayers.activityId)
+                .offset((args.page - 1) * PAGE_SIZE)
+                .limit(PAGE_SIZE);
 
             return rawActivities;
-        } catch(err) {
+        } catch (err) {
             console.error("Error filtering milestone activities", err);
             throw new Error("Could not filter milestone activities");
         }
@@ -121,10 +121,10 @@ export class ActivityModel {
             const res = await db.select({
                 operatorAddress: playerOperatorWalletTable.operatorAddress
             }).from(playerOperatorWalletTable)
-            .where(and(eq(playerOperatorWalletTable.operatorAddress, operatorAddress.toLowerCase()), not(eq(playerOperatorWalletTable.userAddress, playerAddress.toLowerCase()))));
+                .where(and(eq(playerOperatorWalletTable.operatorAddress, operatorAddress.toLowerCase()), not(eq(playerOperatorWalletTable.userAddress, playerAddress.toLowerCase()))));
 
             return res.length > 0;
-        } catch(err) {
+        } catch (err) {
             console.log("Error checking if operator address is being used by other player", err);
             throw new Error("Could not check if operator address used by other player");
         }
@@ -135,10 +135,10 @@ export class ActivityModel {
             const res = await db.select({
                 operatorAddress: playerOperatorWalletTable.userAddress
             }).from(playerOperatorWalletTable)
-            .where(and(eq(playerOperatorWalletTable.operatorAddress, operatorAddress.toLowerCase()), eq(playerOperatorWalletTable.userAddress, userAddress.toLowerCase())));
+                .where(and(eq(playerOperatorWalletTable.operatorAddress, operatorAddress.toLowerCase()), eq(playerOperatorWalletTable.userAddress, userAddress.toLowerCase())));
 
             return res.length > 0;
-        } catch(err) {
+        } catch (err) {
             console.error("Error checking if operator address has already been stored", err);
             throw new Error("Could not check if operator address has already been stored");
         }
@@ -151,7 +151,7 @@ export class ActivityModel {
                 operatorAddress: args.operatoraddress.toLowerCase(),
                 gameID: args.gameid
             });
-        } catch(err) {
+        } catch (err) {
             console.error("Error storing operator wallet", err);
             throw new Error("Error storing operator wallet");
         }
@@ -162,12 +162,12 @@ export class ActivityModel {
             const res = await db.select({
                 operatorAddress: playerOperatorWalletTable.operatorAddress
             }).from(playerOperatorWalletTable)
-            .innerJoin(type1Challenges, eq(type1Challenges.gameID, playerOperatorWalletTable.gameID))
-            .innerJoin(type1Activities, eq(type1Activities.challenge_id, type1Challenges.id))
-            .where(and(eq(playerOperatorWalletTable.userAddress, userAddress.toLowerCase()), eq(type1Activities.id, activityID)));
+                .innerJoin(type1Challenges, eq(type1Challenges.gameID, playerOperatorWalletTable.gameID))
+                .innerJoin(type1Activities, eq(type1Activities.challenge_id, type1Challenges.id))
+                .where(and(eq(playerOperatorWalletTable.userAddress, userAddress.toLowerCase()), eq(type1Activities.id, activityID)));
 
             return res[0]?.operatorAddress;
-        } catch(err) {
+        } catch (err) {
             console.log("Error getting operator wallet of user", err);
             throw new Error("Could not get operator address of user");
         }
@@ -178,14 +178,36 @@ export class ActivityModel {
             const res = await db.select({
                 id: games.id
             }).from(games)
-            .innerJoin(type1Challenges, eq(type1Challenges.gameID, games.id))
-            .innerJoin(type1Activities, eq(type1Activities.challenge_id, type1Challenges.id))
-            .where(eq(type1Activities.id, activityID));
+                .innerJoin(type1Challenges, eq(type1Challenges.gameID, games.id))
+                .innerJoin(type1Activities, eq(type1Activities.challenge_id, type1Challenges.id))
+                .where(eq(type1Activities.id, activityID));
 
             return res[0]?.id;
-        } catch(err) {
+        } catch (err) {
             console.error("Error getting game ID", err);
             throw new Error("Error getting game ID");
+        }
+    }
+    async getUserBattles(userAddress: string): Promise<RawDealCardDetails[]> {
+        try {
+            const rawBattles = await db.select({
+                id: type1Activities.id,
+                name: type1Activities.name,
+                image: type1Activities.image,
+                reward: type1Activities.reward,
+                playerCount: count(activityPlayers),
+                maxPlayers: type1Activities.maximum_number_players,
+                startDate: type1Activities.startDate,
+                endDate: type1Activities.endDate
+            }).from(type1Activities)
+                .leftJoin(activityPlayers, eq(activityPlayers.activityId, type1Activities.id))
+                .where(eq(activityPlayers.playerAddress, userAddress.toLowerCase()))
+                .groupBy(type1Activities.id, activityPlayers.activityId);
+
+            return rawBattles;
+        } catch (err) {
+            console.error("Error getting user's battles", err);
+            throw new Error("Error getting user's battles");
         }
     }
 }
