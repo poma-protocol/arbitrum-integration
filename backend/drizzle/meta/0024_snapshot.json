@@ -1,0 +1,562 @@
+{
+  "id": "a80481e3-9673-44f3-8ca2-9813a9ac2454",
+  "prevId": "d8dfaca3-9847-4f0d-afd7-8da18ac210eb",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.activity_players": {
+      "name": "activity_players",
+      "schema": "",
+      "columns": {
+        "activity_id": {
+          "name": "activity_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "player_address": {
+          "name": "player_address",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "bubbleID": {
+          "name": "bubbleID",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "done": {
+          "name": "done",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "worx_update_id": {
+          "name": "worx_update_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "createdTransactionHash": {
+          "name": "createdTransactionHash",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "activity_players_activity_id_type_1_activities_id_fk": {
+          "name": "activity_players_activity_id_type_1_activities_id_fk",
+          "tableFrom": "activity_players",
+          "tableTo": "type_1_activities",
+          "columnsFrom": [
+            "activity_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "activity_players_activity_id_player_address_pk": {
+          "name": "activity_players_activity_id_player_address_pk",
+          "columns": [
+            "activity_id",
+            "player_address"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.contracts": {
+      "name": "contracts",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "address": {
+          "name": "address",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ABI": {
+          "name": "ABI",
+          "type": "json",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "image": {
+          "name": "image",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "category": {
+          "name": "category",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.jackpotActivity": {
+      "name": "jackpotActivity",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "challenge_id": {
+          "name": "challenge_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "requirement": {
+          "name": "requirement",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "start_date": {
+          "name": "start_date",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "end_date": {
+          "name": "end_date",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "reward": {
+          "name": "reward",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "player_awarded": {
+          "name": "player_awarded",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "jackpotActivity_challenge_id_type_1_challenges_id_fk": {
+          "name": "jackpotActivity_challenge_id_type_1_challenges_id_fk",
+          "tableFrom": "jackpotActivity",
+          "tableTo": "type_1_challenges",
+          "columnsFrom": [
+            "challenge_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.jackpot_found_transactions": {
+      "name": "jackpot_found_transactions",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "tx_hash": {
+          "name": "tx_hash",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "jackpot_id": {
+          "name": "jackpot_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "player_address": {
+          "name": "player_address",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "jackpot_found_transactions_jackpot_id_jackpotActivity_id_fk": {
+          "name": "jackpot_found_transactions_jackpot_id_jackpotActivity_id_fk",
+          "tableFrom": "jackpot_found_transactions",
+          "tableTo": "jackpotActivity",
+          "columnsFrom": [
+            "jackpot_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.jackpot_players": {
+      "name": "jackpot_players",
+      "schema": "",
+      "columns": {
+        "jackpot_id": {
+          "name": "jackpot_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "player_address": {
+          "name": "player_address",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "met_requirement": {
+          "name": "met_requirement",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "jackpot_players_jackpot_id_jackpotActivity_id_fk": {
+          "name": "jackpot_players_jackpot_id_jackpotActivity_id_fk",
+          "tableFrom": "jackpot_players",
+          "tableTo": "jackpotActivity",
+          "columnsFrom": [
+            "jackpot_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "jackpot_players_jackpot_id_player_address_pk": {
+          "name": "jackpot_players_jackpot_id_player_address_pk",
+          "columns": [
+            "jackpot_id",
+            "player_address"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.type_1_activities": {
+      "name": "type_1_activities",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "goal": {
+          "name": "goal",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "challenge_id": {
+          "name": "challenge_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "reward": {
+          "name": "reward",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "creationTransactionHash": {
+          "name": "creationTransactionHash",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "start_date": {
+          "name": "start_date",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "end_date": {
+          "name": "end_date",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "image": {
+          "name": "image",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "about": {
+          "name": "about",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "done": {
+          "name": "done",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "type_1_activities_challenge_id_type_1_challenges_id_fk": {
+          "name": "type_1_activities_challenge_id_type_1_challenges_id_fk",
+          "tableFrom": "type_1_activities",
+          "tableTo": "type_1_challenges",
+          "columnsFrom": [
+            "challenge_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.type_1_activity_instructions": {
+      "name": "type_1_activity_instructions",
+      "schema": "",
+      "columns": {
+        "activity_id": {
+          "name": "activity_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "instruction": {
+          "name": "instruction",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "type_1_activity_instructions_activity_id_type_1_activities_id_fk": {
+          "name": "type_1_activity_instructions_activity_id_type_1_activities_id_fk",
+          "tableFrom": "type_1_activity_instructions",
+          "tableTo": "type_1_activities",
+          "columnsFrom": [
+            "activity_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.type_1_challenges": {
+      "name": "type_1_challenges",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "function_name": {
+          "name": "function_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "player_address_variable": {
+          "name": "player_address_variable",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "contractID": {
+          "name": "contractID",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "type_1_challenges_contractID_contracts_id_fk": {
+          "name": "type_1_challenges_contractID_contracts_id_fk",
+          "tableFrom": "type_1_challenges",
+          "tableTo": "contracts",
+          "columnsFrom": [
+            "contractID"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.type_1_found_transactions": {
+      "name": "type_1_found_transactions",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "tx_hash": {
+          "name": "tx_hash",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "activity_id": {
+          "name": "activity_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "player_address": {
+          "name": "player_address",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "updateTransactionHash": {
+          "name": "updateTransactionHash",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "type_1_found_transactions_activity_id_type_1_activities_id_fk": {
+          "name": "type_1_found_transactions_activity_id_type_1_activities_id_fk",
+          "tableFrom": "type_1_found_transactions",
+          "tableTo": "type_1_activities",
+          "columnsFrom": [
+            "activity_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    }
+  },
+  "enums": {},
+  "schemas": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}

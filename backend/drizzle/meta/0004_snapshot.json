@@ -1,6 +1,6 @@
 {
-  "id": "c3463b1e-98b7-4afa-8d28-bdc21b1332ff",
-  "prevId": "00000000-0000-0000-0000-000000000000",
+  "id": "d55ef7c8-9e50-44c2-a49a-9edb4e9ee35f",
+  "prevId": "1049641a-47f2-4d58-aced-38edf7876d19",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -60,6 +60,12 @@
           "primaryKey": true,
           "notNull": true
         },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
         "address": {
           "name": "address",
           "type": "text",
@@ -102,6 +108,20 @@
           "type": "integer",
           "primaryKey": false,
           "notNull": true
+        },
+        "reward": {
+          "name": "reward",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "on_chain_id": {
+          "name": "on_chain_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
         },
         "done": {
           "name": "done",

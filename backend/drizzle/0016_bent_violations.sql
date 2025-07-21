@@ -1,0 +1,1 @@
+ALTER TABLE "activity_players" ALTER COLUMN "createdTransactionHash" DROP NOT NULL;

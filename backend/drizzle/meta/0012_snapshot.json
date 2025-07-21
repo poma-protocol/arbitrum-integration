@@ -1,6 +1,6 @@
 {
-  "id": "c3463b1e-98b7-4afa-8d28-bdc21b1332ff",
-  "prevId": "00000000-0000-0000-0000-000000000000",
+  "id": "457e93f0-7f29-4986-90c5-2a2e25b8c8d9",
+  "prevId": "c4aa448b-b918-4650-b964-0c290e0ce4b1",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -60,6 +60,12 @@
           "primaryKey": true,
           "notNull": true
         },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
         "address": {
           "name": "address",
           "type": "text",
@@ -69,6 +75,18 @@
         "ABI": {
           "name": "ABI",
           "type": "json",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "image": {
+          "name": "image",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "category": {
+          "name": "category",
+          "type": "text",
           "primaryKey": false,
           "notNull": true
         }
@@ -97,9 +115,39 @@
           "primaryKey": false,
           "notNull": true
         },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
         "challenge_id": {
           "name": "challenge_id",
           "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "reward": {
+          "name": "reward",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "on_chain_id": {
+          "name": "on_chain_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "start_date": {
+          "name": "start_date",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "end_date": {
+          "name": "end_date",
+          "type": "date",
           "primaryKey": false,
           "notNull": true
         },
@@ -141,6 +189,12 @@
           "name": "id",
           "type": "serial",
           "primaryKey": true,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
           "notNull": true
         },
         "function_name": {

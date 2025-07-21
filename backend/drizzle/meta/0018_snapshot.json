@@ -1,6 +1,6 @@
 {
-  "id": "c3463b1e-98b7-4afa-8d28-bdc21b1332ff",
-  "prevId": "00000000-0000-0000-0000-000000000000",
+  "id": "0df11937-e28c-4ddf-a700-415fb645a7ac",
+  "prevId": "c503636d-de8b-4516-a218-12788f2515f1",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -26,6 +26,12 @@
           "primaryKey": false,
           "notNull": true,
           "default": false
+        },
+        "createdTransactionHash": {
+          "name": "createdTransactionHash",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
         }
       },
       "indexes": {},
@@ -60,6 +66,12 @@
           "primaryKey": true,
           "notNull": true
         },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
         "address": {
           "name": "address",
           "type": "text",
@@ -69,6 +81,18 @@
         "ABI": {
           "name": "ABI",
           "type": "json",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "image": {
+          "name": "image",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "category": {
+          "name": "category",
+          "type": "text",
           "primaryKey": false,
           "notNull": true
         }
@@ -97,9 +121,45 @@
           "primaryKey": false,
           "notNull": true
         },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
         "challenge_id": {
           "name": "challenge_id",
           "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "reward": {
+          "name": "reward",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "creationTransactionHash": {
+          "name": "creationTransactionHash",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "start_date": {
+          "name": "start_date",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "end_date": {
+          "name": "end_date",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "image": {
+          "name": "image",
+          "type": "text",
           "primaryKey": false,
           "notNull": true
         },
@@ -141,6 +201,12 @@
           "name": "id",
           "type": "serial",
           "primaryKey": true,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
           "notNull": true
         },
         "function_name": {
@@ -211,6 +277,12 @@
           "type": "text",
           "primaryKey": false,
           "notNull": true
+        },
+        "updateTransactionHash": {
+          "name": "updateTransactionHash",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
         }
       },
       "indexes": {},

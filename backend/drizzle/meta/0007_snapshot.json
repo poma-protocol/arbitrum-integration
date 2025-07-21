@@ -1,6 +1,6 @@
 {
-  "id": "c3463b1e-98b7-4afa-8d28-bdc21b1332ff",
-  "prevId": "00000000-0000-0000-0000-000000000000",
+  "id": "06ad428c-bc90-4446-86f2-e47f234210f7",
+  "prevId": "1229f154-70d4-4ca7-a6b2-e3325a12e488",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -60,6 +60,12 @@
           "primaryKey": true,
           "notNull": true
         },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
         "address": {
           "name": "address",
           "type": "text",
@@ -103,6 +109,18 @@
           "primaryKey": false,
           "notNull": true
         },
+        "reward": {
+          "name": "reward",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "on_chain_id": {
+          "name": "on_chain_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
         "done": {
           "name": "done",
           "type": "boolean",
@@ -141,6 +159,12 @@
           "name": "id",
           "type": "serial",
           "primaryKey": true,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
           "notNull": true
         },
         "function_name": {

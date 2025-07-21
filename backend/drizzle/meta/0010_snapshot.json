@@ -1,6 +1,6 @@
 {
-  "id": "c3463b1e-98b7-4afa-8d28-bdc21b1332ff",
-  "prevId": "00000000-0000-0000-0000-000000000000",
+  "id": "3b75387f-46ba-4927-8812-6b5ab3531de5",
+  "prevId": "7d51aa8c-0073-4393-a8e8-9f86c8133902",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -60,6 +60,12 @@
           "primaryKey": true,
           "notNull": true
         },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
         "address": {
           "name": "address",
           "type": "text",
@@ -69,6 +75,18 @@
         "ABI": {
           "name": "ABI",
           "type": "json",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "image": {
+          "name": "image",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "category": {
+          "name": "category",
+          "type": "text",
           "primaryKey": false,
           "notNull": true
         }
@@ -97,8 +115,26 @@
           "primaryKey": false,
           "notNull": true
         },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
         "challenge_id": {
           "name": "challenge_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "reward": {
+          "name": "reward",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "on_chain_id": {
+          "name": "on_chain_id",
           "type": "integer",
           "primaryKey": false,
           "notNull": true
@@ -141,6 +177,12 @@
           "name": "id",
           "type": "serial",
           "primaryKey": true,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
           "notNull": true
         },
         "function_name": {

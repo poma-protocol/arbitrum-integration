@@ -1,6 +1,6 @@
 {
-  "id": "c3463b1e-98b7-4afa-8d28-bdc21b1332ff",
-  "prevId": "00000000-0000-0000-0000-000000000000",
+  "id": "75415ec3-1099-4eb0-9f00-5cfafe3ad0f6",
+  "prevId": "ef26956a-ada2-4b2f-a910-5e2a6c068977",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -58,6 +58,12 @@
           "name": "id",
           "type": "serial",
           "primaryKey": true,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
           "notNull": true
         },
         "address": {
