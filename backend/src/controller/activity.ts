@@ -89,7 +89,12 @@ class ActivityController {
                 throw new MyError(Errors.OPERATOR_ADDRESS_USED_BY_OTHER_PLAYER);
             }
 
-            await activityModel.storeOperatorWallet(args);
+            const gameID = await activityModel.getGameID(args.activity_id);
+            if (!gameID) {
+                throw new Error("Activity not attached to game");
+            }
+
+            await activityModel.storeOperatorWallet({gameid: gameID, useraddress: args.useraddress, operatoraddress: args.operatoraddress});
         } catch(err) {
             console.error("Error storing operator wallet", err);
             throw new Error("Error storing operator wallet");

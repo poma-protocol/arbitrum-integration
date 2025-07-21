@@ -34,6 +34,12 @@ export enum ActivityStatus {
     ACTIVE = "active"
 }
 
+interface StoreOperatorWalletArgs {
+    gameid: number,
+    useraddress: string,
+    operatoraddress: string
+}
+
 export class ActivityModel {
     async getFeaturedActivities(): Promise<RawDealCardDetails[]> {
         try {
@@ -138,7 +144,7 @@ export class ActivityModel {
         }
     }
 
-    async storeOperatorWallet(args: StoreOperatorWallet) {
+    async storeOperatorWallet(args: StoreOperatorWalletArgs) {
         try {
             await db.insert(playerOperatorWalletTable).values({
                 userAddress: args.useraddress.toLowerCase(),
@@ -164,6 +170,22 @@ export class ActivityModel {
         } catch(err) {
             console.log("Error getting operator wallet of user", err);
             throw new Error("Could not get operator address of user");
+        }
+    }
+
+    async getGameID(activityID: number): Promise<number | null> {
+        try {
+            const res = await db.select({
+                id: games.id
+            }).from(games)
+            .innerJoin(type1Challenges, eq(type1Challenges.gameID, games.id))
+            .innerJoin(type1Activities, eq(type1Activities.challenge_id, type1Challenges.id))
+            .where(eq(type1Activities.id, activityID));
+
+            return res[0]?.id;
+        } catch(err) {
+            console.error("Error getting game ID", err);
+            throw new Error("Error getting game ID");
         }
     }
 }

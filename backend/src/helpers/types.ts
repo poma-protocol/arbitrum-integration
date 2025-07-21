@@ -98,7 +98,7 @@ export const filterGamesSchema = z.object({
 });
 
 export const storeOperatorWalletSchema = z.object({
-    gameid: z.number(),
+    activity_id: z.number(),
     useraddress: z.string({ message: Errors.PLAYER_ADDRESS }).regex(/^(0x)?[0-9a-fA-F]{40}$/, {message: "Player address must be a valid ethereum address"}),
     operatoraddress: z.string({ message: "Operator address must be a string" }).regex(/^(0x)?[0-9a-fA-F]{40}$/, {message: "Operator address must be a valid ethereum address"})
 });
