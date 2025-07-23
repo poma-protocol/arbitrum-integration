@@ -22,7 +22,7 @@ class JwtBearer {
             exp: Math.floor(Date.now() / 1000) + this.JWT_EXPIRY
         };
 
-        const token = jwt.sign(payload, this.JWT_SECRET, { algorithm: 'HS256', expiresIn: this.JWT_EXPIRY });
+        const token = jwt.sign(payload, this.JWT_SECRET, { algorithm: 'HS256' });
         return token;
     }
 

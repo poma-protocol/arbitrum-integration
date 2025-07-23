@@ -29,6 +29,9 @@ class Auth {
             return token;
         } catch (err) {
             console.error("Error registering user", err);
+            if (err instanceof MyError) {
+                throw new MyError(err.message);
+            }
             throw new Error("Error registering user");
         }
     }
@@ -49,6 +52,9 @@ class Auth {
             return token;
         } catch (err) {
             console.error("Error logging in user", err);
+            if (err instanceof MyError) {
+                throw new MyError(err.message);
+            }
             throw new Error("Error logging in user");
         }
     }

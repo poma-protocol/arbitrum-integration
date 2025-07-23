@@ -5,7 +5,7 @@ class AuthController {
     async register(args: User): Promise<string> {
         try {
             const token = await auth.register(args);
-            if(token !== null) {
+            if(token === null) {
                 throw new MyError("Error registering user");
             }
             return token;
@@ -22,8 +22,8 @@ class AuthController {
     async login(args: User): Promise<string> {
         try {
             const token = await auth.login(args);
-            if(token !== null) {
-                throw new MyError("Error logging in user");
+            if(token === null) {
+                throw new MyError("Error during login, try again later");
             }
             return token;
         } catch (err) {

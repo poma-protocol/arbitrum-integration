@@ -16,7 +16,8 @@ router.post("/register", async (req, res) => {
         }
     } catch (err) {
         if (err instanceof MyError) {
-            throw new MyError(err.message);
+            res.status(400).json({ error: [err.message] });
+            return;
         }
         console.error("Error registering user", err);
         res.status(500).json({ error: ["Error registering user"] });
