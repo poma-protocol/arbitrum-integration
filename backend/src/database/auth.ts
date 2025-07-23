@@ -4,8 +4,9 @@ import { gameAdmins } from "../db/schema";
 import { eq } from "drizzle-orm";
 import bcrypt from "bcrypt";
 import { MyError } from "../helpers/errors";
+import { jwtBearer } from "../helpers/jwt-bearer";
 class Auth {
-    async register(args: User) {
+    async register(args: User): Promise<string> {
         try {
             const parsed = UserSchema.safeParse(args);
             if (!parsed.success) {
@@ -17,17 +18,21 @@ class Auth {
                 throw new MyError("User already exists");
             }
             const hashedPassword = await bcrypt.hash(password, 10);
-            await db.insert(gameAdmins).values({
+            const result = await db.insert(gameAdmins).values({
                 email,
                 password: hashedPassword
-            });
-            return { message: "User registered successfully" };
+            }).returning();
+            if (!result || result.length === 0) {
+                throw new MyError("Error creating user");
+            }
+            const token = jwtBearer.encodeJwt({ email, userId: result[0].id });
+            return token;
         } catch (err) {
             console.error("Error registering user", err);
             throw new Error("Error registering user");
         }
     }
-    async login(args: User) {
+    async login(args: User): Promise<string> {
         try {
             const parsed = UserSchema.safeParse(args);
             if (!parsed.success) {
@@ -40,9 +45,9 @@ class Auth {
             if (!isPasswordValid || user.length === 0) {
                 throw new MyError("Invalid credentials");
             }
-            return { message: "Login successful" };
-        }
-        catch (err) {
+            const token = jwtBearer.encodeJwt({ email, userId: user[0].id });
+            return token;
+        } catch (err) {
             console.error("Error logging in user", err);
             throw new Error("Error logging in user");
         }

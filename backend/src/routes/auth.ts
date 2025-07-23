@@ -8,8 +8,8 @@ router.post("/register", async (req, res) => {
         const parsed = UserSchema.safeParse(req.body);
         if (parsed.success) {
             const args = parsed.data;
-            const response = await authController.register(args);
-            res.status(201).json(response);
+            const token = await authController.register(args);
+            res.status(201).json({ token });
         } else {
             const errors = parsed.error.issues.map((i) => i.message);
             res.status(400).json({ error: errors });
@@ -27,8 +27,8 @@ router.post("/login", async (req, res) => {
         const parsed = UserSchema.safeParse(req.body);
         if (parsed.success) {
             const args = parsed.data;
-            const response = await authController.login(args);
-            res.status(200).json(response);
+            const token = await authController.login(args);
+            res.status(200).json({ token });
         } else {
             const errors = parsed.error.issues.map((i) => i.message);
             res.status(400).json({ error: errors });

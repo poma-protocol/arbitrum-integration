@@ -15,6 +15,7 @@ declare global {
             END_BLOCK: string | undefined,
             ADMIN_EMAIL: string,
             ADMIN_PASSWORD: string,
+            JWT_SECRET: string,
         }
     }
 }
