@@ -11,7 +11,7 @@ app.use("/", Express.json());
 app.use("/game", router.game);
 app.use("/activity", router.activity);
 app.use("/jackpot", router.jackpot);
-
+app.use("/auth", router.auth)
 app.post("/login", async (req , res) => {
     try {
         const parsed = loginSchema.safeParse(req.body);

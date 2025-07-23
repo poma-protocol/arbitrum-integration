@@ -260,6 +260,13 @@
       "when": 1753068796215,
       "tag": "0036_futuristic_iron_fist",
       "breakpoints": true
+    },
+    {
+      "idx": 37,
+      "version": "7",
+      "when": 1753266783674,
+      "tag": "0037_absurd_machine_man",
+      "breakpoints": true
     }
   ]
 }
