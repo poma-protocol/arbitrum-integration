@@ -58,13 +58,14 @@ class ActivityController {
 
     async filterAcitivities(args: FilteredActivity, activityModel: ActivityModel): Promise<DealCardDetails[]> {
         try {
+            console.log("Filtering activities with args", args);
             const sanitizedArgs: FilteredActivity = {page: args.page};
             sanitizedArgs.category = args.category !== DEFAULT_FILTER_VALUE && args.category !== undefined ? args.category : undefined;
             sanitizedArgs.game = args.game !== DEFAULT_FILTER_VALUE && args.game !== undefined ? args.game : undefined;
             sanitizedArgs.rewards = args.rewards !== DEFAULT_FILTER_VALUE && args.rewards !== undefined ? args.rewards : undefined;
             sanitizedArgs.status = args.status !== DEFAULT_FILTER_VALUE && args.status !== undefined ? args.status : undefined;
             sanitizedArgs.search = args.search !== DEFAULT_SEARCH_VALUE ? args.search : undefined;
-
+            sanitizedArgs.adminId = args.adminId;
 
             // Get milestone activities
             const filteredMilestones = await activityModel.filterMilestones(sanitizedArgs);

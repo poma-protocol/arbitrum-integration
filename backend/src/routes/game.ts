@@ -58,22 +58,24 @@ router.post("/register", async (req, res) => {
             return;
         }
         const adminId = payload.userId;
-        const parsed = registerGameSchema.safeParse(req.body);
+        console.log("Admin ID =>", adminId);
+        const parsed = registerGameSchema.safeParse({ ...req.body, adminId });
         if (parsed.success) {
             // Storing contract details
             const data = parsed.data
-            const gameID = await gameController.create({ ...data, adminId });
+            const gameID = await gameController.create(data);
 
             res.status(201).json({ gameid: gameID });
         } else {
+            console.log("Error Registering Game", parsed.error);
             const errors = parsed.error.issues.map((e) => e.message);
             res.status(400).json({ error: errors });
         }
     } catch (err) {
         console.log("Error Regisetering Game", err);
-        res.status(500).json({ error: [Errors.INTERNAL_SERVER_ERROR] })
+        res.status(500).json({ error: [Errors.INTERNAL_SERVER_ERROR] });
     }
-})
+});
 
 router.get("/", async (req, res) => {
     try {
@@ -149,10 +151,28 @@ router.get("/battles/:gameid", async (req, res) => {
 
 router.get("/filter", async (req, res) => {
     try {
-        const parsed = filterGamesSchema.safeParse(req.query);
+        const payload = await jwtBearer.authenticate(req);
+        if (!payload) {
+            const parsed = filterGamesSchema.safeParse(req.query);
+            if (parsed.success) {
+                const data = parsed.data;
+                const games = await gameController.filter(data, gamesModel);
+                console.log("Filtered Games =>", games);
+                res.json(games);
+            } else {
+                const error = parsed.error.issues[0].message;
+                res.status(400).json({ message: error });
+                return;
+            }
+            return;
+        }
+        const adminId = payload.userId;
+        const parsed = filterGamesSchema.safeParse({ ...req.query, adminId });
         if (parsed.success) {
             const data = parsed.data;
             const games = await gameController.filter(data, gamesModel);
+            console.log("Filtered Games =>", games);
+
             res.json(games);
         } else {
             const error = parsed.error.issues[0].message;
@@ -164,7 +184,7 @@ router.get("/filter", async (req, res) => {
         res.status(500).json({ message: Errors.INTERNAL_SERVER_ERROR });
     }
 });
-router.get("admin-gemas/:adminId", async (req, res) => {
+router.get("admin-games/:adminId", async (req, res) => {
     try {
         const adminId = Number.parseInt(req.params.adminId);
         if (isNaN(adminId)) {

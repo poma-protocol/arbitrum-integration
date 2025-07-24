@@ -1,1 +1,0 @@
-ALTER TABLE "activity_players" ADD COLUMN "bubbleID" text;

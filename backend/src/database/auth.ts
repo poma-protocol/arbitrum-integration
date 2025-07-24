@@ -43,9 +43,12 @@ class Auth {
             }
             const { email, password } = parsed.data;
             const user = await db.select().from(gameAdmins).where(eq(gameAdmins.email, email));
-            
+            if( user.length === 0) {
+                throw new MyError("Invalid credentials");
+            }
+
             const isPasswordValid = await bcrypt.compare(password, user[0].password);
-            if (!isPasswordValid || user.length === 0) {
+            if (!isPasswordValid) {
                 throw new MyError("Invalid credentials");
             }
             const token = jwtBearer.encodeJwt({ email, userId: user[0].id });

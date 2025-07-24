@@ -26,6 +26,7 @@ interface RawGameChallenges {
 export class GamesModel {
     async filter(args: FilterGames): Promise<RawGameDetails[]> {
         try {
+            console.log("Filtering Games with args", args);
             const results = await db.select({
                 id: games.id,
                 name: games.name,
@@ -34,7 +35,8 @@ export class GamesModel {
                 challenges: count(type1Challenges),
                 activeBattles: count(type1Activities),
                 totalPlayers: count(activityPlayers),
-                createdAt: games.createdAt
+                createdAt: games.createdAt,
+                adminId: games.adminId
             }).from(games)
                 .innerJoin(type1Challenges, eq(type1Challenges.gameID, games.id))
                 .innerJoin(type1Activities, eq(type1Activities.challenge_id, type1Challenges.id))
@@ -44,9 +46,10 @@ export class GamesModel {
                     sql`
                     (${args.category ?? null}::text IS NULL OR ${games.category} = ${args.category ?? null})
                     AND (${args.search ?? null}::text IS NULL OR ${games.name} LIKE ${args.search ?? null})
+                     AND (${args.adminId ?? null}::integer IS NULL OR ${games.adminId} = ${args.adminId})
                 `
                 );
-
+            console.log("Gotten games =>", results);
             return results;
         } catch (err) {
             console.error("Error filtering games", err);

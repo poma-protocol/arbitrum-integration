@@ -57,7 +57,7 @@ class GameController {
             const sanitizedArgs: FilterGames = {};
             sanitizedArgs.category = args.category === DEFAULT_FILTER_VALUE || args.category === undefined ? undefined : args.category;
             sanitizedArgs.search = args.search === DEFAULT_SEARCH_VALUE || args.search === undefined ? undefined : args.search;
-
+            sanitizedArgs.adminId = args.adminId;
             const filteredGames = await gamesModel.filter(sanitizedArgs);
             const games: GameDetails[] = [];
 

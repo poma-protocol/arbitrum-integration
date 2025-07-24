@@ -1,1 +1,0 @@
-ALTER TABLE "activity_players" ADD CONSTRAINT "activity_players_activity_id_player_address_pk" PRIMARY KEY("activity_id","player_address");

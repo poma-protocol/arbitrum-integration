@@ -1,1 +1,0 @@
-ALTER TABLE "contracts" ADD COLUMN "name" text DEFAULT '' NOT NULL;
