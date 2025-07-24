@@ -34,7 +34,8 @@ class GameController {
                 .values({
                     name: args.name,
                     category: args.category,
-                    image: args.image
+                    image: args.image,
+                    adminId: args.adminId
                 }).returning({ id: games.id });
 
             const gameID = insertedGame[0].id;

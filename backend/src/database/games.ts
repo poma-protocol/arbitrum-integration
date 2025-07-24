@@ -77,6 +77,30 @@ export class GamesModel {
             throw new Error("Error getting game challenges");
         }
     }
+    async getGamesByAdmin(adminId: number): Promise<RawGameDetails[]> {
+        try {
+            const results = await db.select({
+                id: games.id,
+                name: games.name,
+                category: games.category,
+                image: games.image,
+                challenges: count(type1Challenges),
+                activeBattles: count(type1Activities),
+                totalPlayers: count(activityPlayers),
+                createdAt: games.createdAt
+            }).from(games)
+                .innerJoin(type1Challenges, eq(type1Challenges.gameID, games.id))
+                .innerJoin(type1Activities, eq(type1Activities.challenge_id, type1Challenges.id))
+                .innerJoin(activityPlayers, eq(activityPlayers.activityId, type1Activities.id))
+                .where(eq(games.adminId, adminId))
+                .groupBy(activityPlayers.playerAddress, type1Activities.id, type1Challenges.id, games.id);
+
+            return results;
+        } catch (err) {
+            console.error("Error getting games by admin", err);
+            throw new Error("Error getting games by admin");
+        }
+    }
 }
 
 const gamesModel = new GamesModel();
