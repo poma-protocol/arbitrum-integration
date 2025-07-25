@@ -64,17 +64,23 @@ export class GamesModel {
                 name: type1Challenges.name,
                 function_name: type1Challenges.functionName,
                 player_address_variable: type1Challenges.playerAddressVariable,
-                countItems: type1Challenges.countItems,
-                battles: count(type1Activities)
+                countItems: type1Challenges.countItems
             }).from(type1Challenges)
-                .leftJoin(games, eq(games.id, type1Challenges.id))
-                .leftJoin(type1Activities, eq(type1Challenges.id, type1Activities.challenge_id))
-                .where(eq(games.id, id))
-                .groupBy(type1Activities.id, type1Challenges.id)
+            .innerJoin(games, eq(games.id, type1Challenges.gameID))
+            .where(eq(games.id, id));
 
-            console.log(res);
+            const rawGameChallenges: RawGameChallenges[] = [];
 
-            return res;
+            for await (const r of res) {
+                const battles = await db.select({
+                    count: type1Activities.id
+                }).from(type1Activities)
+                .where(eq(type1Activities.challenge_id, r.id));
+
+                rawGameChallenges.push({...r, battles: battles.length});
+            }
+
+            return rawGameChallenges;
         } catch (err) {
             console.error("Error getting game challenges", err);
             throw new Error("Error getting game challenges");

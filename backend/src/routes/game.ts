@@ -184,6 +184,7 @@ router.get("/filter", async (req, res) => {
         res.status(500).json({ message: Errors.INTERNAL_SERVER_ERROR });
     }
 });
+
 router.get("admin-games/:adminId", async (req, res) => {
     try {
         const adminId = Number.parseInt(req.params.adminId);
