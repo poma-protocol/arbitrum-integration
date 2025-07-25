@@ -16,11 +16,16 @@ import { isAddress } from "web3-validator";
 import activityController from "../controller/activity";
 import activityModel from "../database/activity";
 import { formatDate } from "../helpers/formatters";
-
+import { jwtBearer } from "../helpers/jwt-bearer";
 const router: Router = Router();
 
 router.post("/create", async (req, res) => {
     try {
+        const payload = await jwtBearer.authenticate(req);
+        if (!payload) {
+            res.status(401).json({ error: [Errors.UNAUTHORIZED] });
+            return;
+        }
         const parsed = createActivity.safeParse(req.body);
         if (parsed.success) {
             const data = parsed.data;
@@ -28,7 +33,8 @@ router.post("/create", async (req, res) => {
             // Get game ID
             const gameID = await db.select({
                 id: type1Challenges.gameID,
-                name: games.name
+                name: games.name,
+                adminId: games.adminId
             }).from(type1Challenges)
                 .leftJoin(games, eq(type1Challenges.gameID, games.id))
                 .where(eq(type1Challenges.id, data.challenge_id));
@@ -43,7 +49,8 @@ router.post("/create", async (req, res) => {
                 startDate: new Date(data.startDate),
                 endDate: new Date(data.endDate),
                 maximum_number_players: data.maximum_num_players,
-                about: data.about
+                about: data.about,
+                adminId: gameID[0].adminId
             }).returning({ id: type1Activities.id });
 
             if (data.instructions) {
@@ -302,13 +309,20 @@ router.get("/featured", async (req, res) => {
 
 router.get("/filter", async (req, res) => {
     try {
-        const parsed = filterAcitivitiesSchema.safeParse(req.query);
+        const payload = await jwtBearer.authenticate(req);
+        let adminId: number | undefined;
+        console.log("Filtering battles with payload", payload);
+        if (payload) {
+            adminId = payload.userId;
+        }
+        const parsed = filterAcitivitiesSchema.safeParse({...req.query, adminId});
         if (parsed.success) {
             const args = parsed.data;
             const filtered = await activityController.filterAcitivities(args, activityModel);
             res.json(filtered);
         } else {
             const error = parsed.error.issues[0].message;
+            console.error("Error filtering battles", parsed.error);
             res.status(400).json({ message: error });
             return;
         }
@@ -368,5 +382,22 @@ router.get("/my-battles/:userAddress", async (req, res) => {
         res.status(500).json({ error: [Errors.INTERNAL_SERVER_ERROR] });
     }
 })
+router.get("/admin-activities", async (req, res) => {
+    try {
+        const payload = await jwtBearer.authenticate(req);
+        if (!payload) {
+            res.status(401).json({ error: [Errors.UNAUTHORIZED] });
+            return;
+        }
+        const adminId = payload.userId;
+        const activities = await activityModel.getActivitiesByAdmin(adminId);
+        res.status(200).json(activities);
+    }
+
+    catch (err) {
+        console.error("Error getting activities by admin", err);
+        res.status(500).json({ error: [Errors.INTERNAL_SERVER_ERROR] });
+    }
+});
 
 export default router;

@@ -26,6 +26,7 @@ interface RawGameChallenges {
 export class GamesModel {
     async filter(args: FilterGames): Promise<RawGameDetails[]> {
         try {
+            console.log("Filtering Games with args", args);
             const results = await db.select({
                 id: games.id,
                 name: games.name,
@@ -34,7 +35,8 @@ export class GamesModel {
                 challenges: count(type1Challenges),
                 activeBattles: count(type1Activities),
                 totalPlayers: count(activityPlayers),
-                createdAt: games.createdAt
+                createdAt: games.createdAt,
+                adminId: games.adminId
             }).from(games)
                 .innerJoin(type1Challenges, eq(type1Challenges.gameID, games.id))
                 .innerJoin(type1Activities, eq(type1Activities.challenge_id, type1Challenges.id))
@@ -44,9 +46,10 @@ export class GamesModel {
                     sql`
                     (${args.category ?? null}::text IS NULL OR ${games.category} = ${args.category ?? null})
                     AND (${args.search ?? null}::text IS NULL OR ${games.name} LIKE ${args.search ?? null})
+                     AND (${args.adminId ?? null}::integer IS NULL OR ${games.adminId} = ${args.adminId})
                 `
                 );
-
+            console.log("Gotten games =>", results);
             return results;
         } catch (err) {
             console.error("Error filtering games", err);
@@ -75,6 +78,30 @@ export class GamesModel {
         } catch (err) {
             console.error("Error getting game challenges", err);
             throw new Error("Error getting game challenges");
+        }
+    }
+    async getGamesByAdmin(adminId: number): Promise<RawGameDetails[]> {
+        try {
+            const results = await db.select({
+                id: games.id,
+                name: games.name,
+                category: games.category,
+                image: games.image,
+                challenges: count(type1Challenges),
+                activeBattles: count(type1Activities),
+                totalPlayers: count(activityPlayers),
+                createdAt: games.createdAt
+            }).from(games)
+                .innerJoin(type1Challenges, eq(type1Challenges.gameID, games.id))
+                .innerJoin(type1Activities, eq(type1Activities.challenge_id, type1Challenges.id))
+                .innerJoin(activityPlayers, eq(activityPlayers.activityId, type1Activities.id))
+                .where(eq(games.adminId, adminId))
+                .groupBy(activityPlayers.playerAddress, type1Activities.id, type1Challenges.id, games.id);
+
+            return results;
+        } catch (err) {
+            console.error("Error getting games by admin", err);
+            throw new Error("Error getting games by admin");
         }
     }
 }

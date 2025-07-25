@@ -1,1 +1,0 @@
-ALTER TABLE "type_1_activities" ADD COLUMN "maximum_number_players" integer;

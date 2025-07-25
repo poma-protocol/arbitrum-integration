@@ -84,4 +84,5 @@ export enum Errors {
     PLAYER_ADDRESS_NOT_VALID = "Player address is not valid",
     OPERATOR_ADDRESS_NOT_VALID = "Operator address is not valid",
     OPERATOR_ADDRESS_USED_BY_OTHER_PLAYER = "The operator address is being used by another player",
+    UNAUTHORIZED = "Unauthorized access",
 }

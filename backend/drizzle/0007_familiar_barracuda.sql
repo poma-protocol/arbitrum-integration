@@ -1,1 +1,0 @@
-ALTER TABLE "type_1_challenges" ALTER COLUMN "name" DROP DEFAULT;

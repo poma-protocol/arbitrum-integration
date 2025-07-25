@@ -95,6 +95,7 @@ export class ActivityModel {
     }
 
     async filterMilestones(args: FilteredActivity): Promise<RawDealCardDetails[]> {
+        console.log("Filtering activities with args", args);
         try {
             let minimumReward: number = 0;
             if (args.rewards) {
@@ -130,6 +131,7 @@ export class ActivityModel {
                     AND (${args.status ?? null}::text IS NULL OR ${args.status ?? null} = ${ActivityStatus.ACTIVE} AND ${type1Activities.startDate} < ${today} AND ${type1Activities.endDate} > ${today} OR ${args.status ?? null} = ${ActivityStatus.COMPLETED} AND ${type1Activities.endDate} < ${today} OR ${args.status ?? null} = ${ActivityStatus.UPCOMING} AND ${type1Activities.startDate} > ${today})
                     AND(${args.search ?? null}::text IS NULL OR (${type1Activities.name} LIKE ${args.search ?? null} OR ${games.name} LIKE ${args.search ?? null} OR ${type1Challenges.name} LIKE ${args.status ?? null}))
                     AND ${type1Activities.done} = false
+                    AND (${args.adminId ?? null}::integer IS NULL OR ${games.adminId} = ${args.adminId})
                 `,
                 )
                 .orderBy(desc(type1Activities.reward))
@@ -251,6 +253,30 @@ export class ActivityModel {
         } catch (err) {
             console.error("Error getting user's battles", err);
             throw new Error("Error getting user's battles");
+        }
+    }
+    async getActivitiesByAdmin(adminId: number): Promise<RawDealCardDetails[]> {
+        try {
+            const rawActivities = await db.select({
+                id: type1Activities.id,
+                name: type1Activities.name,
+                image: type1Activities.image,
+                reward: type1Activities.reward,
+                playerCount: count(activityPlayers),
+                maxPlayers: type1Activities.maximum_number_players,
+                startDate: type1Activities.startDate,
+                endDate: type1Activities.endDate
+            }).from(type1Activities)
+                .leftJoin(activityPlayers, eq(activityPlayers.activityId, type1Activities.id))
+                .innerJoin(type1Challenges, eq(type1Challenges.id, type1Activities.challenge_id))
+                .innerJoin(games, eq(games.id, type1Challenges.gameID))
+                .where(eq(games.adminId, adminId))
+                .groupBy(type1Activities.id, activityPlayers.activityId);
+
+            return rawActivities;
+        } catch (err) {
+            console.error("Error getting activities by admin", err);
+            throw new Error("Error getting activities by admin");
         }
     }
 }

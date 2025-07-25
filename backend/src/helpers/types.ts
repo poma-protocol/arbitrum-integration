@@ -41,7 +41,8 @@ export const registerGameSchema = z.object({
         countItems: z.boolean({ message: Errors.COUNT_ITEMS }).default(false),
         contract_address: z.string({ message: Errors.CONTRACT_ADDRESS }).regex(/^(0x)?[0-9a-fA-F]{40}$/, {message: "Contract address must be a valid ethereum address"}),
         abi: jsonSchema,
-    }))
+    })),
+    adminId: z.number({message: "Admin ID is not valid"}).int({ message: "Admin ID must be an integer" }),
 });
 
 export type RegisterGameType = z.infer<typeof registerGameSchema>;
@@ -84,7 +85,8 @@ export const filterAcitivitiesSchema = z.object({
     status: z.string().optional(),
     rewards: z.string().optional(),
     search: z.string().optional(),
-    page: z.string().transform((arg) => Number.parseInt(arg))
+    page: z.string().transform((arg) => Number.parseInt(arg)),
+    adminId: z.number().optional(),
 });
 
 export const loginSchema = z.object({
@@ -94,7 +96,8 @@ export const loginSchema = z.object({
 
 export const filterGamesSchema = z.object({
     search: z.string().optional(),
-    category: z.string().optional()
+    category: z.string().optional(),
+    adminId: z.number().optional()
 });
 
 export const storeOperatorWalletSchema = z.object({

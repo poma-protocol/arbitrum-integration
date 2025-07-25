@@ -1,1 +1,0 @@
-ALTER TABLE "type_1_activities" ADD COLUMN "on_chain_id" integer DEFAULT 0 NOT NULL;

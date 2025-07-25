@@ -5,7 +5,8 @@ export const games = pgTable("games", {
     name: text("name").notNull(),
     image: text("image").notNull(),
     category: text("category").notNull(),
-    createdAt: timestamp("creationTime").notNull().defaultNow()
+    createdAt: timestamp("creationTime").notNull().defaultNow(),
+    adminId: integer("admin_id").references(() => gameAdmins.id, { onDelete: "cascade" }).notNull()
 });
 
 export const type1Challenges = pgTable("type_1_challenges", {
@@ -44,7 +45,8 @@ export const type1Activities = pgTable("type_1_activities", {
     image: text("image").notNull(),
     about: text("about"),
     done: boolean("done").default(false).notNull(),
-    maximum_number_players: integer("maximum_number_players").notNull()
+    maximum_number_players: integer("maximum_number_players").notNull(),
+    adminId: integer("admin_id").references(() => gameAdmins.id, { onDelete: "cascade" }),
 });
 
 export const type1ActivityInstructions = pgTable("type_1_activity_instructions", {
