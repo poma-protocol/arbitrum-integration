@@ -131,7 +131,7 @@ export class ActivityModel {
                     AND (${args.status ?? null}::text IS NULL OR ${args.status ?? null} = ${ActivityStatus.ACTIVE} AND ${type1Activities.startDate} < ${today} AND ${type1Activities.endDate} > ${today} OR ${args.status ?? null} = ${ActivityStatus.COMPLETED} AND ${type1Activities.endDate} < ${today} OR ${args.status ?? null} = ${ActivityStatus.UPCOMING} AND ${type1Activities.startDate} > ${today})
                     AND(${args.search ?? null}::text IS NULL OR (${type1Activities.name} LIKE ${args.search ?? null} OR ${games.name} LIKE ${args.search ?? null} OR ${type1Challenges.name} LIKE ${args.status ?? null}))
                     AND ${type1Activities.done} = false
-                    AND (${args.adminId ?? null}::integer IS NULL OR ${games.adminId} = ${args.adminId})
+                    AND (${args.adminId ?? null}::integer IS NULL OR ${games.adminId} = ${args.adminId ?? null})
                 `,
                 )
                 .orderBy(desc(type1Activities.reward))
@@ -273,7 +273,13 @@ export class ActivityModel {
                 .where(eq(games.adminId, adminId))
                 .groupBy(type1Activities.id, activityPlayers.activityId);
 
-            return rawActivities;
+            const activities: RawDealCardDetails[] = [];
+            for await (const r of rawActivities) {
+                const players = await this._getActivityPlayers(r.id);
+                activities.push({...r, players});
+            }
+
+            return activities;
         } catch (err) {
             console.error("Error getting activities by admin", err);
             throw new Error("Error getting activities by admin");
