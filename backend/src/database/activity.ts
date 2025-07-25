@@ -14,6 +14,7 @@ export interface RawDealCardDetails {
     maxPlayers: number;
     startDate: Date;
     endDate: Date;
+    players: string[]
 }
 
 const PAGE_SIZE = 6;
@@ -41,6 +42,26 @@ interface StoreOperatorWalletArgs {
 }
 
 export class ActivityModel {
+    private async _getActivityPlayers(activityID: number): Promise<string[]> {
+        try {
+            const playersDB = await db.select({
+                address: activityPlayers.playerAddress
+            }).from(activityPlayers)
+            .where(eq(activityPlayers.activityId, activityID));
+
+            const players: string[] = [];
+            
+            for (const p of playersDB) {
+                players.push(p.address);
+            }
+
+            return players;
+        } catch(err) {
+            console.error("Error getting activity players", err);
+            throw new Error("Error getting activity players");
+        }
+    }
+
     async getFeaturedActivities(): Promise<RawDealCardDetails[]> {
         try {
             const rawActivities = await db.select({
@@ -59,7 +80,14 @@ export class ActivityModel {
                 .groupBy(type1Activities.id, activityPlayers.activityId)
                 .limit(3)
 
-            return rawActivities;
+            const activities: RawDealCardDetails[] = [];
+
+            for await (const r of rawActivities) {
+                const players = await this._getActivityPlayers(r.id);
+                activities.push({...r, players});
+            }
+
+            return activities;
         } catch (err) {
             console.error("Error getting featured deals from database", err);
             throw new Error("Error getting featured deals from database");
@@ -110,8 +138,14 @@ export class ActivityModel {
                 .groupBy(type1Activities.id, activityPlayers.activityId)
                 .offset((args.page - 1) * PAGE_SIZE)
                 .limit(PAGE_SIZE);
-console.log("Filtered activities =>", rawActivities);
-            return rawActivities;
+
+            const activities: RawDealCardDetails[] = [];
+            for await (const r of rawActivities) {
+                const players = await this._getActivityPlayers(r.id);
+                activities.push({...r, players});
+            }
+
+            return activities;
         } catch (err) {
             console.error("Error filtering milestone activities", err);
             throw new Error("Could not filter milestone activities");
@@ -190,6 +224,7 @@ console.log("Filtered activities =>", rawActivities);
             throw new Error("Error getting game ID");
         }
     }
+
     async getUserBattles(userAddress: string): Promise<RawDealCardDetails[]> {
         try {
             const rawBattles = await db.select({
@@ -208,7 +243,13 @@ console.log("Filtered activities =>", rawActivities);
                 .where(eq(activityPlayers.playerAddress, userAddress.toLowerCase()))
                 .groupBy(type1Activities.id, type1Activities.done);
 
-            return rawBattles;
+            const activities: RawDealCardDetails[] = [];
+            for await (const r of rawBattles) {
+                const players = await this._getActivityPlayers(r.id);
+                activities.push({...r, players});
+            }
+
+            return activities;
         } catch (err) {
             console.error("Error getting user's battles", err);
             throw new Error("Error getting user's battles");
