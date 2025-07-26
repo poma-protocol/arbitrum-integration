@@ -50,7 +50,9 @@ router.post("/create", async (req, res) => {
                 endDate: new Date(data.endDate),
                 maximum_number_players: data.maximum_num_players,
                 about: data.about,
-                adminId: gameID[0].adminId
+                adminId: gameID[0].adminId,
+                creatorAddress: data.creatorAddress,
+                
             }).returning({ id: type1Activities.id });
 
             if (data.instructions) {
