@@ -33,7 +33,7 @@ export class SmarContract {
         }
     }
 
-    async createActivity(activityID: number, gameID: number, winningPoints: number, name: string, reward: number): Promise<string> {
+    async createActivity(activityID: number, gameID: number, winningPoints: number, name: string, reward: number, creatorAddress: string, maximumNumberPlayers: number): Promise<string> {
         try {
             const account = await this.getAccount();
             console.log("Account =>", account.address);
@@ -47,7 +47,9 @@ export class SmarContract {
                     BigInt(gameID),
                     BigInt(winningPoints),
                     name,
-                    BigInt(rewardInWei)
+                    BigInt(rewardInWei),
+                    creatorAddress,
+                    BigInt(maximumNumberPlayers)
                 ).encodeABI(),
                 maxFeePerGas: block.baseFeePerGas! * 2n,
                 maxPriorityFeePerGas: 100000,
