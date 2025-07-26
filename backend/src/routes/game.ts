@@ -1,4 +1,4 @@
-import { Router } from "express";
+import e, { Router } from "express";
 import { Errors, MyError } from "../helpers/errors";
 import { createChallengeSchema, filterGamesSchema, registerGameSchema } from "../helpers/types";
 import { db } from "../db/pool";
@@ -168,6 +168,7 @@ router.get("/filter", async (req, res) => {
         }
         const adminId = payload.userId;
         const parsed = filterGamesSchema.safeParse({ ...req.query, adminId });
+        console.log({ ...req.query, adminId });
         if (parsed.success) {
             const data = parsed.data;
             const games = await gameController.filter(data, gamesModel);
@@ -184,6 +185,7 @@ router.get("/filter", async (req, res) => {
         res.status(500).json({ message: Errors.INTERNAL_SERVER_ERROR });
     }
 });
+
 router.get("admin-games/:adminId", async (req, res) => {
     try {
         const adminId = Number.parseInt(req.params.adminId);
