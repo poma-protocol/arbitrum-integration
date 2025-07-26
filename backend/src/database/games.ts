@@ -23,6 +23,13 @@ interface RawGameChallenges {
     battles: number
 }
 
+interface RawGame {
+    name: string,
+    image: string,
+    category: string,
+    createdAt: Date
+}
+
 export class GamesModel {
     async filter(args: FilterGames): Promise<RawGameDetails[]> {
         try {
@@ -114,6 +121,7 @@ export class GamesModel {
             throw new Error("Error getting game challenges");
         }
     }
+
     async getGamesByAdmin(adminId: number): Promise<RawGameDetails[]> {
         try {
             const results = await db.select({
@@ -136,6 +144,23 @@ export class GamesModel {
         } catch (err) {
             console.error("Error getting games by admin", err);
             throw new Error("Error getting games by admin");
+        }
+    }
+
+    async get(id: number): Promise<RawGame | null> {
+        try {
+            const res = await db.select({
+                name: games.name,
+                category: games.category,
+                createdAt: games.createdAt,
+                image: games.image
+            }).from(games)
+            .where(eq(games.id, id));
+
+            return res[0] ?? null;
+        } catch(err) {
+            console.error("Error getting game from id", err);
+            throw new Error("Error getting game");
         }
     }
 }

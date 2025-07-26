@@ -201,6 +201,17 @@ router.get("admin-games/:adminId", async (req, res) => {
     }
 });
 
+router.get("/game/:id", async (req , res) => {
+    try {
+        const gameID = Number.parseInt(req.params.id);
+        const game = await gameController.get(gameID, gamesModel);
+        res.json(game);
+    } catch(err) {
+        console.error("Error getting game", err);
+        res.status(500).json({message: Errors.INTERNAL_SERVER_ERROR});
+    }
+})
+
 router.get("*", (req, res) => {
     res.status(404).json({ error: [Errors.ROUTE_NOT_FOUND] });
 })
