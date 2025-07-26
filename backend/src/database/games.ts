@@ -1,4 +1,4 @@
-import { count, eq, sql } from "drizzle-orm";
+import { and, count, eq, is, isNotNull, sql } from "drizzle-orm";
 import { db } from "../db/pool";
 import { activityPlayers, games, type1Activities, type1Challenges } from "../db/schema";
 import { FilterGames } from "../helpers/types";
@@ -32,25 +32,53 @@ export class GamesModel {
                 name: games.name,
                 category: games.category,
                 image: games.image,
-                challenges: count(type1Challenges),
-                activeBattles: count(type1Activities),
-                totalPlayers: count(activityPlayers),
                 createdAt: games.createdAt,
                 adminId: games.adminId
             }).from(games)
-                .innerJoin(type1Challenges, eq(type1Challenges.gameID, games.id))
-                .innerJoin(type1Activities, eq(type1Activities.challenge_id, type1Challenges.id))
-                .innerJoin(activityPlayers, eq(activityPlayers.activityId, type1Activities.id))
-                .groupBy(activityPlayers.playerAddress, type1Activities.id, type1Challenges.id, games.id)
                 .where(
                     sql`
                     (${args.category ?? null}::text IS NULL OR ${games.category} = ${args.category ?? null})
                     AND (${args.search ?? null}::text IS NULL OR ${games.name} LIKE ${args.search ?? null})
-                     AND (${args.adminId ?? null}::integer IS NULL OR ${games.adminId} = ${args.adminId})
+                     AND (${games.adminId} = ${args.adminId})
                 `
                 );
+
+            let challengeNum = 0;
+            let battleNum = 0;
+            let totalPlayers = 0;
+            let rawGames: RawGameDetails[] = [];
+
+            for await (const g of results) {
+                const challenges = await db.select({
+                    id: type1Challenges.id
+                }).from(type1Challenges)
+                .where(eq(type1Challenges.gameID, g.id));
+                challengeNum = challenges.length;
+
+                for await (const c of challenges) {
+                    const battles = await db.select({
+                        id: type1Activities.id
+                    }).from(type1Activities)
+                    .where(and(isNotNull(type1Activities.creation_tx_hash), isNotNull(type1Activities.rewardTxn)))
+
+                    battleNum = battles.length;
+                    for await (const b of battles) {
+                        const players = await db.select({
+                            count: count(activityPlayers),
+                        }).from(activityPlayers)
+                        .where(eq(activityPlayers.activityId, b.id));
+
+                        totalPlayers += players[0].count;
+                    }
+                }
+
+                rawGames.push({...g, totalPlayers, challenges: challengeNum, activeBattles: battleNum});
+            }
+
+
+            
             console.log("Gotten games =>", results);
-            return results;
+            return rawGames;
         } catch (err) {
             console.error("Error filtering games", err);
             throw new Error("Error filtering games");
