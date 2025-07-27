@@ -109,8 +109,20 @@ export const storeOperatorWalletSchema = z.object({
 export const getOperatorWalletSchema = z.object({
     activityid: z.string().transform((arg) => Number.parseInt(arg)),
     userwallet: z.string({ message: Errors.PLAYER_ADDRESS }).regex(/^(0x)?[0-9a-fA-F]{40}$/, {message: "Player address must be a valid ethereum address"}),
-})
+});
 
+export const commissionPaidSchema = z.object({
+    activityID: z.number({message: "Invalid activity"}),
+    txHash: z.string({message: "Invalid transaction hash"}).regex(/^(0x)?[0-9a-fA-F]{64}$/, {message: "Invalid transaction hash"}),
+});
+
+export const rewardPaidSchema = z.object({
+    activityID: z.number({message: "Invalid activity"}),
+    txHash: z.string({message: "Invalid transaction hash"}).regex(/^(0x)?[0-9a-fA-F]{64}$/, {message: "Invalid transaction hash"}),
+});
+
+export type RewardPaid = z.infer<typeof rewardPaidSchema>;
+export type CommissionPaid = z.infer<typeof commissionPaidSchema>;
 export type GetOperatorWalletSchema = z.infer<typeof getOperatorWalletSchema>;
 export type StoreOperatorWallet = z.infer<typeof storeOperatorWalletSchema>;
 export type FilterGames = z.infer<typeof filterGamesSchema>;
