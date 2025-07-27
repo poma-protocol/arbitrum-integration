@@ -13,6 +13,8 @@ interface DealCardDetails {
     startDate: string;
     endDate: string;
     status: ActivityStatus;
+    commissionPaid: boolean,
+    rewardLocked: boolean,
 }
 
 export const DEFAULT_FILTER_VALUE = 'all';

@@ -1,4 +1,4 @@
-import { and, count, desc, not, or, sql } from "drizzle-orm";
+import { and, count, desc, isNotNull, not, or, sql } from "drizzle-orm";
 
 import { db } from "../db/pool";
 import { activityPlayers, games, playerOperatorWalletTable, type1Activities, type1Challenges } from "../db/schema";
@@ -14,7 +14,9 @@ export interface RawDealCardDetails {
     maxPlayers: number;
     startDate: Date;
     endDate: Date;
-    players: string[]
+    players: string[];
+    rewardLocked: boolean,
+    commissionPaid: boolean,
 }
 
 const PAGE_SIZE = 6;
@@ -72,10 +74,12 @@ export class ActivityModel {
                 playerCount: count(activityPlayers),
                 maxPlayers: type1Activities.maximum_number_players,
                 startDate: type1Activities.startDate,
-                endDate: type1Activities.endDate
+                endDate: type1Activities.endDate,
+                commissionPaid: sql<boolean>`${type1Activities.commissionTxn} IS NOT NULL`,
+                rewardLocked: sql<boolean>`${type1Activities.rewardTxn} IS NOT NULL`,
             }).from(type1Activities)
                 .leftJoin(activityPlayers, eq(activityPlayers.activityId, type1Activities.id))
-                .where(eq(type1Activities.done, false))
+                .where(and(eq(type1Activities.done, false), isNotNull(type1Activities.rewardTxn), isNotNull(type1Activities.commissionTxn)))
                 .orderBy(desc(type1Activities.reward))
                 .groupBy(type1Activities.id, activityPlayers.activityId)
                 .limit(3)
@@ -118,7 +122,9 @@ export class ActivityModel {
                 playerCount: count(activityPlayers),
                 maxPlayers: type1Activities.maximum_number_players,
                 startDate: type1Activities.startDate,
-                endDate: type1Activities.endDate
+                endDate: type1Activities.endDate,
+                commissionPaid: sql<boolean>`${type1Activities.commissionTxn} IS NOT NULL`,
+                rewardLocked: sql<boolean>`${type1Activities.rewardTxn} IS NOT NULL`,
             }).from(type1Activities)
                 .leftJoin(activityPlayers, eq(activityPlayers.activityId, type1Activities.id))
                 .innerJoin(type1Challenges, eq(type1Activities.challenge_id, type1Challenges.id))
@@ -237,7 +243,9 @@ export class ActivityModel {
                 startDate: type1Activities.startDate,
                 endDate: type1Activities.endDate,
                 userDone: sql<boolean>`bool_or(${activityPlayers.done})`, // or max() if you prefer
-                battleDone: type1Activities.done
+                battleDone: type1Activities.done,
+                commissionPaid: sql<boolean>`${type1Activities.commissionTxn} IS NOT NULL`,
+                rewardLocked: sql<boolean>`${type1Activities.rewardTxn} IS NOT NULL`,
             }).from(type1Activities)
                 .leftJoin(activityPlayers, eq(activityPlayers.activityId, type1Activities.id))
                 .where(eq(activityPlayers.playerAddress, userAddress.toLowerCase()))
@@ -266,7 +274,9 @@ export class ActivityModel {
                 playerCount: count(activityPlayers),
                 maxPlayers: type1Activities.maximum_number_players,
                 startDate: type1Activities.startDate,
-                endDate: type1Activities.endDate
+                endDate: type1Activities.endDate,
+                commissionPaid: sql<boolean>`${type1Activities.commissionTxn} IS NOT NULL`,
+                rewardLocked: sql<boolean>`${type1Activities.rewardTxn} IS NOT NULL`,
             }).from(type1Activities)
                 .leftJoin(activityPlayers, eq(activityPlayers.activityId, type1Activities.id))
                 .innerJoin(type1Challenges, eq(type1Challenges.id, type1Activities.challenge_id))
