@@ -8,8 +8,10 @@ import { FilteredActivity, StoreOperatorWallet } from "../helpers/types";
 export interface RawDealCardDetails {
     id: number;
     name: string;
+    about: string | null;
     image: string;
     reward: number;
+    goal: number;
     playerCount: number;
     maxPlayers: number;
     startDate: Date;
@@ -86,7 +88,9 @@ export class ActivityModel {
                 id: type1Activities.id,
                 name: type1Activities.name,
                 image: type1Activities.image,
+                about: type1Activities.about,
                 reward: type1Activities.reward,
+                goal: type1Activities.goal,
                 playerCount: count(activityPlayers),
                 maxPlayers: type1Activities.maximum_number_players,
                 startDate: type1Activities.startDate,
@@ -135,6 +139,8 @@ export class ActivityModel {
                 id: type1Activities.id,
                 name: type1Activities.name,
                 image: type1Activities.image,
+                about: type1Activities.about,
+                goal: type1Activities.goal,
                 reward: type1Activities.reward,
                 playerCount: count(activityPlayers),
                 maxPlayers: type1Activities.maximum_number_players,
@@ -254,7 +260,9 @@ export class ActivityModel {
             const rawBattles = await db.select({
                 id: type1Activities.id,
                 name: type1Activities.name,
+                about: type1Activities.about,
                 image: type1Activities.image,
+                goal: type1Activities.goal,
                 reward: type1Activities.reward,
                 playerCount: count(activityPlayers),
                 maxPlayers: type1Activities.maximum_number_players,
@@ -289,7 +297,9 @@ export class ActivityModel {
                 id: type1Activities.id,
                 name: type1Activities.name,
                 image: type1Activities.image,
+                about: type1Activities.about,
                 reward: type1Activities.reward,
+                goal: type1Activities.goal,
                 playerCount: count(activityPlayers),
                 maxPlayers: type1Activities.maximum_number_players,
                 startDate: type1Activities.startDate,

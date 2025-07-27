@@ -7,6 +7,8 @@ interface DealCardDetails {
     id: number;
     name: string;
     image: string;
+    about: string | null;
+    goal: number;
     reward: number;
     playerCount: number;
     maxPlayers: number;
@@ -28,7 +30,7 @@ class ActivityController {
 
         for (const r of raw) {
             let status: ActivityStatus;
-            if (r.startDate > today) {
+            if (r.startDate > today || r.commissionPaid === false || r.rewardLocked === false) {
                 status = ActivityStatus.UPCOMING;
             } else if (r.endDate < today) {
                 status = ActivityStatus.COMPLETED;
