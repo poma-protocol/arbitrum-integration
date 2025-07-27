@@ -52,16 +52,16 @@ export class ActivityModel {
             const playersDB = await db.select({
                 address: activityPlayers.playerAddress
             }).from(activityPlayers)
-            .where(eq(activityPlayers.activityId, activityID));
+                .where(eq(activityPlayers.activityId, activityID));
 
             const players: string[] = [];
-            
+
             for (const p of playersDB) {
                 players.push(p.address);
             }
 
             return players;
-        } catch(err) {
+        } catch (err) {
             console.error("Error getting activity players", err);
             throw new Error("Error getting activity players");
         }
@@ -72,11 +72,11 @@ export class ActivityModel {
             const instructionRes = await db.select({
                 instruction: type1ActivityInstructions.instruction
             }).from(type1ActivityInstructions)
-            .where(eq(type1ActivityInstructions.activity_id, activityID));
+                .where(eq(type1ActivityInstructions.activity_id, activityID));
 
             const instructions = instructionRes.map((i) => i.instruction);
             return instructions;
-        } catch(err) {
+        } catch (err) {
             console.error("Error getting activity instructions", err);
             throw new Error("Error getting activity instructions");
         }
@@ -109,7 +109,7 @@ export class ActivityModel {
             for await (const r of rawActivities) {
                 const players = await this._getActivityPlayers(r.id);
                 const instructions = await this._getInstructions(r.id);
-                activities.push({...r, players, instructions});
+                activities.push({ ...r, players, instructions });
             }
 
             return activities;
@@ -172,7 +172,7 @@ export class ActivityModel {
             for await (const r of rawActivities) {
                 const players = await this._getActivityPlayers(r.id);
                 const instructions = await this._getInstructions(r.id);
-                activities.push({...r, players, instructions});
+                activities.push({ ...r, players, instructions });
             }
 
             return activities;
@@ -281,13 +281,43 @@ export class ActivityModel {
             for await (const r of rawBattles) {
                 const players = await this._getActivityPlayers(r.id);
                 const instructions = await this._getInstructions(r.id);
-                activities.push({...r, players, instructions});
+                activities.push({ ...r, players, instructions });
             }
 
             return activities;
         } catch (err) {
             console.error("Error getting user's battles", err);
             throw new Error("Error getting user's battles");
+        }
+    }
+
+    async get(id: number): Promise<RawDealCardDetails | null> {
+        try {
+            const rawActivities = await db.select({
+                id: type1Activities.id,
+                name: type1Activities.name,
+                image: type1Activities.image,
+                about: type1Activities.about,
+                reward: type1Activities.reward,
+                goal: type1Activities.goal,
+                playerCount: count(activityPlayers),
+                maxPlayers: type1Activities.maximum_number_players,
+                startDate: type1Activities.startDate,
+                endDate: type1Activities.endDate,
+                commissionPaid: sql<boolean>`${type1Activities.commissionTxn} IS NOT NULL`,
+                rewardLocked: sql<boolean>`${type1Activities.rewardTxn} IS NOT NULL`,
+            }).from(type1Activities)
+                .leftJoin(activityPlayers, eq(activityPlayers.activityId, type1Activities.id))
+                .where(eq(type1Activities.id, id))
+                .orderBy(desc(type1Activities.reward))
+                .groupBy(type1Activities.id, activityPlayers.activityId)
+
+            const players = await this._getActivityPlayers(rawActivities[0].id);
+            const instructions = await this._getInstructions(rawActivities[0].id);
+            return {...rawActivities[0], players, instructions};
+        } catch (err) {
+            console.error("Error getting activity", err);
+            throw new Error("Error getting activity");
         }
     }
 
@@ -317,7 +347,7 @@ export class ActivityModel {
             for await (const r of rawActivities) {
                 const players = await this._getActivityPlayers(r.id);
                 const instructions = await this._getInstructions(r.id);
-                activities.push({...r, players, instructions});
+                activities.push({ ...r, players, instructions });
             }
 
             return activities;
@@ -332,10 +362,10 @@ export class ActivityModel {
             const res = await db.select({
                 id: type1Activities.id
             }).from(type1Activities)
-            .where(or(eq(type1Activities.rewardTxn, txn), eq(type1Activities.commissionTxn, txn)));
+                .where(or(eq(type1Activities.rewardTxn, txn), eq(type1Activities.commissionTxn, txn)));
 
             return res.length > 0;
-        } catch(err) {
+        } catch (err) {
             console.error("Error checking if transaction hash has been used before", err);
             throw new Error("Error checking if transaction has been used before");
         }
@@ -346,7 +376,7 @@ export class ActivityModel {
             await db.update(type1Activities).set({
                 commissionTxn: txn
             }).where(eq(type1Activities.id, activityID));
-        } catch(err) {
+        } catch (err) {
             console.error("Error storing commission txn", err);
             throw new Error("Error storing commission txn");
         }
@@ -355,9 +385,9 @@ export class ActivityModel {
     async storeRewardTxn(activityID: number, txn: string) {
         try {
             await db.update(type1Activities).set({
-                rewardTxn: txn 
+                rewardTxn: txn
             }).where(eq(type1Activities.id, activityID));
-        } catch(err) {
+        } catch (err) {
             console.error("Error storing reward txn", err);
             throw new Error("Error storing reward txn");
         }

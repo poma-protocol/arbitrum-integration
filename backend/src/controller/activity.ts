@@ -163,6 +163,21 @@ class ActivityController {
             throw new Error("Error marking rewards as paid");
         }
     }
+
+    async get(id: number, activityModel: ActivityModel): Promise<DealCardDetails | null> {
+        try {
+            const raw = await activityModel.get(id);
+            if (raw) {
+                const activity = this._processRawDealCardDetails([raw]);
+                return activity[0];
+            } else {
+                return null;
+            }
+        } catch(err) {
+            console.error("Error getting activity from id", err);
+            throw new Error("Error getting activity");
+        }
+    }
 }
 
 const activityController = new ActivityController();
