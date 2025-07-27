@@ -27,6 +27,13 @@ interface GameChallenges {
     battles: number
 }
 
+interface Game {
+    name: string,
+    image: string,
+    category: string,
+    createdAt: string
+}
+
 class GameController {
     async create(args: RegisterGameType): Promise<number> {
         try {
@@ -83,6 +90,21 @@ class GameController {
         } catch(err) {
             console.error("Error getting challenges for games", err);
             throw new Error("Error getting game's challenges");
+        }
+    }
+
+    async get(id: number, gamesModel: GamesModel): Promise<Game | null> {
+        try {
+            const game = await gamesModel.get(id);
+            
+            if (game) {
+                return {...game, createdAt: formatDate(game.createdAt)};
+            } else {
+                return null;
+            }
+        } catch(err) {
+            console.error("Error getting game", err);
+            throw new Error("Error getting game");
         }
     }
 }

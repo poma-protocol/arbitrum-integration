@@ -7,12 +7,17 @@ interface DealCardDetails {
     id: number;
     name: string;
     image: string;
+    about: string | null;
+    goal: number;
     reward: number;
     playerCount: number;
     maxPlayers: number;
     startDate: string;
     endDate: string;
     status: ActivityStatus;
+    commissionPaid: boolean,
+    rewardLocked: boolean,
+    instructions: string[],
 }
 
 export const DEFAULT_FILTER_VALUE = 'all';
@@ -25,7 +30,7 @@ class ActivityController {
 
         for (const r of raw) {
             let status: ActivityStatus;
-            if (r.startDate > today) {
+            if (r.startDate > today || r.commissionPaid === false || r.rewardLocked === false) {
                 status = ActivityStatus.UPCOMING;
             } else if (r.endDate < today) {
                 status = ActivityStatus.COMPLETED;
@@ -156,6 +161,32 @@ class ActivityController {
 
             console.error("Error marking reward as locked", err);
             throw new Error("Error marking rewards as paid");
+        }
+    }
+
+    async get(id: number, activityModel: ActivityModel): Promise<DealCardDetails | null> {
+        try {
+            const raw = await activityModel.get(id);
+            if (raw) {
+                const activity = this._processRawDealCardDetails([raw]);
+                return activity[0];
+            } else {
+                return null;
+            }
+        } catch(err) {
+            console.error("Error getting activity from id", err);
+            throw new Error("Error getting activity");
+        }
+    }
+
+    async getForChallenge(challengeID: number, activityModel: ActivityModel): Promise<DealCardDetails[]> {
+        try {
+            const raw = await activityModel.getForChallenge(challengeID);
+            const processedActivities = this._processRawDealCardDetails(raw);
+            return processedActivities;
+        } catch(err) {
+            console.error("Error getting battles for challenges", err);
+            throw new Error("Error getting battles for challenge");
         }
     }
 }

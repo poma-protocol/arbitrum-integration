@@ -1,20 +1,25 @@
-import { and, count, desc, not, or, sql } from "drizzle-orm";
+import { and, count, desc, isNotNull, not, or, sql } from "drizzle-orm";
 
 import { db } from "../db/pool";
-import { activityPlayers, games, playerOperatorWalletTable, type1Activities, type1Challenges } from "../db/schema";
+import { activityPlayers, games, playerOperatorWalletTable, type1Activities, type1ActivityInstructions, type1Challenges } from "../db/schema";
 import { eq } from "drizzle-orm";
 import { FilteredActivity, StoreOperatorWallet } from "../helpers/types";
 
 export interface RawDealCardDetails {
     id: number;
     name: string;
+    about: string | null;
     image: string;
     reward: number;
+    goal: number;
     playerCount: number;
     maxPlayers: number;
     startDate: Date;
     endDate: Date;
-    players: string[]
+    players: string[];
+    rewardLocked: boolean,
+    commissionPaid: boolean,
+    instructions: string[],
 }
 
 const PAGE_SIZE = 6;
@@ -47,18 +52,33 @@ export class ActivityModel {
             const playersDB = await db.select({
                 address: activityPlayers.playerAddress
             }).from(activityPlayers)
-            .where(eq(activityPlayers.activityId, activityID));
+                .where(eq(activityPlayers.activityId, activityID));
 
             const players: string[] = [];
-            
+
             for (const p of playersDB) {
                 players.push(p.address);
             }
 
             return players;
-        } catch(err) {
+        } catch (err) {
             console.error("Error getting activity players", err);
             throw new Error("Error getting activity players");
+        }
+    }
+
+    private async _getInstructions(activityID: number): Promise<string[]> {
+        try {
+            const instructionRes = await db.select({
+                instruction: type1ActivityInstructions.instruction
+            }).from(type1ActivityInstructions)
+                .where(eq(type1ActivityInstructions.activity_id, activityID));
+
+            const instructions = instructionRes.map((i) => i.instruction);
+            return instructions;
+        } catch (err) {
+            console.error("Error getting activity instructions", err);
+            throw new Error("Error getting activity instructions");
         }
     }
 
@@ -68,14 +88,18 @@ export class ActivityModel {
                 id: type1Activities.id,
                 name: type1Activities.name,
                 image: type1Activities.image,
+                about: type1Activities.about,
                 reward: type1Activities.reward,
+                goal: type1Activities.goal,
                 playerCount: count(activityPlayers),
                 maxPlayers: type1Activities.maximum_number_players,
                 startDate: type1Activities.startDate,
-                endDate: type1Activities.endDate
+                endDate: type1Activities.endDate,
+                commissionPaid: sql<boolean>`${type1Activities.commissionTxn} IS NOT NULL`,
+                rewardLocked: sql<boolean>`${type1Activities.rewardTxn} IS NOT NULL`,
             }).from(type1Activities)
                 .leftJoin(activityPlayers, eq(activityPlayers.activityId, type1Activities.id))
-                .where(eq(type1Activities.done, false))
+                .where(and(eq(type1Activities.done, false), isNotNull(type1Activities.rewardTxn), isNotNull(type1Activities.commissionTxn)))
                 .orderBy(desc(type1Activities.reward))
                 .groupBy(type1Activities.id, activityPlayers.activityId)
                 .limit(3)
@@ -84,7 +108,8 @@ export class ActivityModel {
 
             for await (const r of rawActivities) {
                 const players = await this._getActivityPlayers(r.id);
-                activities.push({...r, players});
+                const instructions = await this._getInstructions(r.id);
+                activities.push({ ...r, players, instructions });
             }
 
             return activities;
@@ -114,11 +139,15 @@ export class ActivityModel {
                 id: type1Activities.id,
                 name: type1Activities.name,
                 image: type1Activities.image,
+                about: type1Activities.about,
+                goal: type1Activities.goal,
                 reward: type1Activities.reward,
                 playerCount: count(activityPlayers),
                 maxPlayers: type1Activities.maximum_number_players,
                 startDate: type1Activities.startDate,
-                endDate: type1Activities.endDate
+                endDate: type1Activities.endDate,
+                commissionPaid: sql<boolean>`${type1Activities.commissionTxn} IS NOT NULL`,
+                rewardLocked: sql<boolean>`${type1Activities.rewardTxn} IS NOT NULL`,
             }).from(type1Activities)
                 .leftJoin(activityPlayers, eq(activityPlayers.activityId, type1Activities.id))
                 .innerJoin(type1Challenges, eq(type1Activities.challenge_id, type1Challenges.id))
@@ -142,7 +171,8 @@ export class ActivityModel {
             const activities: RawDealCardDetails[] = [];
             for await (const r of rawActivities) {
                 const players = await this._getActivityPlayers(r.id);
-                activities.push({...r, players});
+                const instructions = await this._getInstructions(r.id);
+                activities.push({ ...r, players, instructions });
             }
 
             return activities;
@@ -230,14 +260,18 @@ export class ActivityModel {
             const rawBattles = await db.select({
                 id: type1Activities.id,
                 name: type1Activities.name,
+                about: type1Activities.about,
                 image: type1Activities.image,
+                goal: type1Activities.goal,
                 reward: type1Activities.reward,
                 playerCount: count(activityPlayers),
                 maxPlayers: type1Activities.maximum_number_players,
                 startDate: type1Activities.startDate,
                 endDate: type1Activities.endDate,
                 userDone: sql<boolean>`bool_or(${activityPlayers.done})`, // or max() if you prefer
-                battleDone: type1Activities.done
+                battleDone: type1Activities.done,
+                commissionPaid: sql<boolean>`${type1Activities.commissionTxn} IS NOT NULL`,
+                rewardLocked: sql<boolean>`${type1Activities.rewardTxn} IS NOT NULL`,
             }).from(type1Activities)
                 .leftJoin(activityPlayers, eq(activityPlayers.activityId, type1Activities.id))
                 .where(eq(activityPlayers.playerAddress, userAddress.toLowerCase()))
@@ -246,7 +280,8 @@ export class ActivityModel {
             const activities: RawDealCardDetails[] = [];
             for await (const r of rawBattles) {
                 const players = await this._getActivityPlayers(r.id);
-                activities.push({...r, players});
+                const instructions = await this._getInstructions(r.id);
+                activities.push({ ...r, players, instructions });
             }
 
             return activities;
@@ -256,17 +291,51 @@ export class ActivityModel {
         }
     }
 
+    async get(id: number): Promise<RawDealCardDetails | null> {
+        try {
+            const rawActivities = await db.select({
+                id: type1Activities.id,
+                name: type1Activities.name,
+                image: type1Activities.image,
+                about: type1Activities.about,
+                reward: type1Activities.reward,
+                goal: type1Activities.goal,
+                playerCount: count(activityPlayers),
+                maxPlayers: type1Activities.maximum_number_players,
+                startDate: type1Activities.startDate,
+                endDate: type1Activities.endDate,
+                commissionPaid: sql<boolean>`${type1Activities.commissionTxn} IS NOT NULL`,
+                rewardLocked: sql<boolean>`${type1Activities.rewardTxn} IS NOT NULL`,
+            }).from(type1Activities)
+                .leftJoin(activityPlayers, eq(activityPlayers.activityId, type1Activities.id))
+                .where(eq(type1Activities.id, id))
+                .orderBy(desc(type1Activities.reward))
+                .groupBy(type1Activities.id, activityPlayers.activityId)
+
+            const players = await this._getActivityPlayers(rawActivities[0].id);
+            const instructions = await this._getInstructions(rawActivities[0].id);
+            return { ...rawActivities[0], players, instructions };
+        } catch (err) {
+            console.error("Error getting activity", err);
+            throw new Error("Error getting activity");
+        }
+    }
+
     async getActivitiesByAdmin(adminId: number): Promise<RawDealCardDetails[]> {
         try {
             const rawActivities = await db.select({
                 id: type1Activities.id,
                 name: type1Activities.name,
                 image: type1Activities.image,
+                about: type1Activities.about,
                 reward: type1Activities.reward,
+                goal: type1Activities.goal,
                 playerCount: count(activityPlayers),
                 maxPlayers: type1Activities.maximum_number_players,
                 startDate: type1Activities.startDate,
-                endDate: type1Activities.endDate
+                endDate: type1Activities.endDate,
+                commissionPaid: sql<boolean>`${type1Activities.commissionTxn} IS NOT NULL`,
+                rewardLocked: sql<boolean>`${type1Activities.rewardTxn} IS NOT NULL`,
             }).from(type1Activities)
                 .leftJoin(activityPlayers, eq(activityPlayers.activityId, type1Activities.id))
                 .innerJoin(type1Challenges, eq(type1Challenges.id, type1Activities.challenge_id))
@@ -277,7 +346,8 @@ export class ActivityModel {
             const activities: RawDealCardDetails[] = [];
             for await (const r of rawActivities) {
                 const players = await this._getActivityPlayers(r.id);
-                activities.push({...r, players});
+                const instructions = await this._getInstructions(r.id);
+                activities.push({ ...r, players, instructions });
             }
 
             return activities;
@@ -292,10 +362,10 @@ export class ActivityModel {
             const res = await db.select({
                 id: type1Activities.id
             }).from(type1Activities)
-            .where(or(eq(type1Activities.rewardTxn, txn), eq(type1Activities.commissionTxn, txn)));
+                .where(or(eq(type1Activities.rewardTxn, txn), eq(type1Activities.commissionTxn, txn)));
 
             return res.length > 0;
-        } catch(err) {
+        } catch (err) {
             console.error("Error checking if transaction hash has been used before", err);
             throw new Error("Error checking if transaction has been used before");
         }
@@ -306,7 +376,7 @@ export class ActivityModel {
             await db.update(type1Activities).set({
                 commissionTxn: txn
             }).where(eq(type1Activities.id, activityID));
-        } catch(err) {
+        } catch (err) {
             console.error("Error storing commission txn", err);
             throw new Error("Error storing commission txn");
         }
@@ -315,11 +385,48 @@ export class ActivityModel {
     async storeRewardTxn(activityID: number, txn: string) {
         try {
             await db.update(type1Activities).set({
-                rewardTxn: txn 
+                rewardTxn: txn
             }).where(eq(type1Activities.id, activityID));
-        } catch(err) {
+        } catch (err) {
             console.error("Error storing reward txn", err);
             throw new Error("Error storing reward txn");
+        }
+    }
+
+    async getForChallenge(challengeID: number): Promise<RawDealCardDetails[]> {
+        try {
+            const rawActivities = await db.select({
+                id: type1Activities.id,
+                name: type1Activities.name,
+                image: type1Activities.image,
+                about: type1Activities.about,
+                reward: type1Activities.reward,
+                goal: type1Activities.goal,
+                playerCount: count(activityPlayers),
+                maxPlayers: type1Activities.maximum_number_players,
+                startDate: type1Activities.startDate,
+                endDate: type1Activities.endDate,
+                commissionPaid: sql<boolean>`${type1Activities.commissionTxn} IS NOT NULL`,
+                rewardLocked: sql<boolean>`${type1Activities.rewardTxn} IS NOT NULL`,
+            }).from(type1Activities)
+                .leftJoin(activityPlayers, eq(activityPlayers.activityId, type1Activities.id))
+                .where(eq(type1Activities.challenge_id, challengeID))
+                .orderBy(desc(type1Activities.reward))
+                .groupBy(type1Activities.id, activityPlayers.activityId)
+                .limit(3)
+
+            const activities: RawDealCardDetails[] = [];
+
+            for await (const r of rawActivities) {
+                const players = await this._getActivityPlayers(r.id);
+                const instructions = await this._getInstructions(r.id);
+                activities.push({ ...r, players, instructions });
+            }
+
+            return activities;
+        } catch (err) {
+            console.error("Error getting battles for challenge", err);
+            throw new Error("Error getting battles for challenge");
         }
     }
 }

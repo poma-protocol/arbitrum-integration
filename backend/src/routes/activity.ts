@@ -220,42 +220,8 @@ router.get("/one/:id", async (req, res) => {
             return;
         }
 
-        const activity = await db.select({
-            id: type1Activities.id,
-            name: type1Activities.name,
-            reward: type1Activities.reward,
-            goal: type1Activities.goal,
-            image: type1Activities.image,
-            startDate: type1Activities.startDate,
-            endDate: type1Activities.endDate,
-            about: type1Activities.about
-        }).from(type1Activities)
-            .where(eq(type1Activities.id, activityId))
-            .limit(1);
-
-        if (activity.length === 0) {
-            res.status(404).json({ error: [Errors.ACTIVITY_NOT_FOUND] });
-            return;
-        }
-
-        const count = await db.select({
-            count: sql<number>`cast(count(*) as int)`
-        }).from(activityPlayers)
-            .where(eq(activityPlayers.activityId, activityId));
-
-        // Get instructions
-        const instructions = await db.select({
-            instruction: type1ActivityInstructions.instruction
-        }).from(type1ActivityInstructions)
-            .where(eq(type1ActivityInstructions.activity_id, activity[0].id));
-
-        const toReturn = {
-            ...activity[0],
-            players: count[0].count,
-            instructions: instructions.length > 0 ? instructions.map((i) => i.instruction) : []
-        };
-
-        res.status(200).json(toReturn);
+        const activity = await activityController.get(activityId, activityModel);
+        res.status(200).json(activity);
     } catch (err) {
         console.log("Error Getting Activity =>", err);
         res.status(500).json({ error: [Errors.INTERNAL_SERVER_ERROR] });
@@ -438,5 +404,16 @@ router.post("/reward", authenticateMiddleware, async (req , res) => {
         res.status(500).json({message: Errors.INTERNAL_SERVER_ERROR});
     }
 });
+
+router.get("/challenge/:id", async (req , res) => {
+    try {
+        const challengeID = Number.parseInt(req.params.id);
+        const battles = await activityController.getForChallenge(challengeID, activityModel);
+        res.json(battles);
+    } catch(err) {
+        console.error("Error getting battles for challenge", err);
+        res.status(500).json({message: Errors.INTERNAL_SERVER_ERROR});
+    }
+})
 
 export default router;
