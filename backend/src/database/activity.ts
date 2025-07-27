@@ -1,4 +1,4 @@
-import { and, count, desc, not, sql } from "drizzle-orm";
+import { and, count, desc, not, or, sql } from "drizzle-orm";
 
 import { db } from "../db/pool";
 import { activityPlayers, games, playerOperatorWalletTable, type1Activities, type1Challenges } from "../db/schema";
@@ -131,7 +131,7 @@ export class ActivityModel {
                     AND (${args.status ?? null}::text IS NULL OR ${args.status ?? null} = ${ActivityStatus.ACTIVE} AND ${type1Activities.startDate} < ${today} AND ${type1Activities.endDate} > ${today} OR ${args.status ?? null} = ${ActivityStatus.COMPLETED} AND ${type1Activities.endDate} < ${today} OR ${args.status ?? null} = ${ActivityStatus.UPCOMING} AND ${type1Activities.startDate} > ${today})
                     AND(${args.search ?? null}::text IS NULL OR (${type1Activities.name} LIKE ${args.search ?? null} OR ${games.name} LIKE ${args.search ?? null} OR ${type1Challenges.name} LIKE ${args.status ?? null}))
                     AND ${type1Activities.done} = false
-                    AND (${args.adminId ?? null}::integer IS NULL OR ${games.adminId} = ${args.adminId})
+                    AND (${args.adminId ?? null}::integer IS NULL OR ${games.adminId} = ${args.adminId ?? null})
                 `,
                 )
                 .orderBy(desc(type1Activities.reward))
@@ -255,6 +255,7 @@ export class ActivityModel {
             throw new Error("Error getting user's battles");
         }
     }
+
     async getActivitiesByAdmin(adminId: number): Promise<RawDealCardDetails[]> {
         try {
             const rawActivities = await db.select({
@@ -273,10 +274,52 @@ export class ActivityModel {
                 .where(eq(games.adminId, adminId))
                 .groupBy(type1Activities.id, activityPlayers.activityId);
 
-            return rawActivities;
+            const activities: RawDealCardDetails[] = [];
+            for await (const r of rawActivities) {
+                const players = await this._getActivityPlayers(r.id);
+                activities.push({...r, players});
+            }
+
+            return activities;
         } catch (err) {
             console.error("Error getting activities by admin", err);
             throw new Error("Error getting activities by admin");
+        }
+    }
+
+    async hasTransactionBeenUsed(txn: string): Promise<boolean> {
+        try {
+            const res = await db.select({
+                id: type1Activities.id
+            }).from(type1Activities)
+            .where(or(eq(type1Activities.rewardTxn, txn), eq(type1Activities.commissionTxn, txn)));
+
+            return res.length > 0;
+        } catch(err) {
+            console.error("Error checking if transaction hash has been used before", err);
+            throw new Error("Error checking if transaction has been used before");
+        }
+    }
+
+    async storeCommissionTxn(activityID: number, txn: string) {
+        try {
+            await db.update(type1Activities).set({
+                commissionTxn: txn
+            }).where(eq(type1Activities.id, activityID));
+        } catch(err) {
+            console.error("Error storing commission txn", err);
+            throw new Error("Error storing commission txn");
+        }
+    }
+
+    async storeRewardTxn(activityID: number, txn: string) {
+        try {
+            await db.update(type1Activities).set({
+                rewardTxn: txn 
+            }).where(eq(type1Activities.id, activityID));
+        } catch(err) {
+            console.error("Error storing reward txn", err);
+            throw new Error("Error storing reward txn");
         }
     }
 }

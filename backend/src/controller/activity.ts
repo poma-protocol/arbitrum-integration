@@ -1,7 +1,7 @@
 import activityModel, { ActivityModel, ActivityStatus, RawDealCardDetails } from "../database/activity";
 import { Errors, MyError } from "../helpers/errors";
 import { formatDate } from "../helpers/formatters";
-import { FilteredActivity, GetOperatorWalletSchema, StoreOperatorWallet } from "../helpers/types";
+import { CommissionPaid, FilteredActivity, GetOperatorWalletSchema, RewardPaid, StoreOperatorWallet } from "../helpers/types";
 
 interface DealCardDetails {
     id: number;
@@ -120,6 +120,42 @@ class ActivityController {
         } catch (err) {
             console.error("Error getting user's battles", err);
             throw new Error("Error getting user's battles");
+        }
+    }
+
+    async markCommissionPaid(args: CommissionPaid, activityModel: ActivityModel) {
+        try {
+            const hasTxnBeenUsed = await activityModel.hasTransactionBeenUsed(args.txHash);
+            if (hasTxnBeenUsed === true) {
+                throw new MyError(Errors.TRANSACTION_HAS_BEEN_USED);
+            }
+
+            await activityModel.storeCommissionTxn(args.activityID, args.txHash);
+        } catch(err) {
+            if (err instanceof MyError) {
+                throw err;
+            }
+
+            console.error("Error marking commission as paid", err);
+            throw new Error("Error marking commission as paid");
+        }
+    }
+
+    async markRewardLocked(args: RewardPaid, activityModel: ActivityModel) {
+        try {
+            const hasTxnBeenUsed = await activityModel.hasTransactionBeenUsed(args.txHash);
+            if (hasTxnBeenUsed === true) {
+                throw new MyError(Errors.TRANSACTION_HAS_BEEN_USED);
+            }
+
+            await activityModel.storeRewardTxn(args.activityID, args.txHash);
+        } catch(err) {
+            if (err instanceof MyError) {
+                throw err;
+            }
+
+            console.error("Error marking reward as locked", err);
+            throw new Error("Error marking rewards as paid");
         }
     }
 }

@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { Errors, MyError } from "../helpers/errors";
-import { createActivity, filterAcitivitiesSchema, getOperatorWalletSchema, joinActivity, storeOperatorWalletSchema } from "../helpers/types";
+import { commissionPaidSchema, createActivity, filterAcitivitiesSchema, getOperatorWalletSchema, joinActivity, rewardPaidSchema, storeOperatorWalletSchema } from "../helpers/types";
 import { activityPlayers, games, type1Activities, type1ActivityInstructions, type1Challenges } from "../db/schema";
 import { db } from "../db/pool";
 import { Success } from "../helpers/success";
@@ -17,15 +17,11 @@ import activityController from "../controller/activity";
 import activityModel from "../database/activity";
 import { formatDate } from "../helpers/formatters";
 import { jwtBearer } from "../helpers/jwt-bearer";
+import authenticateMiddleware from "../middleware/autheniticate";
 const router: Router = Router();
 
-router.post("/create", async (req, res) => {
+router.post("/create", authenticateMiddleware, async (req, res) => {
     try {
-        const payload = await jwtBearer.authenticate(req);
-        if (!payload) {
-            res.status(401).json({ error: [Errors.UNAUTHORIZED] });
-            return;
-        }
         const parsed = createActivity.safeParse(req.body);
         if (parsed.success) {
             const data = parsed.data;
@@ -104,7 +100,7 @@ router.post("/create", async (req, res) => {
             res.status(400).json({ error: errors });
         }
     } catch (err) {
-        console.log("Error Creating Activity =>", err);
+        console.log("Error Creating Battle =>", err);
         res.status(500).json({ error: [Errors.INTERNAL_SERVER_ERROR] })
     }
 });
@@ -370,7 +366,8 @@ router.get("/operatorAddress", async (req, res) => {
         console.log("Error getting operator address for player", err);
         res.status(500).json({ message: Errors.INTERNAL_SERVER_ERROR });
     }
-})
+});
+
 router.get("/my-battles/:userAddress", async (req, res) => {
     try {
         const userAddress = req.params.userAddress;
@@ -385,7 +382,8 @@ router.get("/my-battles/:userAddress", async (req, res) => {
         console.error("Error getting user's battles", err);
         res.status(500).json({ error: [Errors.INTERNAL_SERVER_ERROR] });
     }
-})
+});
+
 router.get("/admin-activities", async (req, res) => {
     try {
         const payload = await jwtBearer.authenticate(req);
@@ -401,6 +399,43 @@ router.get("/admin-activities", async (req, res) => {
     catch (err) {
         console.error("Error getting activities by admin", err);
         res.status(500).json({ error: [Errors.INTERNAL_SERVER_ERROR] });
+    }
+});
+
+router.post("/commission", authenticateMiddleware, async (req , res) => {
+    try {
+        const parsed = commissionPaidSchema.safeParse(req.body);
+        if (parsed.success) {
+            const data = parsed.data;
+            await activityController.markCommissionPaid(data, activityModel);
+            res.status(201).json({message: "Commission saved successfully"});
+            return;
+        } else {
+            const error = parsed.error.issues[0].message;
+            res.status(400).json({message: error});
+            return;
+        }
+    } catch(err) {
+        console.error("Error marking commission as paid", err);
+        res.status(500).json({message: Errors.INTERNAL_SERVER_ERROR});
+        return;
+    }
+});
+
+router.post("/reward", authenticateMiddleware, async (req , res) => {
+    try {
+        const parsed = rewardPaidSchema.safeParse(req.body);
+        if (parsed.success) {
+            const data = parsed.data;
+            await activityController.markRewardLocked(data, activityModel);
+            res.status(201).json({message: "Reward marked successfully"});
+        } else {
+            const error = parsed.error.issues[0].message;
+            res.status(400).json({message: error});
+        }
+    } catch(err) {
+        console.error("Error activating battle", err);
+        res.status(500).json({message: Errors.INTERNAL_SERVER_ERROR});
     }
 });
 
