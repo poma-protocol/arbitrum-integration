@@ -401,4 +401,15 @@ router.post("/reward", authenticateMiddleware, async (req , res) => {
     }
 });
 
+router.get("/challenge/:id", async (req , res) => {
+    try {
+        const challengeID = Number.parseInt(req.params.id);
+        const battles = await activityController.getForChallenge(challengeID, activityModel);
+        res.json(battles);
+    } catch(err) {
+        console.error("Error getting battles for challenge", err);
+        res.status(500).json({message: Errors.INTERNAL_SERVER_ERROR});
+    }
+})
+
 export default router;

@@ -178,6 +178,17 @@ class ActivityController {
             throw new Error("Error getting activity");
         }
     }
+
+    async getForChallenge(challengeID: number, activityModel: ActivityModel): Promise<DealCardDetails[]> {
+        try {
+            const raw = await activityModel.getForChallenge(challengeID);
+            const processedActivities = this._processRawDealCardDetails(raw);
+            return processedActivities;
+        } catch(err) {
+            console.error("Error getting battles for challenges", err);
+            throw new Error("Error getting battles for challenge");
+        }
+    }
 }
 
 const activityController = new ActivityController();

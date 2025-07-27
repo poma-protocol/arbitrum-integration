@@ -314,7 +314,7 @@ export class ActivityModel {
 
             const players = await this._getActivityPlayers(rawActivities[0].id);
             const instructions = await this._getInstructions(rawActivities[0].id);
-            return {...rawActivities[0], players, instructions};
+            return { ...rawActivities[0], players, instructions };
         } catch (err) {
             console.error("Error getting activity", err);
             throw new Error("Error getting activity");
@@ -390,6 +390,43 @@ export class ActivityModel {
         } catch (err) {
             console.error("Error storing reward txn", err);
             throw new Error("Error storing reward txn");
+        }
+    }
+
+    async getForChallenge(challengeID: number): Promise<RawDealCardDetails[]> {
+        try {
+            const rawActivities = await db.select({
+                id: type1Activities.id,
+                name: type1Activities.name,
+                image: type1Activities.image,
+                about: type1Activities.about,
+                reward: type1Activities.reward,
+                goal: type1Activities.goal,
+                playerCount: count(activityPlayers),
+                maxPlayers: type1Activities.maximum_number_players,
+                startDate: type1Activities.startDate,
+                endDate: type1Activities.endDate,
+                commissionPaid: sql<boolean>`${type1Activities.commissionTxn} IS NOT NULL`,
+                rewardLocked: sql<boolean>`${type1Activities.rewardTxn} IS NOT NULL`,
+            }).from(type1Activities)
+                .leftJoin(activityPlayers, eq(activityPlayers.activityId, type1Activities.id))
+                .where(eq(type1Activities.challenge_id, challengeID))
+                .orderBy(desc(type1Activities.reward))
+                .groupBy(type1Activities.id, activityPlayers.activityId)
+                .limit(3)
+
+            const activities: RawDealCardDetails[] = [];
+
+            for await (const r of rawActivities) {
+                const players = await this._getActivityPlayers(r.id);
+                const instructions = await this._getInstructions(r.id);
+                activities.push({ ...r, players, instructions });
+            }
+
+            return activities;
+        } catch (err) {
+            console.error("Error getting battles for challenge", err);
+            throw new Error("Error getting battles for challenge");
         }
     }
 }
