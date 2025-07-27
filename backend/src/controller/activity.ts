@@ -15,6 +15,7 @@ interface DealCardDetails {
     status: ActivityStatus;
     commissionPaid: boolean,
     rewardLocked: boolean,
+    instructions: string[],
 }
 
 export const DEFAULT_FILTER_VALUE = 'all';

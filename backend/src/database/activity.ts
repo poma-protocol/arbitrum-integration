@@ -1,7 +1,7 @@
 import { and, count, desc, isNotNull, not, or, sql } from "drizzle-orm";
 
 import { db } from "../db/pool";
-import { activityPlayers, games, playerOperatorWalletTable, type1Activities, type1Challenges } from "../db/schema";
+import { activityPlayers, games, playerOperatorWalletTable, type1Activities, type1ActivityInstructions, type1Challenges } from "../db/schema";
 import { eq } from "drizzle-orm";
 import { FilteredActivity, StoreOperatorWallet } from "../helpers/types";
 
@@ -17,6 +17,7 @@ export interface RawDealCardDetails {
     players: string[];
     rewardLocked: boolean,
     commissionPaid: boolean,
+    instructions: string[],
 }
 
 const PAGE_SIZE = 6;
@@ -64,6 +65,21 @@ export class ActivityModel {
         }
     }
 
+    private async _getInstructions(activityID: number): Promise<string[]> {
+        try {
+            const instructionRes = await db.select({
+                instruction: type1ActivityInstructions.instruction
+            }).from(type1ActivityInstructions)
+            .where(eq(type1ActivityInstructions.activity_id, activityID));
+
+            const instructions = instructionRes.map((i) => i.instruction);
+            return instructions;
+        } catch(err) {
+            console.error("Error getting activity instructions", err);
+            throw new Error("Error getting activity instructions");
+        }
+    }
+
     async getFeaturedActivities(): Promise<RawDealCardDetails[]> {
         try {
             const rawActivities = await db.select({
@@ -88,7 +104,8 @@ export class ActivityModel {
 
             for await (const r of rawActivities) {
                 const players = await this._getActivityPlayers(r.id);
-                activities.push({...r, players});
+                const instructions = await this._getInstructions(r.id);
+                activities.push({...r, players, instructions});
             }
 
             return activities;
@@ -148,7 +165,8 @@ export class ActivityModel {
             const activities: RawDealCardDetails[] = [];
             for await (const r of rawActivities) {
                 const players = await this._getActivityPlayers(r.id);
-                activities.push({...r, players});
+                const instructions = await this._getInstructions(r.id);
+                activities.push({...r, players, instructions});
             }
 
             return activities;
@@ -254,7 +272,8 @@ export class ActivityModel {
             const activities: RawDealCardDetails[] = [];
             for await (const r of rawBattles) {
                 const players = await this._getActivityPlayers(r.id);
-                activities.push({...r, players});
+                const instructions = await this._getInstructions(r.id);
+                activities.push({...r, players, instructions});
             }
 
             return activities;
@@ -287,7 +306,8 @@ export class ActivityModel {
             const activities: RawDealCardDetails[] = [];
             for await (const r of rawActivities) {
                 const players = await this._getActivityPlayers(r.id);
-                activities.push({...r, players});
+                const instructions = await this._getInstructions(r.id);
+                activities.push({...r, players, instructions});
             }
 
             return activities;
