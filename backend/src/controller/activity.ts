@@ -85,7 +85,11 @@ class ActivityController {
 
     async storeOperatorWallet(args: StoreOperatorWallet, activityModel: ActivityModel) {
         try {
-            const isAlreadyStored = await activityModel.isOperatorAddressAlreadyStored(args.useraddress, args.operatoraddress);
+            const gameID = await activityModel.getGameID(args.activity_id);
+            if (!gameID) {
+                throw new Error("Activity not attached to game");
+            }
+            const isAlreadyStored = await activityModel.isOperatorAddressAlreadyStored(args.useraddress, args.operatoraddress, gameID);
             if (isAlreadyStored) {
                 return;
             }
@@ -93,11 +97,6 @@ class ActivityController {
             const isUsedByOtherPlayer = await activityModel.isOperatorAddressUsedByOtherPlayer(args.operatoraddress, args.useraddress);
             if (isUsedByOtherPlayer) {
                 throw new MyError(Errors.OPERATOR_ADDRESS_USED_BY_OTHER_PLAYER);
-            }
-
-            const gameID = await activityModel.getGameID(args.activity_id);
-            if (!gameID) {
-                throw new Error("Activity not attached to game");
             }
 
             await activityModel.storeOperatorWallet({gameid: gameID, useraddress: args.useraddress, operatoraddress: args.operatoraddress});

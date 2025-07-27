@@ -196,12 +196,12 @@ export class ActivityModel {
         }
     }
 
-    async isOperatorAddressAlreadyStored(userAddress: string, operatorAddress: string): Promise<boolean> {
+    async isOperatorAddressAlreadyStored(userAddress: string, operatorAddress: string, gameID: number): Promise<boolean> {
         try {
             const res = await db.select({
                 operatorAddress: playerOperatorWalletTable.userAddress
             }).from(playerOperatorWalletTable)
-                .where(and(eq(playerOperatorWalletTable.operatorAddress, operatorAddress.toLowerCase()), eq(playerOperatorWalletTable.userAddress, userAddress.toLowerCase())));
+                .where(and(eq(playerOperatorWalletTable.operatorAddress, operatorAddress.toLowerCase()), eq(playerOperatorWalletTable.userAddress, userAddress.toLowerCase()), eq(playerOperatorWalletTable.gameID, gameID)));
 
             return res.length > 0;
         } catch (err) {
