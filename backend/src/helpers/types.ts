@@ -57,7 +57,8 @@ export const createActivity = z.object({
     image: z.string({ message: Errors.IMAGE }),
     about: z.string({ message: Errors.INVALID_ABOUT }).optional(),
     instructions: z.array(z.string({ message: Errors.INVALID_INSTRUCTIONS })).optional(),
-    maximum_num_players: z.number({ message: Errors.MAXIMUM_NUMBER_PLAYERS }).gt(0, { message: Errors.MAXIMUM_NUMBER_PLAYERS })
+    maximum_num_players: z.number({ message: Errors.MAXIMUM_NUMBER_PLAYERS }).gt(0, { message: Errors.MAXIMUM_NUMBER_PLAYERS }),
+    creatorAddress: z.string({ message: "Creator address must be a string" }).regex(/^(0x)?[0-9a-fA-F]{40}$/, {message: "Creator address must be a valid ethereum address"}),
 })
 
 export const joinActivity = z.object({

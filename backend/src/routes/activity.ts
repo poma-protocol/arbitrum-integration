@@ -46,7 +46,9 @@ router.post("/create", authenticateMiddleware, async (req, res) => {
                 endDate: new Date(data.endDate),
                 maximum_number_players: data.maximum_num_players,
                 about: data.about,
-                adminId: gameID[0].adminId
+                adminId: gameID[0].adminId,
+                creatorAddress: data.creatorAddress,
+
             }).returning({ id: type1Activities.id });
 
             if (data.instructions) {
@@ -61,14 +63,16 @@ router.post("/create", authenticateMiddleware, async (req, res) => {
 
             let txHash = NO_TRANSACTION;
             try {
-                // Storing in contarct
+                // Storing in contract
                 if (data.reward) {
                     txHash = await smartContract.createActivity(
                         insertedID[0].id,
                         gameID[0].id,
                         data.goal,
                         gameID[0].name!,
-                        data.reward
+                        data.reward,
+                        data.creatorAddress,
+                        data.maximum_num_players
                     )
                 }
             } catch (err) {
@@ -311,7 +315,7 @@ router.get("/filter", async (req, res) => {
         if (payload) {
             adminId = payload.userId;
         }
-        const parsed = filterAcitivitiesSchema.safeParse({...req.query, adminId});
+        const parsed = filterAcitivitiesSchema.safeParse({ ...req.query, adminId });
         if (parsed.success) {
             const args = parsed.data;
             const filtered = await activityController.filterAcitivities(args, activityModel);

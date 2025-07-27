@@ -1,15 +1,24 @@
-import { HardhatUserConfig } from "hardhat/config";
-import "@nomicfoundation/hardhat-toolbox";
-const PRIVATE_KEY = process.env.PRIVATE_KEY!;
-console.log(PRIVATE_KEY);
+import type { HardhatUserConfig } from "hardhat/config";
+import "@nomicfoundation/hardhat-ethers"
+import "@nomicfoundation/hardhat-ignition-ethers";
+// import "@nomicfoundation/hardhat-toolbox";
+import "dotenv/config";
+const ARBISCAN_API_KEY = process.env.ARBISCAN_API_KEY!;
+const SEPOLIA_PRIVATE_KEY = process.env.SEPOLIA_PRIVATE_KEY!;
+const INFURA_API_KEY = process.env.INFURA_API_KEY!;
 const config: HardhatUserConfig = {
     solidity: "0.8.28",
     networks: {
         arbitrumSepolia: {
-            url: "https://sepolia-rollup.arbitrum.io/rpc",  // Official Nova RPC
-            accounts: ["de9be858da4a475276426320d5e9262ecfc3ba460bfac56360bfa6c4c28b4ee0"],  // Load private key from .env
+            url: "https://sepolia-rollup.arbitrum.io/rpc", 
+            accounts: [SEPOLIA_PRIVATE_KEY], 
         },
     },
+    etherscan: {
+        apiKey: {
+            arbitrumSepolia: ARBISCAN_API_KEY,
+        }
+    }
 };
 
 export default config;

@@ -27,6 +27,9 @@ contract Poma {
         string gameName;
         uint reward;
         uint numParticipants;
+        bool isActive;
+        address creator;
+        uint maxParticipants;
         mapping(uint => Participant) participants;
     }
     uint numActivities;
@@ -40,6 +43,8 @@ contract Poma {
      * @param _winningPoints - Points required to win the game
      * @param _gameName - Name of the game
      * @param _reward - Reward for the winner
+     * @param creator - Address of the creator of the activity
+     * @param maxParticipants - Maximum number of participants
      * @return id - Id of the activity
      */
     function createActivity(
@@ -47,7 +52,9 @@ contract Poma {
         uint _gameId,
         uint _winningPoints,
         string memory _gameName,
-        uint _reward
+        uint _reward,
+        address creator,
+        uint maxParticipants
     ) public returns (uint id) {
         id = numActivities++;
         Activity storage activity = activities[activityId];
@@ -56,6 +63,9 @@ contract Poma {
         activity.winningPoints = _winningPoints;
         activity.gameName = _gameName;
         activity.reward = _reward;
+        activity.isActive = true;
+        activity.creator = creator;
+        activity.maxParticipants = maxParticipants;
         emit ActivityCreated(
             activityId,
             _gameId,
@@ -96,7 +106,6 @@ contract Poma {
      */
     function addParticipant(uint activityId, address _userAddress) public {
         for (uint i = 0; i <= numActivities; i++) {
-           
             if (activities[i].activityId == activityId) {
                 Activity storage activity = activities[i];
                 activity.participants[
@@ -129,19 +138,9 @@ contract Poma {
                         activity.participants[j].points += _points;
                         //Check if the participant has won
                         if (
-                            hasWon(
-                                _userAddress,
-                                i,
-                                j,
-                                activity.winningPoints
-                            )
+                            hasWon(_userAddress, i, j, activity.winningPoints)
                         ) {
-                            sendReward(
-                                _userAddress,
-                                activity.reward,
-                                i,
-                                j
-                            );
+                            sendReward(_userAddress, activity.reward, i, j);
                         }
                     }
                 }
@@ -161,7 +160,7 @@ contract Poma {
         uint index,
         uint totalPoints
     ) internal view returns (bool) {
-          Activity storage activity = activities[activityIndex];
+        Activity storage activity = activities[activityIndex];
         if (activity.participants[index].userAddress == userAdress) {
             if (activity.participants[index].points >= totalPoints) {
                 return true;
@@ -183,11 +182,8 @@ contract Poma {
         uint activityIndex,
         uint index
     ) internal {
-         Activity storage activity = activities[activityIndex];
-        if (
-            activity.participants[index].userAddress ==
-            userAddress
-        ) {
+        Activity storage activity = activities[activityIndex];
+        if (activity.participants[index].userAddress == userAddress) {
             if (activity.participants[index].paid == true) {
                 return;
             }
@@ -206,5 +202,25 @@ contract Poma {
         );
         (bool success, ) = winner.call{value: rewardAmount}("");
         require(success, "Transfer failed");
+    }
+
+    function endActivity(
+        uint256 _id
+    ) external {
+        Activity storage activity = activities[_id];
+        require(activity.activityId == _id, "Activity does not exist");
+        uint256 totalDistributed = activity.reward * activity.numParticipants;
+        uint256 remaining = (activity.reward * activity.maxParticipants) -
+            totalDistributed;
+        if (remaining > 0) {
+            (bool success, ) = activity.creator.call{value: remaining}("");
+            require(success, "Refund transfer failed");
+        }
+        activity.isActive = false;
+    }
+    function getActivityStatus(
+        uint256 _activityId
+    ) external view returns (bool) {
+        return activities[_activityId].isActive;
     }
 }
