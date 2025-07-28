@@ -429,6 +429,32 @@ export class ActivityModel {
             throw new Error("Error getting battles for challenge");
         }
     }
+
+    async getIfExists(id: number): Promise<boolean> {
+        try {
+            const res = await db.select({
+                id: type1Activities.id
+            }).from(type1Activities)
+            .where(eq(type1Activities.id, id));
+
+            return res.length > 0;
+        } catch(err) {
+            console.error("Error getting if activity exists", err);
+            throw new Error("Error getting if activity exists");
+        }
+    }
+
+    async storeEndTxn(id: number, txn: string) {
+        try {
+            await db.update(type1Activities).set({
+                endTxn: txn,
+                done: true
+            }).where(eq(type1Activities.id, id));
+        } catch(err) {
+            console.error("Error storing end battle transaction", err);
+            throw new Error("Error storing end txn");
+        }
+    }
 }
 
 const activityModel = new ActivityModel();

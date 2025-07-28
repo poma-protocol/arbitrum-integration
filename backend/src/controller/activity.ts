@@ -2,6 +2,7 @@ import activityModel, { ActivityModel, ActivityStatus, RawDealCardDetails } from
 import { Errors, MyError } from "../helpers/errors";
 import { formatDate } from "../helpers/formatters";
 import { CommissionPaid, FilteredActivity, GetOperatorWalletSchema, RewardPaid, StoreOperatorWallet } from "../helpers/types";
+import { SmarContract } from "../smartcontract";
 
 interface DealCardDetails {
     id: number;
@@ -23,7 +24,7 @@ interface DealCardDetails {
 export const DEFAULT_FILTER_VALUE = 'all';
 export const DEFAULT_SEARCH_VALUE = '';
 
-class ActivityController {
+export class ActivityController {
     private _processRawDealCardDetails(raw: RawDealCardDetails[]): DealCardDetails[] {
         const featured: DealCardDetails[] = [];
         const today = new Date();
@@ -186,6 +187,24 @@ class ActivityController {
         } catch(err) {
             console.error("Error getting battles for challenges", err);
             throw new Error("Error getting battles for challenge");
+        }
+    }
+
+    async markEnded(id: number, activityModel: ActivityModel, smartcontract: SmarContract) {
+        try {
+            const activityExists = await activityModel.getIfExists(id);
+            if (activityExists === false) {
+                throw new MyError(Errors.MILESTONE_NOT_EXIST);
+            }
+
+            const endTxn = await smartcontract.markBattleEnded(id);
+            await activityModel.storeEndTxn(id, endTxn);
+        } catch(err) {
+            if (err instanceof MyError) {
+                throw err;
+            }
+            console.error("Error marking deal as ended", err);
+            throw new Error("Could not mark activity as ended");
         }
     }
 }

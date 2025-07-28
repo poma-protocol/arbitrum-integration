@@ -49,7 +49,8 @@ export const type1Activities = pgTable("type_1_activities", {
     adminId: integer("admin_id").references(() => gameAdmins.id, { onDelete: "cascade" }),
     creatorAddress: text("creator_address").notNull(),
     rewardTxn: text("activationtransactionhash"),
-    commissionTxn: text("commissiontransactionhash")
+    commissionTxn: text("commissiontransactionhash"),
+    endTxn: text("endtransaction")
 });
 
 export const type1ActivityInstructions = pgTable("type_1_activity_instructions", {
