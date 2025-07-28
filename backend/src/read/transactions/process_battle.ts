@@ -1,11 +1,21 @@
+import { ActivityController } from "../../controller/activity";
+import { ActivityModel } from "../../database/activity";
 import { Activity } from "../../game/getActivities";
 import { Errors, MyError } from "../../helpers/errors";
+import { SmarContract } from "../../smartcontract";
 import { _processForwadedEvent, _processNonForwardedEvent } from "./process_battle_helpers";
 import { getTransactions, TransactionResponse } from "./rpc";
 
-export default async function processBattle(activity: Activity, startBlock: number, endBlock: number | undefined): Promise<number> {
+export default async function processBattle(activity: Activity, startBlock: number, endBlock: number | undefined, activityController: ActivityController, activityModel: ActivityModel, smartcontract: SmarContract): Promise<number> {
     try {
         console.log(`\nActivity ID => ${activity.id}\n`);
+
+        // Check if activity has ended
+        if (new Date() > activity.endDate) {
+            await activityController.markEnded(activity.id, activityModel, smartcontract);
+            return endBlock ?? startBlock;
+        }
+
         const contract = activity.address;
         console.log(contract);
         const playerAddressVariable = activity.playerAddressVariable;

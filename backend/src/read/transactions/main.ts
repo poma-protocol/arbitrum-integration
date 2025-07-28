@@ -6,6 +6,8 @@ import lmdb from "../../store";
 import { START_BLOCK_KEY } from "../../helpers/constants";
 import processBattle from "./process_battle";
 import smartContract from "../../smartcontract";
+import activityController from "../../controller/activity";
+import activityModel from "../../database/activity";
 
 if (!process.env.BLOCK_NUMBER) {
     console.log("Need to set block number in env");
@@ -45,14 +47,14 @@ async function main() {
             // Processing battle activities
             for (let activity of activities) {
                 console.log("Start block ->", startBlock, "End block ->", endBlock);
-                const newEndBlock = await processBattle(activity, startBlock, endBlock);
+                const newEndBlock = await processBattle(activity, startBlock, endBlock, activityController, activityModel, smartContract);
                 if (newEndBlock && (endBlock === undefined || endBlock < newEndBlock)) {
                     endBlock = newEndBlock;
                 }
                 console.log("Returned endblock", newEndBlock, "Current endblock =>", endBlock);
             }
 
-            console.log(`\nProcessing Jackpots\n`);
+            // console.log(`\nProcessing Jackpots\n`);
             // Getting jackpot activities
             // const jackpots = await getJackpots();
 

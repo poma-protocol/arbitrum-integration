@@ -447,7 +447,8 @@ export class ActivityModel {
     async storeEndTxn(id: number, txn: string) {
         try {
             await db.update(type1Activities).set({
-                endTxn: txn
+                endTxn: txn,
+                done: true
             }).where(eq(type1Activities.id, id));
         } catch(err) {
             console.error("Error storing end battle transaction", err);

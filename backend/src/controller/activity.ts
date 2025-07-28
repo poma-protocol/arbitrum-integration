@@ -24,7 +24,7 @@ interface DealCardDetails {
 export const DEFAULT_FILTER_VALUE = 'all';
 export const DEFAULT_SEARCH_VALUE = '';
 
-class ActivityController {
+export class ActivityController {
     private _processRawDealCardDetails(raw: RawDealCardDetails[]): DealCardDetails[] {
         const featured: DealCardDetails[] = [];
         const today = new Date();

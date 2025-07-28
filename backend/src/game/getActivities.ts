@@ -1,7 +1,7 @@
 import { Errors, MyError } from "../helpers/errors";
 import { db } from "../db/pool";
 import { activityPlayers, games, type1Activities, type1Challenges, type1foundTransactions } from "../db/schema";
-import { eq, sql } from "drizzle-orm";
+import { and, eq, gt, isNotNull, lt, sql } from "drizzle-orm";
 
 export interface Activity {
     id: number,
@@ -19,7 +19,8 @@ export interface Activity {
     },
     methodDataAttributeName: string | null,
     wantedData: string | null,
-    countItems: boolean | null
+    countItems: boolean | null,
+    endDate: Date,
 }
 
 export async function getActivities(): Promise<Activity[]> {
@@ -54,8 +55,9 @@ export async function getActivities(): Promise<Activity[]> {
                     id: type1Activities.id,
                     goal: type1Activities.goal,
                     reward: type1Activities.reward,
+                    endDate: type1Activities.endDate,
                 }).from(type1Activities)
-                    .where(sql`${type1Activities.done} = false AND ${type1Activities.challenge_id} = ${challenge.id} AND ${type1Activities.startDate} < now() AND ${type1Activities.endDate} > now()`)
+                    .where(and(eq(type1Activities.done, false), eq(type1Activities.challenge_id, challenge.id), lt(type1Activities.startDate, new Date()), isNotNull(type1Activities.rewardTxn), isNotNull(type1Activities.commissionTxn)))
 
                 for (let activity of activities) {
 
@@ -103,7 +105,8 @@ export async function getActivities(): Promise<Activity[]> {
                             abi: challenge.abi,
                             methodDataAttributeName: challenge.methodDataAttributeName,
                             wantedData: challenge.wantedData,
-                            countItems: challenge.countItems
+                            countItems: challenge.countItems,
+                            endDate: activity.endDate
                         })
                     } else {
                         toReturn.push({
@@ -118,8 +121,8 @@ export async function getActivities(): Promise<Activity[]> {
                             abi: challenge.abi,
                             methodDataAttributeName: challenge.methodDataAttributeName,
                             wantedData: challenge.wantedData,
-                            countItems: challenge.countItems
-
+                            countItems: challenge.countItems,
+                            endDate: activity.endDate
                         })
                     }
                 }
