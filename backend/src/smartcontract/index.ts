@@ -24,15 +24,6 @@ export class SmarContract {
         }
     }
 
-    async test() {
-        try {
-            const chainID = await this.web3.eth.getChainId()
-            console.log("Chain =>", chainID);
-        } catch (err) {
-            console.log("Error =>", err);
-        }
-    }
-
     async createActivity(activityID: number, gameID: number, winningPoints: number, name: string, reward: number, creatorAddress: string, maximumNumberPlayers: number): Promise<string> {
         try {
             const account = await this.getAccount();
@@ -137,6 +128,32 @@ export class SmarContract {
         } catch(err) {
             console.log("Could not get latest block", err);
             throw new MyError(Errors.NOT_GET_LATEST_BLOCK);
+        }
+    }
+
+    async markBattleEnded(activityID: number): Promise<string> {
+        try {
+            const account = await this.getAccount();
+            const block = await web3.eth.getBlock();
+            const transaction = {
+                from: account.address,
+                to: process.env.CONTRACT,
+                data: contract.methods.endActivity(
+                    BigInt(activityID),
+                ).encodeABI(),
+                maxFeePerGas: block.baseFeePerGas! * 2n,
+                maxPriorityFeePerGas: 100000,
+            };
+
+            const signedTransaction = await web3.eth.accounts.signTransaction(
+                transaction,
+                account.privateKey,
+            );
+            const receipt = await web3.eth.sendSignedTransaction(signedTransaction.rawTransaction);
+            return receipt.transactionHash.toString();
+        } catch(err) {
+            console.error("Error marking battle as ended", err);
+            throw new Error("Error marking battle as ended");
         }
     }
 }
