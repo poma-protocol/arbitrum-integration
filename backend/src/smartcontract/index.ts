@@ -15,7 +15,12 @@ export class SmarContract {
 
     private async getAccount(): Promise<Web3Account> {
         try {
-            const privateKey = await infisical.getSecret("PRIVATE_KEY", process.env.INFISICAL_ENVIRONMENT);
+            let privateKey = await infisical.getSecret("PRIVATE_KEY", process.env.INFISICAL_ENVIRONMENT);
+
+            if(!privateKey.startsWith('0x')) {
+                privateKey = "0x" + privateKey;
+            }
+
             const account = web3.eth.accounts.privateKeyToAccount(privateKey);
             return account;
         } catch(err) {
